@@ -119,15 +119,31 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(11);
 
     const launch = () => this.startGame();
+    const isTouchDevice = window.matchMedia?.('(pointer: coarse)')?.matches || (navigator.maxTouchPoints || 0) > 0;
+
     button.setInteractive(new Phaser.Geom.Circle(0, 0, 84), Phaser.Geom.Circle.Contains);
     button.on('pointerdown', launch);
     hitArea.on('pointerdown', launch);
     hitArea.on('pointerup', launch);
-    this.input.on('pointerdown', (pointer, currentlyOver) => {
-      if (currentlyOver.includes(hitArea) || currentlyOver.includes(button)) {
+
+    if (isTouchDevice) {
+      this.add.text(GAME_WIDTH / 2, 682, "Touchez n'importe ou pour jouer", {
+        fontFamily: 'Georgia',
+        fontSize: '18px',
+        color: '#fff0bf',
+      }).setOrigin(0.5).setDepth(11);
+
+      this.input.once('pointerdown', () => {
         launch();
-      }
-    });
+      });
+    } else {
+      this.input.on('pointerdown', (pointer, currentlyOver) => {
+        if (currentlyOver.includes(hitArea) || currentlyOver.includes(button)) {
+          launch();
+        }
+      });
+    }
+
     this.input.keyboard.once('keydown-ENTER', launch);
 
     this.add.text(GAME_WIDTH / 2, 700, 'Arcade solo | Partie 6 minutes | Chaos croissant', {
