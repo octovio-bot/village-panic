@@ -98,10 +98,8 @@ export class MenuScene extends Phaser.Scene {
       height: 126,
     }).container;
     button.setSize(126, 126);
-    button.setInteractive(
-      new Phaser.Geom.Rectangle(-63, -63, 126, 126),
-      Phaser.Geom.Rectangle.Contains,
-    );
+    const hitArea = new Phaser.Geom.Circle(0, 0, 80);
+    button.setInteractive(hitArea, Phaser.Geom.Circle.Contains);
     const label = this.add.text(GAME_WIDTH / 2, 592, 'Jouer', {
       fontFamily: 'Georgia',
       fontSize: '27px',
@@ -114,6 +112,7 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     button.on('pointerdown', () => this.startGame());
+    button.on('pointerup', () => this.startGame());
     this.input.keyboard.once('keydown-ENTER', () => this.startGame());
 
     this.add.text(GAME_WIDTH / 2, 700, 'Arcade solo | Partie 6 minutes | Chaos croissant', {
