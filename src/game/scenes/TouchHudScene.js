@@ -39,6 +39,27 @@ export class TouchHudScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setInteractive();
 
+    this.orientationOverlay = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x08110c, 0.88)
+      .setScrollFactor(0)
+      .setDepth(190)
+      .setVisible(false);
+    this.orientationText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'Tourne ton appareil\nen mode paysage', {
+      fontFamily: 'Georgia',
+      fontSize: '34px',
+      align: 'center',
+      color: '#fff2d0',
+      stroke: '#2d1a10',
+      strokeThickness: 5,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(191).setVisible(false);
+    this.orientationHint = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 72, 'Le village se joue mieux avec le joystick a gauche\net le bouton action a droite.', {
+      fontFamily: 'Georgia',
+      fontSize: '20px',
+      align: 'center',
+      color: '#f3deb1',
+      stroke: '#2d1a10',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(191).setVisible(false);
+
     this.joyPointerId = null;
 
     this.baseZone.on('pointerdown', (pointer) => {
@@ -97,6 +118,10 @@ export class TouchHudScene extends Phaser.Scene {
     this.actionButton.setPosition(this.actionPos.x, this.actionPos.y).setRadius(this.actionRadius);
     this.actionLabel.setPosition(this.actionPos.x, this.actionPos.y).setFontSize(Math.round(24 * scaleFactor));
     this.baseZone.setPosition(this.joyBasePos.x, this.joyBasePos.y).setSize(this.joystickRadius * 2.8, this.joystickRadius * 2.8);
+
+    this.orientationOverlay.setPosition(width / 2, height / 2).setSize(width, height);
+    this.orientationText.setPosition(width / 2, height / 2).setFontSize(Math.round(34 * scaleFactor));
+    this.orientationHint.setPosition(width / 2, height / 2 + Math.round(72 * scaleFactor)).setFontSize(Math.round(20 * scaleFactor));
   }
 
   setHudActive(active) {
@@ -104,9 +129,24 @@ export class TouchHudScene extends Phaser.Scene {
     this.actionButton.setAlpha(active ? 0.82 : ACTION_ALPHA);
   }
 
+  isPortraitTouch() {
+    if (this.inputManager?.getControlMode() !== 'touch') {
+      return false;
+    }
+    const width = this.scale.gameSize.width;
+    const height = this.scale.gameSize.height;
+    return height > width;
+  }
+
   update() {
-    const visible = this.inputManager?.getControlMode() === 'touch';
+    const touchMode = this.inputManager?.getControlMode() === 'touch';
+    const portrait = this.isPortraitTouch();
+    const visible = touchMode && !portrait;
+
     [this.base, this.knob, this.actionButton, this.actionLabel, this.baseZone].forEach((obj) => obj.setVisible(visible));
+    this.orientationOverlay.setVisible(touchMode && portrait);
+    this.orientationText.setVisible(touchMode && portrait);
+    this.orientationHint.setVisible(touchMode && portrait);
   }
 
   updateJoystick(pointer) {
