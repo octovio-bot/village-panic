@@ -7,6 +7,7 @@ import { GameOverScene } from './game/scenes/GameOverScene.js';
 import { GameScene } from './game/scenes/GameScene.js';
 import { MenuScene } from './game/scenes/MenuScene.js';
 import { UIScene } from './game/scenes/UIScene.js';
+import { TouchHudScene } from './game/scenes/TouchHudScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -25,7 +26,7 @@ const config = {
       debug: false,
     },
   },
-  scene: [BootScene, AssetPreviewScene, MenuScene, GameScene, UIScene, GameOverScene],
+  scene: [BootScene, AssetPreviewScene, MenuScene, GameScene, UIScene, TouchHudScene, GameOverScene],
 };
 
 const game = new Phaser.Game(config);

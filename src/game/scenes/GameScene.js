@@ -24,6 +24,7 @@ import { InteractionSystem } from '../managers/InteractionSystem.js';
 import { OrderManager } from '../managers/OrderManager.js';
 import { SpawnManager } from '../managers/SpawnManager.js';
 import { createPlaque, setImageDisplayHeight } from '../ui/tinySwordsUi.js';
+import { InputManager } from '../input/InputManager.js';
 
 const PLAYER_ANIMS = {
   base: { idle: 'player-idle-base', run: 'player-run-base' },
@@ -89,15 +90,7 @@ export class GameScene extends Phaser.Scene {
     this.orderManager = new OrderManager(this);
     this.orderManager.initialize();
 
-    this.cursors = this.input.keyboard.createCursorKeys();
-    this.keys = this.input.keyboard.addKeys({
-      up: Phaser.Input.Keyboard.KeyCodes.W,
-      down: Phaser.Input.Keyboard.KeyCodes.S,
-      left: Phaser.Input.Keyboard.KeyCodes.A,
-      right: Phaser.Input.Keyboard.KeyCodes.D,
-      interact: Phaser.Input.Keyboard.KeyCodes.E,
-      stun: Phaser.Input.Keyboard.KeyCodes.SPACE
-    });
+    this.inputManager = new InputManager(this);
 
     this.events.on('order-failed', (order) => {
       const replacementSite = this.recycleConstructionSite(order.siteId);
@@ -115,6 +108,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.scene.launch('UIScene');
+    this.scene.launch('TouchHudScene');
   }
 
   createWorld() {
@@ -541,7 +535,7 @@ export class GameScene extends Phaser.Scene {
     this.updateInteractionEntries();
     this.updateToast(time);
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.interact) || Phaser.Input.Keyboard.JustDown(this.keys.stun)) {
+    if (this.inputManager.consumeActionPressed()) {
       this.handleAction();
     }
   }
@@ -557,12 +551,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    const horizontal = (this.cursors.left.isDown || this.keys.left.isDown ? -1 : 0)
-      + (this.cursors.right.isDown || this.keys.right.isDown ? 1 : 0);
-    const vertical = (this.cursors.up.isDown || this.keys.up.isDown ? -1 : 0)
-      + (this.cursors.down.isDown || this.keys.down.isDown ? 1 : 0);
-
-    const direction = new Phaser.Math.Vector2(horizontal, vertical).normalize();
+    const direction = this.inputManager.getMoveVector();
     this.player.body.setVelocity(direction.x * PLAYER_SPEED, direction.y * PLAYER_SPEED);
 
     if (direction.x < 0) {
@@ -960,15 +949,15 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (interaction.type === 'station') {
-      return '[E] Utiliser la forge';
+      return '[Action] Utiliser la forge';
     }
 
     if (interaction.type === 'site') {
-      return '[E] Livrer au chantier';
+      return '[Action] Livrer au chantier';
     }
 
     if (interaction.type === 'monster') {
-      return '[Espace] Etourdir le monstre';
+      return '[Action] Etourdir le monstre';
     }
 
     return 'Interagir';
