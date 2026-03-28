@@ -5,9 +5,12 @@ import { createPlaque, createThreeSliceHorizontal } from '../ui/tinySwordsUi.js'
 export class MenuScene extends Phaser.Scene {
   constructor() {
     super('MenuScene');
+    this.started = false;
   }
 
   create() {
+    this.started = false;
+
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'tinyswords.terrain.tilemap2')
       .setDisplaySize(GAME_WIDTH * 1.2, GAME_HEIGHT * 1.2)
       .setAlpha(0.28);
@@ -75,8 +78,8 @@ export class MenuScene extends Phaser.Scene {
 
     [
       'Deplacement: WASD ou fleches',
-      'Action: E ou Espace',
-      'Un seul objet porte a la fois',
+      'Action: Espace / E / bouton action',
+      'Joystick tactile a gauche sur mobile',
       'Etourdis les monstres au contact',
     ].forEach((line, index) => {
       this.add.text(812, 360 + (index * 39), `- ${line}`, {
@@ -87,7 +90,7 @@ export class MenuScene extends Phaser.Scene {
       });
     });
 
-    this.add.rectangle(GAME_WIDTH / 2, 620, 300, 124, 0x0e1a13, 0.7)
+    this.add.rectangle(GAME_WIDTH / 2, 620, 320, 140, 0x0e1a13, 0.7)
       .setStrokeStyle(3, 0xe7d6a0, 0.22);
 
     const button = createPlaque(this, {
@@ -98,22 +101,34 @@ export class MenuScene extends Phaser.Scene {
       height: 126,
     }).container;
     button.setSize(126, 126);
-    const hitArea = new Phaser.Geom.Circle(0, 0, 80);
-    button.setInteractive(hitArea, Phaser.Geom.Circle.Contains);
+
+    const hitArea = this.add.zone(GAME_WIDTH / 2, 592, 240, 170)
+      .setRectangleDropZone(240, 170)
+      .setInteractive();
+    hitArea.setDepth(10);
+
     const label = this.add.text(GAME_WIDTH / 2, 592, 'Jouer', {
       fontFamily: 'Georgia',
       fontSize: '27px',
       color: '#f8f0cf',
-    }).setOrigin(0.5);
-    const helper = this.add.text(GAME_WIDTH / 2, 650, 'Cliquez ou appuyez sur Entree', {
+    }).setOrigin(0.5).setDepth(11);
+    const helper = this.add.text(GAME_WIDTH / 2, 650, 'Touchez ici ou appuyez sur Entree', {
       fontFamily: 'Georgia',
       fontSize: '17px',
       color: '#f0e1b6',
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setDepth(11);
 
-    button.on('pointerdown', () => this.startGame());
-    button.on('pointerup', () => this.startGame());
-    this.input.keyboard.once('keydown-ENTER', () => this.startGame());
+    const launch = () => this.startGame();
+    button.setInteractive(new Phaser.Geom.Circle(0, 0, 84), Phaser.Geom.Circle.Contains);
+    button.on('pointerdown', launch);
+    hitArea.on('pointerdown', launch);
+    hitArea.on('pointerup', launch);
+    this.input.on('pointerdown', (pointer, currentlyOver) => {
+      if (currentlyOver.includes(hitArea) || currentlyOver.includes(button)) {
+        launch();
+      }
+    });
+    this.input.keyboard.once('keydown-ENTER', launch);
 
     this.add.text(GAME_WIDTH / 2, 700, 'Arcade solo | Partie 6 minutes | Chaos croissant', {
       fontFamily: 'Georgia',
@@ -137,6 +152,8 @@ export class MenuScene extends Phaser.Scene {
   }
 
   startGame() {
+    if (this.started) return;
+    this.started = true;
     this.scene.start('GameScene');
   }
 }
