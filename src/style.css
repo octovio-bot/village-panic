@@ -21,17 +21,23 @@ body,
 body {
   min-height: 100vh;
   overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 #game-shell {
   width: 100vw;
+  width: 100dvw;
   height: 100vh;
+  height: 100dvh;
   padding: 0;
 }
 
 #game-container {
   width: 100vw;
+  width: 100dvw;
   height: 100vh;
+  height: 100dvh;
   border: 0;
   border-radius: 0;
   overflow: hidden;
@@ -43,4 +49,9 @@ body {
 
 canvas {
   display: block;
+}
+
+
+#game-container {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }

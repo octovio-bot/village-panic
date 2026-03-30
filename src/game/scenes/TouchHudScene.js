@@ -25,8 +25,7 @@ export class TouchHudScene extends Phaser.Scene {
     this.actionButton = this.add.circle(0, 0, 10, 0x8b2c2c, ACTION_ALPHA)
       .setStrokeStyle(3, 0xf7e8bd, 0.35)
       .setScrollFactor(0)
-      .setDepth(140)
-      .setInteractive();
+      .setDepth(140);
     this.actionLabel = this.add.text(0, 0, 'ACT', {
       fontFamily: 'Georgia',
       fontSize: '24px',
@@ -36,6 +35,9 @@ export class TouchHudScene extends Phaser.Scene {
     }).setOrigin(0.5).setScrollFactor(0).setDepth(141);
 
     this.baseZone = this.add.zone(0, 0, 10, 10)
+      .setScrollFactor(0)
+      .setInteractive();
+    this.actionZone = this.add.zone(0, 0, 10, 10)
       .setScrollFactor(0)
       .setInteractive();
 
@@ -61,10 +63,19 @@ export class TouchHudScene extends Phaser.Scene {
     }).setOrigin(0.5).setScrollFactor(0).setDepth(191).setVisible(false);
 
     this.joyPointerId = null;
+    this.actionPointerId = null;
 
     this.baseZone.on('pointerdown', (pointer) => {
       this.joyPointerId = pointer.id;
       this.updateJoystick(pointer);
+      this.setHudActive(true);
+    });
+
+    this.actionZone.on('pointerdown', (pointer) => {
+      this.actionPointerId = pointer.id;
+      this.inputManager.setTouchActionHeld(true);
+      this.inputManager.pulseTouchAction();
+      this.actionButton.setScale(0.94);
       this.setHudActive(true);
     });
 
@@ -79,21 +90,17 @@ export class TouchHudScene extends Phaser.Scene {
         this.joyPointerId = null;
         this.resetJoystick();
       }
+      if (this.actionPointerId === pointer.id) {
+        this.actionPointerId = null;
+        this.releaseAction();
+      }
     });
 
-    this.actionButton.on('pointerdown', () => {
-      this.inputManager.setTouchActionHeld(true);
-      this.inputManager.pulseTouchAction();
-      this.actionButton.setScale(0.94);
-      this.setHudActive(true);
-    });
-    this.actionButton.on('pointerup', () => {
-      this.inputManager.setTouchActionHeld(false);
-      this.actionButton.setScale(1);
-    });
-    this.actionButton.on('pointerout', () => {
-      this.inputManager.setTouchActionHeld(false);
-      this.actionButton.setScale(1);
+    this.input.on('pointerupoutside', (pointer) => {
+      if (this.actionPointerId === pointer.id) {
+        this.actionPointerId = null;
+        this.releaseAction();
+      }
     });
 
     this.layoutHud({ width: GAME_WIDTH, height: GAME_HEIGHT });
@@ -103,8 +110,8 @@ export class TouchHudScene extends Phaser.Scene {
     const width = gameSize.width;
     const height = gameSize.height;
     const scaleFactor = Phaser.Math.Clamp(Math.min(width / GAME_WIDTH, height / GAME_HEIGHT), 0.78, 1.22);
-    const safeBottom = height < 500 ? 88 : 110;
-    const safeSide = width < 700 ? 84 : 110;
+    const safeBottom = height < 500 ? 78 : 104;
+    const safeSide = width < 700 ? 78 : 104;
 
     this.joystickRadius = Math.round(72 * scaleFactor);
     this.knobRadius = Math.round(30 * scaleFactor);
@@ -118,6 +125,7 @@ export class TouchHudScene extends Phaser.Scene {
     this.actionButton.setPosition(this.actionPos.x, this.actionPos.y).setRadius(this.actionRadius);
     this.actionLabel.setPosition(this.actionPos.x, this.actionPos.y).setFontSize(Math.round(24 * scaleFactor));
     this.baseZone.setPosition(this.joyBasePos.x, this.joyBasePos.y).setSize(this.joystickRadius * 2.8, this.joystickRadius * 2.8);
+    this.actionZone.setPosition(this.actionPos.x, this.actionPos.y).setSize(this.actionRadius * 3, this.actionRadius * 3);
 
     this.orientationOverlay.setPosition(width / 2, height / 2).setSize(width, height);
     this.orientationText.setPosition(width / 2, height / 2).setFontSize(Math.round(34 * scaleFactor));
@@ -143,7 +151,7 @@ export class TouchHudScene extends Phaser.Scene {
     const portrait = this.isPortraitTouch();
     const visible = touchMode && !portrait;
 
-    [this.base, this.knob, this.actionButton, this.actionLabel, this.baseZone].forEach((obj) => obj.setVisible(visible));
+    [this.base, this.knob, this.actionButton, this.actionLabel, this.baseZone, this.actionZone].forEach((obj) => obj.setVisible(visible));
     this.orientationOverlay.setVisible(touchMode && portrait);
     this.orientationText.setVisible(touchMode && portrait);
     this.orientationHint.setVisible(touchMode && portrait);
@@ -175,5 +183,10 @@ export class TouchHudScene extends Phaser.Scene {
     this.knob.setPosition(this.joyBasePos.x, this.joyBasePos.y);
     this.inputManager.clearTouchVector();
     this.setHudActive(false);
+  }
+
+  releaseAction() {
+    this.inputManager.setTouchActionHeld(false);
+    this.actionButton.setScale(1);
   }
 }
