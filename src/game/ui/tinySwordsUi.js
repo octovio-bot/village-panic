@@ -146,16 +146,20 @@ export function createNineSlice(scene, {
   const middleY = (-height / 2) + topHeight + (centerHeight / 2);
   const bottomY = (-height / 2) + topHeight + centerHeight + (bottomHeight / 2);
 
+  const leftX = (-width / 2) + (leftWidth / 2);
+  const centerX = (-width / 2) + leftWidth + (centerWidth / 2);
+  const rightX = (-width / 2) + leftWidth + centerWidth + (rightWidth / 2);
+
   const pieces = [
-    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: topRow.y, width: leftCol.width, height: topRow.height }, (-width / 2) + (leftWidth / 2), topY, leftWidth, topHeight, alpha),
-    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: topRow.y, width: centerCol.width, height: topRow.height }, 0, topY, centerWidth, topHeight, alpha, true),
-    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: topRow.y, width: rightCol.width, height: topRow.height }, (width / 2) - (rightWidth / 2), topY, rightWidth, topHeight, alpha),
-    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: middleRow.y, width: leftCol.width, height: middleRow.height }, (-width / 2) + (leftWidth / 2), middleY, leftWidth, centerHeight, alpha, true),
-    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: middleRow.y, width: centerCol.width, height: middleRow.height }, 0, middleY, centerWidth, centerHeight, alpha, true),
-    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: middleRow.y, width: rightCol.width, height: middleRow.height }, (width / 2) - (rightWidth / 2), middleY, rightWidth, centerHeight, alpha, true),
-    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: bottomRow.y, width: leftCol.width, height: bottomRow.height }, (-width / 2) + (leftWidth / 2), bottomY, leftWidth, bottomHeight, alpha),
-    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: bottomRow.y, width: centerCol.width, height: bottomRow.height }, 0, bottomY, centerWidth, bottomHeight, alpha, true),
-    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: bottomRow.y, width: rightCol.width, height: bottomRow.height }, (width / 2) - (rightWidth / 2), bottomY, rightWidth, bottomHeight, alpha),
+    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: topRow.y, width: leftCol.width, height: topRow.height }, leftX, topY, leftWidth, topHeight, alpha),
+    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: topRow.y, width: centerCol.width, height: topRow.height }, centerX, topY, centerWidth, topHeight, alpha, true),
+    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: topRow.y, width: rightCol.width, height: topRow.height }, rightX, topY, rightWidth, topHeight, alpha),
+    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: middleRow.y, width: leftCol.width, height: middleRow.height }, leftX, middleY, leftWidth, centerHeight, alpha, true),
+    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: middleRow.y, width: centerCol.width, height: middleRow.height }, centerX, middleY, centerWidth, centerHeight, alpha, true),
+    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: middleRow.y, width: rightCol.width, height: middleRow.height }, rightX, middleY, rightWidth, centerHeight, alpha, true),
+    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: bottomRow.y, width: leftCol.width, height: bottomRow.height }, leftX, bottomY, leftWidth, bottomHeight, alpha),
+    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: bottomRow.y, width: centerCol.width, height: bottomRow.height }, centerX, bottomY, centerWidth, bottomHeight, alpha, true),
+    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: bottomRow.y, width: rightCol.width, height: bottomRow.height }, rightX, bottomY, rightWidth, bottomHeight, alpha),
   ];
 
   pieces.forEach((piece) => container.add(piece));
