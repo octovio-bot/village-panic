@@ -861,23 +861,39 @@ export class AssetPreviewScene extends Phaser.Scene {
     }
 
     if (entry.meta.category === 'ui-bar') {
+      const baseWidth = 360;
+      const baseHeight = 51;
+      const fillInsetLeft = 18;
+      const fillInsetRight = 18;
+      const fillInsetVertical = 9;
+      const fillRatio = 0.72;
+      const usableFillWidth = baseWidth - fillInsetLeft - fillInsetRight;
+      const fillWidth = usableFillWidth * fillRatio;
+      const fillHeight = baseHeight - (fillInsetVertical * 2);
+
       const base = createThreeSliceHorizontal(this, {
         x: GAME_WIDTH / 2,
         y: 330,
         textureKey: 'tinyswords.ui.bigbar.base.frame',
-        width: 360,
-        height: 51,
+        width: baseWidth,
+        height: baseHeight,
       }).container;
-      const fill = this.add.tileSprite(GAME_WIDTH / 2 - 122, 330, 244, 26, 'tinyswords.ui.bigbar.fill')
+      const fill = this.add.tileSprite(
+        (GAME_WIDTH / 2) - (baseWidth / 2) + fillInsetLeft,
+        330,
+        fillWidth,
+        fillHeight,
+        'tinyswords.ui.bigbar.fill'
+      )
         .setOrigin(0, 0.5)
         .setDepth(5);
-      const label = this.add.text(GAME_WIDTH / 2, 330, 'CHAOS', {
-        fontFamily: 'Georgia', fontSize: '22px', color: '#31140f'
-      }).setOrigin(0.5).setDepth(6);
-      const code = this.add.text(120, 500, "createThreeSliceHorizontal(... 'tinyswords.ui.bigbar.base.frame') + tileSprite('tinyswords.ui.bigbar.fill')", {
+      fill.tileScaleX = fillHeight / 64;
+      fill.tileScaleY = fillHeight / 64;
+
+      const code = this.add.text(120, 500, "createThreeSliceHorizontal(... 'tinyswords.ui.bigbar.base.frame') + tileSprite fill avec largeur variable", {
         fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
       }).setDepth(5);
-      attach(base, fill, label, code);
+      attach(base, fill, code);
     }
 
     if (entry.meta.category === 'ui-ribbon') {
