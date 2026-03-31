@@ -169,16 +169,23 @@ export class GameScene extends Phaser.Scene {
     });
 
     [
-      { x: 278, y: 620, texture: 'tinyswords.decor.bush1', scale: 1.5 },
-      { x: 732, y: 162, texture: 'tinyswords.decor.rock1', scale: 1.3 },
-      { x: 2224, y: 216, texture: 'tinyswords.decor.rock1', scale: 1.4 },
-      { x: 2840, y: 592, texture: 'tinyswords.decor.bush1', scale: 1.4 },
-      { x: 2484, y: 1188, texture: 'tinyswords.decor.bush1', scale: 1.3 },
-      { x: 322, y: 1548, texture: 'tinyswords.decor.rock1', scale: 1.25 },
-      { x: 1194, y: 1410, texture: 'tinyswords.decor.bush1', scale: 1.1 },
-      { x: 1950, y: 1504, texture: 'tinyswords.decor.rock1', scale: 1.15 },
-    ].forEach((decor) => {
-      const sprite = this.add.image(decor.x, decor.y, decor.texture).setScale(decor.scale).setDepth(1);
+      { x: 278, y: 620, texture: 'tinyswords.decor.bush1', scale: 1.5, kind: 'bush' },
+      { x: 732, y: 162, texture: 'tinyswords.decor.rock1', scale: 1.3, kind: 'rock' },
+      { x: 2224, y: 216, texture: 'tinyswords.decor.rock1', scale: 1.4, kind: 'rock' },
+      { x: 2840, y: 592, texture: 'tinyswords.decor.bush1', scale: 1.4, kind: 'bush' },
+      { x: 2484, y: 1188, texture: 'tinyswords.decor.bush1', scale: 1.3, kind: 'bush' },
+      { x: 322, y: 1548, texture: 'tinyswords.decor.rock1', scale: 1.25, kind: 'rock' },
+      { x: 1194, y: 1410, texture: 'tinyswords.decor.bush1', scale: 1.1, kind: 'bush' },
+      { x: 1950, y: 1504, texture: 'tinyswords.decor.rock1', scale: 1.15, kind: 'rock' },
+    ].forEach((decor, index) => {
+      const sprite = decor.kind === 'bush'
+        ? this.add.sprite(decor.x, decor.y, 'tinyswords.decor.bushes', index % 4).play('bush-wind')
+        : this.add.image(decor.x, decor.y, decor.texture);
+      sprite.setScale(decor.scale).setDepth(1);
+      if (decor.kind === 'bush') {
+        sprite.anims.msPerFrame += (index % 3) * 18;
+        sprite.anims.setProgress((index * 0.17) % 1);
+      }
       this.blockingDecor.push({
         ...decor,
         sprite,
@@ -441,6 +448,12 @@ export class GameScene extends Phaser.Scene {
         sprite = this.add.sprite(node.x, node.y, node.texture, 0).setDepth(4);
         sprite.play('sheep-idle');
         sprite.setScale(0.58);
+      } else if (node.resourceType === 'wood') {
+        sprite = this.add.sprite(node.x, node.y, 'tinyswords.resources.trees', node.id === 'wood-2' ? 1 : 0).setDepth(4);
+        sprite.play('tree-wind');
+        sprite.setScale(1.3);
+        sprite.anims.msPerFrame += node.id === 'wood-2' ? 40 : 0;
+        sprite.anims.setProgress(node.id === 'wood-2' ? 0.45 : 0.1);
       } else {
         sprite = this.add.image(node.x, node.y, node.texture).setDepth(4);
         sprite.setScale(node.resourceType === 'gold' ? 1.15 : 1.3);
