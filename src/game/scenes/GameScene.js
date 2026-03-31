@@ -450,7 +450,7 @@ export class GameScene extends Phaser.Scene {
         sprite.setScale(0.58);
       } else if (node.resourceType === 'wood') {
         sprite = this.add.sprite(node.x, node.y, node.texture, 0).setDepth(4);
-        sprite.setScale(1.3);
+        setImageDisplayHeight(this, sprite, 210);
         const treeAnimKey = node.texture.replace('tinyswords.resources.', '') + '-wind';
         sprite.play(treeAnimKey);
         const treeOffsets = {
