@@ -34,14 +34,24 @@ window.__VILLAGE_PANIC__ = game;
 
 const requestFullscreenIfPossible = async () => {
   const root = document.documentElement;
-  if (!document.fullscreenEnabled || document.fullscreenElement || !root?.requestFullscreen) {
+  const candidate = root?.requestFullscreen
+    || root?.webkitRequestFullscreen
+    || root?.msRequestFullscreen;
+
+  if (!candidate || document.fullscreenElement) {
     return false;
   }
+
   try {
-    await root.requestFullscreen({ navigationUI: 'hide' });
+    await candidate.call(root, { navigationUI: 'hide' });
     return true;
   } catch {
-    return false;
+    try {
+      await candidate.call(root);
+      return true;
+    } catch {
+      return false;
+    }
   }
 };
 

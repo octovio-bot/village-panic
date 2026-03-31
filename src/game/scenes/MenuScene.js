@@ -171,10 +171,11 @@ export class MenuScene extends Phaser.Scene {
     if (this.started) return;
     this.started = true;
 
-    if (window.__requestVillagePanicFullscreen__ && window.__isVillagePanicStandalone__?.()) {
+    if (window.__requestVillagePanicFullscreen__) {
       await window.__requestVillagePanicFullscreen__();
     }
 
+    this.scale.refresh();
     this.scene.start('GameScene');
   }
 }
