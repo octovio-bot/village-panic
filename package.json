@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "playwright test"
   },
   "dependencies": {
     "phaser": "^3.90.0"
   },
   "devDependencies": {
     "@playwright/cli": "^0.1.1",
+    "@playwright/test": "^1.58.2",
     "playwright": "^1.58.2",
     "vite": "^7.1.0"
   }
