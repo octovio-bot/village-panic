@@ -47,6 +47,11 @@ const THREE_SLICE_DEFS = {
     cols: [{ x: 40, width: 24 }, { x: 128, width: 64 }, { x: 256, width: 24 }],
     rows: [{ y: 9, height: 51 }],
   },
+  'tinyswords.ui.smallbar.base.frame': {
+    textureKey: 'tinyswords.ui.smallbar.base',
+    cols: [{ x: 40, width: 24 }, { x: 128, width: 64 }, { x: 256, width: 24 }],
+    rows: [{ y: 9, height: 51 }],
+  },
   'tinyswords.ui.ribbons.big': {
     textureKey: 'tinyswords.ui.ribbons.big',
     cols: [{ x: 30, width: 98 }, { x: 192, width: 64 }, { x: 320, width: 97 }],

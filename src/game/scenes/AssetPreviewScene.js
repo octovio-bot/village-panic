@@ -649,7 +649,8 @@ export class AssetPreviewScene extends Phaser.Scene {
       { label: 'UI example · bouton rouge', kind: 'ui-example', meta: { category: 'ui-button', categoryGroup: 'ui' } },
       { label: 'UI example · cadre papier', kind: 'ui-example', meta: { category: 'ui-paper', categoryGroup: 'ui' } },
       { label: 'UI example · wood table', kind: 'ui-example', meta: { category: 'ui-wood-table', categoryGroup: 'ui' } },
-      { label: 'UI example · big bar', kind: 'ui-example', meta: { category: 'ui-bar', categoryGroup: 'ui' } },
+      { label: 'UI example · big + small bar', kind: 'ui-example', meta: { category: 'ui-bars', categoryGroup: 'ui' } },
+      { label: 'UI example · banner page', kind: 'ui-example', meta: { category: 'ui-banner-page', categoryGroup: 'ui' } },
       { label: 'UI example · ribbon + swords', kind: 'ui-example', meta: { category: 'ui-ribbon', categoryGroup: 'ui' } }
     );
 
@@ -860,40 +861,70 @@ export class AssetPreviewScene extends Phaser.Scene {
       attach(plaque, code);
     }
 
-    if (entry.meta.category === 'ui-bar') {
-      const baseWidth = 360;
-      const baseHeight = 51;
-      const fillInsetLeft = 10;
-      const fillInsetRight = 18;
-      const fillInsetVertical = 5;
-      const fillRatio = 0.72;
-      const usableFillWidth = baseWidth - fillInsetLeft - fillInsetRight;
-      const fillWidth = usableFillWidth * fillRatio;
-      const fillHeight = baseHeight - (fillInsetVertical * 2);
+    if (entry.meta.category === 'ui-bars') {
+      const makeBar = ({ y, width, textureBase, textureFill, ratio, label }) => {
+        const baseHeight = 51;
+        const fillInsetLeft = 10;
+        const fillInsetRight = 18;
+        const fillInsetVertical = 5;
+        const usableFillWidth = width - fillInsetLeft - fillInsetRight;
+        const fillWidth = usableFillWidth * ratio;
+        const fillHeight = baseHeight - (fillInsetVertical * 2);
 
-      const base = createThreeSliceHorizontal(this, {
-        x: GAME_WIDTH / 2,
-        y: 330,
-        textureKey: 'tinyswords.ui.bigbar.base.frame',
-        width: baseWidth,
-        height: baseHeight,
-      }).container;
-      const fill = this.add.tileSprite(
-        (GAME_WIDTH / 2) - (baseWidth / 2) + fillInsetLeft,
-        330,
-        fillWidth,
-        fillHeight,
-        'tinyswords.ui.bigbar.fill'
-      )
-        .setOrigin(0, 0.5)
-        .setDepth(5);
-      fill.tileScaleX = fillHeight / 64;
-      fill.tileScaleY = fillHeight / 64;
+        const base = createThreeSliceHorizontal(this, {
+          x: GAME_WIDTH / 2,
+          y,
+          textureKey: textureBase,
+          width,
+          height: baseHeight,
+        }).container;
+        const fill = this.add.tileSprite(
+          (GAME_WIDTH / 2) - (width / 2) + fillInsetLeft,
+          y,
+          fillWidth,
+          fillHeight,
+          textureFill
+        )
+          .setOrigin(0, 0.5)
+          .setDepth(5);
+        fill.tileScaleX = fillHeight / 64;
+        fill.tileScaleY = fillHeight / 64;
+        const text = this.add.text(120, y - 34, label, {
+          fontFamily: 'Georgia', fontSize: '18px', color: '#f4f0d8'
+        }).setDepth(5);
+        attach(base, fill, text);
+      };
 
-      const code = this.add.text(120, 500, "createThreeSliceHorizontal(... 'tinyswords.ui.bigbar.base.frame') + tileSprite fill avec largeur variable", {
+      makeBar({ y: 290, width: 360, textureBase: 'tinyswords.ui.bigbar.base.frame', textureFill: 'tinyswords.ui.bigbar.fill', ratio: 0.72, label: 'Big bar' });
+      makeBar({ y: 390, width: 300, textureBase: 'tinyswords.ui.smallbar.base.frame', textureFill: 'tinyswords.ui.smallbar.fill', ratio: 0.48, label: 'Small bar' });
+
+      const code = this.add.text(120, 500, "big/small bar : 3-slice base + tileSprite fill avec largeur variable", {
         fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
       }).setDepth(5);
-      attach(base, fill, code);
+      attach(code);
+    }
+
+    if (entry.meta.category === 'ui-banner-page') {
+      const banner = createPlaque(this, {
+        x: GAME_WIDTH / 2,
+        y: 320,
+        frameKey: 'tinyswords.ui.banner.frame',
+        fillKey: 'tinyswords.ui.banner.fill',
+        width: 420,
+        height: 240,
+        fillInsetX: 28,
+        fillInsetY: 28,
+      }).container;
+      const title = this.add.text(GAME_WIDTH / 2, 265, 'Village Panic', {
+        fontFamily: 'Georgia', fontSize: '30px', color: '#57311a'
+      }).setOrigin(0.5).setDepth(5);
+      const subtitle = this.add.text(GAME_WIDTH / 2, 330, 'Nouvelle vague arrive !', {
+        fontFamily: 'Georgia', fontSize: '22px', color: '#4f341f'
+      }).setOrigin(0.5).setDepth(5);
+      const code = this.add.text(120, 500, "createPlaque(... frameKey: 'tinyswords.ui.banner.frame', fillKey: 'tinyswords.ui.banner.fill')", {
+        fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
+      }).setDepth(5);
+      attach(banner, title, subtitle, code);
     }
 
     if (entry.meta.category === 'ui-ribbon') {
