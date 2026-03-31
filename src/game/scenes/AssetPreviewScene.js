@@ -846,13 +846,13 @@ export class AssetPreviewScene extends Phaser.Scene {
     if (entry.meta.category === 'ui-wood-table') {
       const plaque = createPlaque(this, {
         x: GAME_WIDTH / 2,
-        y: 338,
+        y: 332,
         frameKey: 'tinyswords.ui.wood-table.frame',
         fillKey: 'tinyswords.ui.wood-table.fill',
-        width: 420,
-        height: 230,
-        fillInsetX: 24,
-        fillInsetY: 24,
+        width: 360,
+        height: 360,
+        fillInsetX: 28,
+        fillInsetY: 28,
       }).container;
       const code = this.add.text(120, 500, "createPlaque(... frameKey: 'tinyswords.ui.wood-table.frame', fillKey: 'tinyswords.ui.wood-table.fill')", {
         fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
