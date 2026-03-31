@@ -18,6 +18,7 @@ const CURSOR_KEYS = [
 ];
 
 const ASSET_BASE_URL = `${import.meta.env.BASE_URL}assets/tinyswords`;
+const MANIFEST_BASE_PATH = assetManifest.meta.basePath;
 
 export class AssetPreviewScene extends Phaser.Scene {
   constructor() {
@@ -355,13 +356,14 @@ export class AssetPreviewScene extends Phaser.Scene {
     const entries = [];
     const basePath = assetManifest.meta.basePath;
     const unitsPath = assetManifest.units.pathTemplate;
+    const assetPath = (relativePath) => this.resolveAssetPath(`${basePath}/${relativePath}`);
 
     assetManifest.buildings.colorVariants.forEach((color) => {
       Object.keys(assetManifest.buildings.types).forEach((type) => {
         entries.push({
           label: `Building · ${color}/${type}`,
           kind: 'image',
-          path: `${basePath}/${assetManifest.buildings.pathTemplate.replace('{Color}', this.capitalize(color)).replace('{type}', type)}`,
+          path: assetPath(assetManifest.buildings.pathTemplate.replace('{Color}', this.capitalize(color)).replace('{type}', type)),
           meta: { category: 'building', color, type },
           fit: 'height',
           targetSize: 260,
@@ -400,7 +402,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Terrain tilemap · ${key}`,
         kind: 'sheet',
-        path: `${basePath}/Terrain/Tileset/${value.file}`,
+        path: assetPath(`Terrain/Tileset/${value.file}`),
         frameConfig: { frameWidth: 64, frameHeight: 64 },
         frames: value.columns * value.rows,
         meta: { category: 'terrain-tilemap', ...value },
@@ -412,7 +414,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     entries.push({
       label: 'Terrain water background',
       kind: 'image',
-      path: `${basePath}/Terrain/Tileset/${assetManifest.terrain.tileset.water.background.file}`,
+      path: assetPath(`Terrain/Tileset/${assetManifest.terrain.tileset.water.background.file}`),
       meta: { category: 'terrain-water' },
       fit: 'width',
       targetSize: 320,
@@ -421,7 +423,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     entries.push({
       label: 'Terrain water foam',
       kind: 'sheet',
-      path: `${basePath}/Terrain/Tileset/${assetManifest.terrain.tileset.water.foam.file}`,
+      path: assetPath(`Terrain/Tileset/${assetManifest.terrain.tileset.water.foam.file}`),
       frameConfig: {
         frameWidth: assetManifest.terrain.tileset.water.foam.frameWidth,
         frameHeight: assetManifest.terrain.tileset.water.foam.height,
@@ -435,7 +437,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     entries.push({
       label: 'Terrain shadow',
       kind: 'image',
-      path: `${basePath}/Terrain/Tileset/${assetManifest.terrain.tileset.shadow.file}`,
+      path: assetPath(`Terrain/Tileset/${assetManifest.terrain.tileset.shadow.file}`),
       meta: { category: 'terrain-shadow' },
       fit: 'height',
       targetSize: 220,
@@ -445,7 +447,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Decoration bush · ${item.file}`,
         kind: 'sheet',
-        path: `${basePath}/Terrain/Decorations/Bushes/${item.file}`,
+        path: assetPath(`Terrain/Decorations/Bushes/${item.file}`),
         frameConfig: assetManifest.terrain.decorations.bushes.frameSize,
         frames: item.frames,
         meta: { category: 'terrain-bush' },
@@ -458,7 +460,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Decoration cloud · ${item.file}`,
         kind: 'image',
-        path: `${basePath}/Terrain/Decorations/Clouds/${item.file}`,
+        path: assetPath(`Terrain/Decorations/Clouds/${item.file}`),
         meta: { category: 'terrain-cloud' },
         fit: 'width',
         targetSize: 440,
@@ -469,7 +471,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Decoration rock · ${item}`,
         kind: 'image',
-        path: `${basePath}/Terrain/Decorations/Rocks/${item}`,
+        path: assetPath(`Terrain/Decorations/Rocks/${item}`),
         meta: { category: 'terrain-rock' },
         fit: 'height',
         targetSize: 140,
@@ -480,7 +482,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Decoration water rock · ${item.file}`,
         kind: 'sheet',
-        path: `${basePath}/Terrain/Decorations/Rocks in the Water/${item.file}`,
+        path: assetPath(`Terrain/Decorations/Rocks in the Water/${item.file}`),
         frameConfig: assetManifest.terrain.decorations.waterRocks.frameSize,
         frames: item.frames,
         meta: { category: 'terrain-water-rock' },
@@ -492,7 +494,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     entries.push({
       label: 'Decoration rubber duck',
       kind: 'sheet',
-      path: `${basePath}/Terrain/Decorations/Rubber Duck/${assetManifest.terrain.decorations.rubberDuck.file}`,
+      path: assetPath(`Terrain/Decorations/Rubber Duck/${assetManifest.terrain.decorations.rubberDuck.file}`),
       frameConfig: {
         frameWidth: assetManifest.terrain.decorations.rubberDuck.frameWidth,
         frameHeight: assetManifest.terrain.decorations.rubberDuck.height,
@@ -507,7 +509,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Gold stone · ${item.normal}`,
         kind: 'image',
-        path: `${basePath}/Terrain/Resources/Gold/Gold Stones/${item.normal}`,
+        path: assetPath(`Terrain/Resources/Gold/Gold Stones/${item.normal}`),
         meta: { category: 'gold-stone' },
         fit: 'height',
         targetSize: 180,
@@ -515,7 +517,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Gold stone highlight · ${item.highlight}`,
         kind: 'sheet',
-        path: `${basePath}/Terrain/Resources/Gold/Gold Stones/${item.highlight}`,
+        path: assetPath(`Terrain/Resources/Gold/Gold Stones/${item.highlight}`),
         frameConfig: { frameWidth: 128, frameHeight: 128 },
         frames: assetManifest.terrain.resources.gold.stones.highlightFrames,
         meta: { category: 'gold-stone-highlight' },
@@ -527,7 +529,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     entries.push({
       label: 'Gold resource',
       kind: 'image',
-      path: `${basePath}/Terrain/Resources/Gold/Gold Resource/${assetManifest.terrain.resources.gold.resource.normal.file}`,
+      path: assetPath(`Terrain/Resources/Gold/Gold Resource/${assetManifest.terrain.resources.gold.resource.normal.file}`),
       meta: { category: 'gold-resource' },
       fit: 'height',
       targetSize: 180,
@@ -535,7 +537,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     entries.push({
       label: 'Gold resource highlight',
       kind: 'sheet',
-      path: `${basePath}/Terrain/Resources/Gold/Gold Resource/${assetManifest.terrain.resources.gold.resource.highlight.file}`,
+      path: assetPath(`Terrain/Resources/Gold/Gold Resource/${assetManifest.terrain.resources.gold.resource.highlight.file}`),
       frameConfig: { frameWidth: 128, frameHeight: 128 },
       frames: assetManifest.terrain.resources.gold.resource.highlight.frames,
       meta: { category: 'gold-resource-highlight' },
@@ -547,7 +549,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Wood tree · ${item.tree}`,
         kind: 'sheet',
-        path: `${basePath}/Terrain/Resources/Wood/Trees/${item.tree}`,
+        path: assetPath(`Terrain/Resources/Wood/Trees/${item.tree}`),
         frameConfig: { frameWidth: item.width / item.frames, frameHeight: item.height },
         frames: item.frames,
         meta: { category: 'wood-tree', stump: item.stump },
@@ -557,7 +559,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Wood stump · ${item.stump}`,
         kind: 'image',
-        path: `${basePath}/Terrain/Resources/Wood/Trees/${item.stump}`,
+        path: assetPath(`Terrain/Resources/Wood/Trees/${item.stump}`),
         meta: { category: 'wood-stump', index },
         fit: 'height',
         targetSize: 180,
@@ -567,7 +569,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     entries.push({
       label: 'Wood resource',
       kind: 'image',
-      path: `${basePath}/Terrain/Resources/Wood/Wood Resource/${assetManifest.terrain.resources.wood.resource.file}`,
+      path: assetPath(`Terrain/Resources/Wood/Wood Resource/${assetManifest.terrain.resources.wood.resource.file}`),
       meta: { category: 'wood-resource' },
       fit: 'height',
       targetSize: 140,
@@ -576,7 +578,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     entries.push({
       label: 'Meat resource',
       kind: 'image',
-      path: `${basePath}/Terrain/Resources/Meat/Meat Resource/${assetManifest.terrain.resources.meat.resource.file}`,
+      path: assetPath(`Terrain/Resources/Meat/Meat Resource/${assetManifest.terrain.resources.meat.resource.file}`),
       meta: { category: 'meat-resource' },
       fit: 'height',
       targetSize: 140,
@@ -586,7 +588,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Sheep · ${animName}`,
         kind: 'sheet',
-        path: `${basePath}/Terrain/Resources/Meat/Sheep/${animDef.file}`,
+        path: assetPath(`Terrain/Resources/Meat/Sheep/${animDef.file}`),
         frameConfig: assetManifest.terrain.resources.meat.sheep.frameSize,
         frames: animDef.frames,
         meta: { category: 'sheep', animName },
@@ -599,7 +601,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       entries.push({
         label: `Tool · ${item}`,
         kind: 'image',
-        path: `${basePath}/Terrain/Resources/Tools/${item}`,
+        path: assetPath(`Terrain/Resources/Tools/${item}`),
         meta: { category: 'tool' },
         fit: 'height',
         targetSize: 140,
@@ -613,7 +615,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     return {
       label: `Unit anim · ${color}/${unit}/${animName}`,
       kind: 'sheet',
-      path: `${basePath}/${pathTemplate.replace('{Color}', this.capitalize(color)).replace('{unit}', this.capitalize(unit)).replace('{file}', animDef.file)}`,
+      path: this.resolveAssetPath(`${basePath}/${pathTemplate.replace('{Color}', this.capitalize(color)).replace('{unit}', this.capitalize(unit)).replace('{file}', animDef.file)}`),
       frameConfig: frameSize,
       frames: animDef.frames,
       meta: { category: 'unit', color, unit, animName },
@@ -624,6 +626,26 @@ export class AssetPreviewScene extends Phaser.Scene {
 
   capitalize(value) {
     return `${value[0].toUpperCase()}${value.slice(1)}`;
+  }
+
+  resolveAssetPath(path) {
+    if (!path) {
+      return path;
+    }
+
+    if (path.startsWith(ASSET_BASE_URL)) {
+      return path;
+    }
+
+    if (path.startsWith(MANIFEST_BASE_PATH)) {
+      return path.replace(MANIFEST_BASE_PATH, ASSET_BASE_URL);
+    }
+
+    if (path.startsWith('/assets/tinyswords')) {
+      return path.replace('/assets/tinyswords', ASSET_BASE_URL);
+    }
+
+    return path;
   }
 
   async renderCarouselEntry() {
