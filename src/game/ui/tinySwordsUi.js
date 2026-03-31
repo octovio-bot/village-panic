@@ -172,8 +172,10 @@ export function createThreeSliceHorizontal(scene, {
 
   const container = scene.add.container(x, y);
   const left = createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: rowDef.y, width: leftCol.width, height: rowDef.height }, (-width / 2) + (leftWidth / 2), 0, leftWidth, height, alpha);
-  const center = createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: rowDef.y, width: centerCol.width, height: rowDef.height }, 0, 0, centerWidth, height, alpha, true);
-  const right = createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: rowDef.y, width: rightCol.width, height: rowDef.height }, (width / 2) - (rightWidth / 2), 0, rightWidth, height, alpha);
+  const centerX = (-width / 2) + leftWidth + (centerWidth / 2);
+  const rightX = (-width / 2) + leftWidth + centerWidth + (rightWidth / 2);
+  const center = createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: rowDef.y, width: centerCol.width, height: rowDef.height }, centerX, 0, centerWidth, height, alpha, true);
+  const right = createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: rowDef.y, width: rightCol.width, height: rowDef.height }, rightX, 0, rightWidth, height, alpha);
 
   [left, center, right].forEach((piece) => container.add(piece));
 
