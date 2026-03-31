@@ -9,7 +9,6 @@ export class GameOverScene extends Phaser.Scene {
 
   init(data) {
     this.summary = data;
-    this.restartScene = data.restartScene ?? 'GameScene';
   }
 
   create() {
@@ -67,6 +66,6 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   restart() {
-    this.scene.start(this.restartScene);
+    this.scene.start('GameScene');
   }
 }
