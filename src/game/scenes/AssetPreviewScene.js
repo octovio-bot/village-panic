@@ -363,7 +363,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         entries.push({
           label: `Building · ${color}/${type}`,
           kind: 'image',
-          path: assetPath(assetManifest.buildings.pathTemplate.replace('{Color}', this.capitalize(color)).replace('{type}', type)),
+          path: assetPath(assetManifest.buildings.pathTemplate.replace('{Color}', this.capitalize(color)).replace('{file}', assetManifest.buildings.types[type].file)),
           meta: { category: 'building', color, type },
           fit: 'height',
           targetSize: 260,
