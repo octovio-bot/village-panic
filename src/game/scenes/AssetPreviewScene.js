@@ -22,6 +22,12 @@ export class AssetPreviewScene extends Phaser.Scene {
   }
 
   create() {
+    const previewMode = new URLSearchParams(window.location.search).get('preview');
+    if (previewMode === 'nature') {
+      this.createNaturePreview();
+      return;
+    }
+
     this.cameras.main.setBackgroundColor('#4fa9ad');
 
     const board = createPlaque(this, {
@@ -184,5 +190,81 @@ export class AssetPreviewScene extends Phaser.Scene {
     this.input.keyboard.once('keydown-ENTER', () => this.scene.start('GameScene'));
 
     void darkPaperInset;
+  }
+
+  createNaturePreview() {
+    this.cameras.main.setBackgroundColor('#203c24');
+
+    this.add.text(40, 28, 'Nature Preview — Trees & Bushes', {
+      fontFamily: 'Georgia',
+      fontSize: '28px',
+      color: '#f4f0d8',
+      stroke: '#162015',
+      strokeThickness: 5,
+    }).setDepth(5);
+
+    this.add.text(40, 66, 'Compare directement les anims jouees par Phaser. Echap: menu | Entree: jeu', {
+      fontFamily: 'Georgia',
+      fontSize: '16px',
+      color: '#f4f0d8',
+      stroke: '#162015',
+      strokeThickness: 4,
+    }).setDepth(5);
+
+    const groundY = 612;
+    this.add.rectangle(GAME_WIDTH / 2, groundY + 92, GAME_WIDTH, 220, 0x355f2f, 1).setDepth(0);
+    this.add.rectangle(GAME_WIDTH / 2, groundY + 10, GAME_WIDTH, 26, 0x547c43, 1).setDepth(1);
+
+    const treeEntries = [
+      { label: 'Tree1', texture: 'tinyswords.resources.tree1', anim: 'tree1-wind', x: 180, height: 220 },
+      { label: 'Tree2', texture: 'tinyswords.resources.tree2', anim: 'tree2-wind', x: 430, height: 220 },
+      { label: 'Tree3', texture: 'tinyswords.resources.tree3', anim: 'tree3-wind', x: 690, height: 180 },
+      { label: 'Tree4', texture: 'tinyswords.resources.tree4', anim: 'tree4-wind', x: 910, height: 180 },
+    ];
+
+    treeEntries.forEach((entry, index) => {
+      const shadow = this.add.ellipse(entry.x, groundY + 20, 106, 28, 0x102217, 0.28).setDepth(1);
+      const sprite = this.add.sprite(entry.x, groundY, entry.texture, 0).setDepth(3);
+      sprite.setOrigin(0.5, 1);
+      setImageDisplayHeight(this, sprite, entry.height);
+      sprite.play(entry.anim);
+      sprite.anims.setProgress((index * 0.19) % 1);
+
+      this.add.text(entry.x, groundY + 48, entry.label, {
+        fontFamily: 'Georgia',
+        fontSize: '18px',
+        color: '#f4f0d8',
+        stroke: '#162015',
+        strokeThickness: 4,
+      }).setOrigin(0.5, 0).setDepth(5);
+
+      void shadow;
+    });
+
+    const bushEntries = [
+      { label: 'Bushe1', texture: 'tinyswords.decor.bush1', anim: 'bush1-wind', x: 230 },
+      { label: 'Bushe2', texture: 'tinyswords.decor.bush2', anim: 'bush2-wind', x: 470 },
+      { label: 'Bushe3', texture: 'tinyswords.decor.bush3', anim: 'bush3-wind', x: 710 },
+      { label: 'Bushe4', texture: 'tinyswords.decor.bush4', anim: 'bush4-wind', x: 950 },
+    ];
+
+    bushEntries.forEach((entry, index) => {
+      const sprite = this.add.sprite(entry.x, 280, entry.texture, 0).setDepth(3);
+      sprite.setOrigin(0.5, 1);
+      setImageDisplayHeight(this, sprite, 96);
+      sprite.play(entry.anim);
+      sprite.anims.setProgress((index * 0.23) % 1);
+
+      this.add.text(entry.x, 304, entry.label, {
+        fontFamily: 'Georgia',
+        fontSize: '16px',
+        color: '#f4f0d8',
+        stroke: '#162015',
+        strokeThickness: 4,
+      }).setOrigin(0.5, 0).setDepth(5);
+    });
+
+    this.input.keyboard.once('keydown-ESC', () => this.scene.start('MenuScene'));
+    this.input.keyboard.once('keydown-ENTER', () => this.scene.start('GameScene'));
   }
 }
