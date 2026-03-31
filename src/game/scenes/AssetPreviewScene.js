@@ -387,7 +387,7 @@ export class AssetPreviewScene extends Phaser.Scene {
           entries.push({
             label: `Unit extra · ${color}/${unit}/${extraName}`,
             kind: extraDef.frames ? 'sheet' : 'image',
-            path: `${basePath}/${unitsPath.replace('{Color}', this.capitalize(color)).replace('{unit}', this.capitalize(unit)).replace('{file}', extraDef.file)}`,
+            path: this.resolveAssetPath(`${basePath}/${unitsPath.replace('{Color}', this.capitalize(color)).replace('{unit}', this.capitalize(unit)).replace('{file}', extraDef.file)}`),
             frameConfig: extraDef.frames ? { frameWidth: extraDef.width / extraDef.frames, frameHeight: extraDef.height } : null,
             frames: extraDef.frames ?? 1,
             meta: { category: 'unit-extra', color, unit, extraName },
@@ -633,16 +633,23 @@ export class AssetPreviewScene extends Phaser.Scene {
       return path;
     }
 
-    if (path.startsWith(ASSET_BASE_URL)) {
+    const normalizedBase = ASSET_BASE_URL.replace(/\/$/, '');
+    const normalizedManifestBase = MANIFEST_BASE_PATH.replace(/\/$/, '');
+
+    if (path.startsWith(normalizedBase)) {
       return path;
     }
 
-    if (path.startsWith(MANIFEST_BASE_PATH)) {
-      return path.replace(MANIFEST_BASE_PATH, ASSET_BASE_URL);
+    if (path.startsWith(normalizedManifestBase)) {
+      return `${normalizedBase}${path.slice(normalizedManifestBase.length)}`;
     }
 
     if (path.startsWith('/assets/tinyswords')) {
-      return path.replace('/assets/tinyswords', ASSET_BASE_URL);
+      return `${normalizedBase}${path.slice('/assets/tinyswords'.length)}`;
+    }
+
+    if (path.startsWith('assets/tinyswords')) {
+      return `${normalizedBase}${path.slice('assets/tinyswords'.length)}`;
     }
 
     return path;
