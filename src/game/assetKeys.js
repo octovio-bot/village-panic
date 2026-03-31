@@ -13,6 +13,7 @@ const UI_FRAME_96 = { frameWidth: 96, frameHeight: 96, spacing: 16 };
 const UI_FRAME_64 = { frameWidth: 64, frameHeight: 64 };
 const UI_BAR_BASE = { frameWidth: 64, frameHeight: 64, spacing: 64 };
 const UI_RIBBON_FRAME = { frameWidth: 128, frameHeight: 96, spacing: 32 };
+const WATER_FOAM_FRAME = { frameWidth: 64, frameHeight: 64 };
 
 export const TINY_SWORDS_ASSETS = [
   sheet('tinyswords.units.blue.pawn.idle', `${ASSET_BASE}/Units/Blue Units/Pawn/Pawn_Idle.png`, UNIT_FRAME),
@@ -80,11 +81,24 @@ export const TINY_SWORDS_ASSETS = [
   sheet('tinyswords.ui.swords', `${ASSET_BASE}/UI Elements/UI Elements/Swords/Swords.png`, UI_RIBBON_FRAME),
   image('tinyswords.terrain.tilemap1', `${ASSET_BASE}/Terrain/Tileset/Tilemap_color1.png`),
   image('tinyswords.terrain.tilemap2', `${ASSET_BASE}/Terrain/Tileset/Tilemap_color2.png`),
+  image('tinyswords.terrain.tilemap3', `${ASSET_BASE}/Terrain/Tileset/Tilemap_color3.png`),
+  image('tinyswords.terrain.tilemap4', `${ASSET_BASE}/Terrain/Tileset/Tilemap_color4.png`),
+  image('tinyswords.terrain.tilemap5', `${ASSET_BASE}/Terrain/Tileset/Tilemap_color5.png`),
+  image('tinyswords.terrain.shadow', `${ASSET_BASE}/Terrain/Tileset/Shadow.png`),
+  image('tinyswords.terrain.water-bg', `${ASSET_BASE}/Terrain/Tileset/Water Background color.png`),
+  sheet('tinyswords.terrain.water-foam', `${ASSET_BASE}/Terrain/Tileset/Water Foam.png`, WATER_FOAM_FRAME),
   sheet('tinyswords.decor.bush1', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe1.png`, BUSH_FRAME),
   sheet('tinyswords.decor.bush2', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe2.png`, BUSH_FRAME),
   sheet('tinyswords.decor.bush3', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe3.png`, BUSH_FRAME),
   sheet('tinyswords.decor.bush4', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe4.png`, BUSH_FRAME),
-  image('tinyswords.decor.rock1', `${ASSET_BASE}/Terrain/Decorations/Rocks/Rock1.png`)
+  image('tinyswords.decor.rock1', `${ASSET_BASE}/Terrain/Decorations/Rocks/Rock1.png`),
+  image('tinyswords.decor.rock2', `${ASSET_BASE}/Terrain/Decorations/Rocks/Rock2.png`),
+  image('tinyswords.decor.rock3', `${ASSET_BASE}/Terrain/Decorations/Rocks/Rock3.png`),
+  image('tinyswords.decor.rock4', `${ASSET_BASE}/Terrain/Decorations/Rocks/Rock4.png`),
+  image('tinyswords.decor.water-rock1', `${ASSET_BASE}/Terrain/Decorations/Rocks in the Water/Water Rocks_01.png`),
+  image('tinyswords.decor.water-rock2', `${ASSET_BASE}/Terrain/Decorations/Rocks in the Water/Water Rocks_02.png`),
+  image('tinyswords.decor.water-rock3', `${ASSET_BASE}/Terrain/Decorations/Rocks in the Water/Water Rocks_03.png`),
+  image('tinyswords.decor.water-rock4', `${ASSET_BASE}/Terrain/Decorations/Rocks in the Water/Water Rocks_04.png`)
 ];
 
 export function preloadTinySwords(loader) {
@@ -138,7 +152,8 @@ export function createTinySwordsAnimations(scene) {
     { key: 'tree1-wind', texture: 'tinyswords.resources.tree1', frameRate: 10, repeat: -1 },
     { key: 'tree2-wind', texture: 'tinyswords.resources.tree2', frameRate: 10, repeat: -1 },
     { key: 'tree3-wind', texture: 'tinyswords.resources.tree3', frameRate: 10, repeat: -1 },
-    { key: 'tree4-wind', texture: 'tinyswords.resources.tree4', frameRate: 10, repeat: -1 }
+    { key: 'tree4-wind', texture: 'tinyswords.resources.tree4', frameRate: 10, repeat: -1 },
+    { key: 'water-foam', texture: 'tinyswords.terrain.water-foam', frameRate: 7, repeat: -1 }
   ];
 
   sheetVariantAnimations.forEach((animation) => {
