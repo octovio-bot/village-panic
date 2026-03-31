@@ -5,6 +5,9 @@ const sheet = (key, path, config) => ({ key, path, kind: 'sheet', config });
 
 const UNIT_FRAME = { frameWidth: 192, frameHeight: 192 };
 const SHEEP_FRAME = { frameWidth: 128, frameHeight: 128 };
+const BUSH_FRAME = { frameWidth: 128, frameHeight: 128 };
+const TREE_LARGE_FRAME = { frameWidth: 256, frameHeight: 256 };
+const TREE_SMALL_FRAME = { frameWidth: 192, frameHeight: 192 };
 const UI_FRAME_128 = { frameWidth: 128, frameHeight: 128, spacing: 32 };
 const UI_FRAME_96 = { frameWidth: 96, frameHeight: 96, spacing: 16 };
 const UI_FRAME_64 = { frameWidth: 64, frameHeight: 64 };
@@ -27,10 +30,10 @@ export const TINY_SWORDS_ASSETS = [
   sheet('tinyswords.units.black.lancer.run', `${ASSET_BASE}/Units/Black Units/Lancer/Lancer_Run.png`, UNIT_FRAME),
   sheet('tinyswords.units.black.lancer.idle', `${ASSET_BASE}/Units/Black Units/Lancer/Lancer_Idle.png`, UNIT_FRAME),
   sheet('tinyswords.resources.sheep-idle', `${ASSET_BASE}/Terrain/Resources/Meat/Sheep/Sheep_Idle.png`, SHEEP_FRAME),
-  image('tinyswords.resources.tree1', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree1.png`),
-  image('tinyswords.resources.tree2', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree2.png`),
-  image('tinyswords.resources.tree3', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree3.png`),
-  image('tinyswords.resources.tree4', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree4.png`),
+  sheet('tinyswords.resources.tree1', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree1.png`, TREE_LARGE_FRAME),
+  sheet('tinyswords.resources.tree2', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree2.png`, TREE_LARGE_FRAME),
+  sheet('tinyswords.resources.tree3', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree3.png`, TREE_SMALL_FRAME),
+  sheet('tinyswords.resources.tree4', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree4.png`, TREE_SMALL_FRAME),
   image('tinyswords.resources.gold-stone1', `${ASSET_BASE}/Terrain/Resources/Gold/Gold Stones/Gold Stone 1.png`),
   image('tinyswords.resources.gold-stone2', `${ASSET_BASE}/Terrain/Resources/Gold/Gold Stones/Gold Stone 2.png`),
   image('tinyswords.resources.wood-item', `${ASSET_BASE}/Terrain/Resources/Wood/Wood Resource/Wood Resource.png`),
@@ -77,10 +80,10 @@ export const TINY_SWORDS_ASSETS = [
   sheet('tinyswords.ui.swords', `${ASSET_BASE}/UI Elements/UI Elements/Swords/Swords.png`, UI_RIBBON_FRAME),
   image('tinyswords.terrain.tilemap1', `${ASSET_BASE}/Terrain/Tileset/Tilemap_color1.png`),
   image('tinyswords.terrain.tilemap2', `${ASSET_BASE}/Terrain/Tileset/Tilemap_color2.png`),
-  image('tinyswords.decor.bush1', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe1.png`),
-  image('tinyswords.decor.bush2', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe2.png`),
-  image('tinyswords.decor.bush3', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe3.png`),
-  image('tinyswords.decor.bush4', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe4.png`),
+  sheet('tinyswords.decor.bush1', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe1.png`, BUSH_FRAME),
+  sheet('tinyswords.decor.bush2', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe2.png`, BUSH_FRAME),
+  sheet('tinyswords.decor.bush3', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe3.png`, BUSH_FRAME),
+  sheet('tinyswords.decor.bush4', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe4.png`, BUSH_FRAME),
   image('tinyswords.decor.rock1', `${ASSET_BASE}/Terrain/Decorations/Rocks/Rock1.png`)
 ];
 
@@ -127,36 +130,27 @@ export function createTinySwordsAnimations(scene) {
     });
   });
 
-  const textureAnimations = [
-    {
-      key: 'bush-wind',
-      frameRate: 8,
-      repeat: -1,
-      frames: [
-        { key: 'tinyswords.decor.bush1' },
-        { key: 'tinyswords.decor.bush2' },
-        { key: 'tinyswords.decor.bush3' },
-        { key: 'tinyswords.decor.bush4' }
-      ]
-    },
-    {
-      key: 'tree-wind',
-      frameRate: 6,
-      repeat: -1,
-      frames: [
-        { key: 'tinyswords.resources.tree1' },
-        { key: 'tinyswords.resources.tree2' },
-        { key: 'tinyswords.resources.tree3' },
-        { key: 'tinyswords.resources.tree4' }
-      ]
-    }
+  const sheetVariantAnimations = [
+    { key: 'bush1-wind', texture: 'tinyswords.decor.bush1', frameRate: 8, repeat: -1 },
+    { key: 'bush2-wind', texture: 'tinyswords.decor.bush2', frameRate: 8, repeat: -1 },
+    { key: 'bush3-wind', texture: 'tinyswords.decor.bush3', frameRate: 8, repeat: -1 },
+    { key: 'bush4-wind', texture: 'tinyswords.decor.bush4', frameRate: 8, repeat: -1 },
+    { key: 'tree1-wind', texture: 'tinyswords.resources.tree1', frameRate: 6, repeat: -1 },
+    { key: 'tree2-wind', texture: 'tinyswords.resources.tree2', frameRate: 6, repeat: -1 },
+    { key: 'tree3-wind', texture: 'tinyswords.resources.tree3', frameRate: 6, repeat: -1 },
+    { key: 'tree4-wind', texture: 'tinyswords.resources.tree4', frameRate: 6, repeat: -1 }
   ];
 
-  textureAnimations.forEach((animation) => {
+  sheetVariantAnimations.forEach((animation) => {
     if (scene.anims.exists(animation.key)) {
       return;
     }
 
-    scene.anims.create(animation);
+    scene.anims.create({
+      key: animation.key,
+      frames: scene.anims.generateFrameNumbers(animation.texture),
+      frameRate: animation.frameRate,
+      repeat: animation.repeat
+    });
   });
 }
