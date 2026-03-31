@@ -137,16 +137,20 @@ export function createNineSlice(scene, {
   const centerHeight = Math.max(1, height - topHeight - bottomHeight);
 
   const container = scene.add.container(x, y);
+  const topY = (-height / 2) + (topHeight / 2);
+  const middleY = (-height / 2) + topHeight + (centerHeight / 2);
+  const bottomY = (-height / 2) + topHeight + centerHeight + (bottomHeight / 2);
+
   const pieces = [
-    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: topRow.y, width: leftCol.width, height: topRow.height }, (-width / 2) + (leftWidth / 2), (-height / 2) + (topHeight / 2), leftWidth, topHeight, alpha),
-    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: topRow.y, width: centerCol.width, height: topRow.height }, 0, (-height / 2) + (topHeight / 2), centerWidth, topHeight, alpha, true),
-    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: topRow.y, width: rightCol.width, height: topRow.height }, (width / 2) - (rightWidth / 2), (-height / 2) + (topHeight / 2), rightWidth, topHeight, alpha),
-    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: middleRow.y, width: leftCol.width, height: middleRow.height }, (-width / 2) + (leftWidth / 2), 0, leftWidth, centerHeight, alpha, true),
-    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: middleRow.y, width: centerCol.width, height: middleRow.height }, 0, 0, centerWidth, centerHeight, alpha, true),
-    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: middleRow.y, width: rightCol.width, height: middleRow.height }, (width / 2) - (rightWidth / 2), 0, rightWidth, centerHeight, alpha, true),
-    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: bottomRow.y, width: leftCol.width, height: bottomRow.height }, (-width / 2) + (leftWidth / 2), (height / 2) - (bottomHeight / 2), leftWidth, bottomHeight, alpha),
-    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: bottomRow.y, width: centerCol.width, height: bottomRow.height }, 0, (height / 2) - (bottomHeight / 2), centerWidth, bottomHeight, alpha, true),
-    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: bottomRow.y, width: rightCol.width, height: bottomRow.height }, (width / 2) - (rightWidth / 2), (height / 2) - (bottomHeight / 2), rightWidth, bottomHeight, alpha),
+    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: topRow.y, width: leftCol.width, height: topRow.height }, (-width / 2) + (leftWidth / 2), topY, leftWidth, topHeight, alpha),
+    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: topRow.y, width: centerCol.width, height: topRow.height }, 0, topY, centerWidth, topHeight, alpha, true),
+    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: topRow.y, width: rightCol.width, height: topRow.height }, (width / 2) - (rightWidth / 2), topY, rightWidth, topHeight, alpha),
+    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: middleRow.y, width: leftCol.width, height: middleRow.height }, (-width / 2) + (leftWidth / 2), middleY, leftWidth, centerHeight, alpha, true),
+    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: middleRow.y, width: centerCol.width, height: middleRow.height }, 0, middleY, centerWidth, centerHeight, alpha, true),
+    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: middleRow.y, width: rightCol.width, height: middleRow.height }, (width / 2) - (rightWidth / 2), middleY, rightWidth, centerHeight, alpha, true),
+    createCroppedPiece(scene, definition.textureKey, { x: leftCol.x, y: bottomRow.y, width: leftCol.width, height: bottomRow.height }, (-width / 2) + (leftWidth / 2), bottomY, leftWidth, bottomHeight, alpha),
+    createCroppedPiece(scene, definition.textureKey, { x: centerCol.x, y: bottomRow.y, width: centerCol.width, height: bottomRow.height }, 0, bottomY, centerWidth, bottomHeight, alpha, true),
+    createCroppedPiece(scene, definition.textureKey, { x: rightCol.x, y: bottomRow.y, width: rightCol.width, height: bottomRow.height }, (width / 2) - (rightWidth / 2), bottomY, rightWidth, bottomHeight, alpha),
   ];
 
   pieces.forEach((piece) => container.add(piece));
