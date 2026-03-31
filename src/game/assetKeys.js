@@ -131,14 +131,14 @@ export function createTinySwordsAnimations(scene) {
   });
 
   const sheetVariantAnimations = [
-    { key: 'bush1-wind', texture: 'tinyswords.decor.bush1', frameRate: 8, repeat: -1 },
-    { key: 'bush2-wind', texture: 'tinyswords.decor.bush2', frameRate: 8, repeat: -1 },
-    { key: 'bush3-wind', texture: 'tinyswords.decor.bush3', frameRate: 8, repeat: -1 },
-    { key: 'bush4-wind', texture: 'tinyswords.decor.bush4', frameRate: 8, repeat: -1 },
-    { key: 'tree1-wind', texture: 'tinyswords.resources.tree1', frameRate: 6, repeat: -1 },
-    { key: 'tree2-wind', texture: 'tinyswords.resources.tree2', frameRate: 6, repeat: -1 },
-    { key: 'tree3-wind', texture: 'tinyswords.resources.tree3', frameRate: 6, repeat: -1 },
-    { key: 'tree4-wind', texture: 'tinyswords.resources.tree4', frameRate: 6, repeat: -1 }
+    { key: 'bush1-wind', texture: 'tinyswords.decor.bush1', frameRate: 12, repeat: -1 },
+    { key: 'bush2-wind', texture: 'tinyswords.decor.bush2', frameRate: 12, repeat: -1 },
+    { key: 'bush3-wind', texture: 'tinyswords.decor.bush3', frameRate: 12, repeat: -1 },
+    { key: 'bush4-wind', texture: 'tinyswords.decor.bush4', frameRate: 12, repeat: -1 },
+    { key: 'tree1-wind', texture: 'tinyswords.resources.tree1', frameRate: 10, repeat: -1 },
+    { key: 'tree2-wind', texture: 'tinyswords.resources.tree2', frameRate: 10, repeat: -1 },
+    { key: 'tree3-wind', texture: 'tinyswords.resources.tree3', frameRate: 10, repeat: -1 },
+    { key: 'tree4-wind', texture: 'tinyswords.resources.tree4', frameRate: 10, repeat: -1 }
   ];
 
   sheetVariantAnimations.forEach((animation) => {

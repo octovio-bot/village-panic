@@ -453,7 +453,13 @@ export class GameScene extends Phaser.Scene {
         sprite.setScale(1.3);
         const treeAnimKey = node.texture.replace('tinyswords.resources.', '') + '-wind';
         sprite.play(treeAnimKey);
-        sprite.anims.setProgress(node.id === 'wood-2' ? 0.45 : 0.1);
+        const treeOffsets = {
+          'wood-1': 0.1,
+          'wood-2': 0.45,
+          'wood-3': 0.7,
+          'wood-4': 0.25,
+        };
+        sprite.anims.setProgress(treeOffsets[node.id] ?? 0.1);
       } else {
         sprite = this.add.image(node.x, node.y, node.texture).setDepth(4);
         sprite.setScale(node.resourceType === 'gold' ? 1.15 : 1.3);
