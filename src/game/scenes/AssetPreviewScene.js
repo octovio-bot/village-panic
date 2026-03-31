@@ -686,13 +686,16 @@ export class AssetPreviewScene extends Phaser.Scene {
 
   async renderCarouselEntry() {
     const entry = this.filteredCarouselEntries[this.carouselIndex];
+    const activeCategory = this.carouselCategories[this.carouselCategoryIndex];
     this.indexText.setText(`${this.carouselIndex + 1} / ${this.filteredCarouselEntries.length}`);
-    this.categoryText.setText(`Catégorie : ${this.carouselCategories[this.carouselCategoryIndex]}`);
+    this.categoryText.setText(`Catégorie : ${activeCategory}`);
     this.nameText.setText(entry.label);
     this.metaText.setText(this.formatEntryMeta(entry));
 
     if (this.carouselPreview) {
-      this.carouselPreview.destroy();
+      if (typeof this.carouselPreview.destroy === 'function') {
+        this.carouselPreview.destroy();
+      }
       this.carouselPreview = null;
     }
     if (this.carouselAnimEvent) {
@@ -714,6 +717,11 @@ export class AssetPreviewScene extends Phaser.Scene {
     }
 
     if (entry.kind === 'sheet') {
+      if (activeCategory === 'terrain' && entry.meta?.category === 'terrain-tilemap') {
+        this.carouselPreview = this.renderTilemapGridPreview(cacheKey, entry);
+        return;
+      }
+
       const sprite = this.add.sprite(GAME_WIDTH / 2, 360, cacheKey, 0).setDepth(4);
       sprite.setOrigin(0.5, 0.5);
       const frameWidth = entry.frameConfig?.frameWidth ?? sprite.width;
@@ -746,6 +754,46 @@ export class AssetPreviewScene extends Phaser.Scene {
       }
       this.carouselPreview = image;
     }
+  }
+
+  renderTilemapGridPreview(cacheKey, entry) {
+    const cols = entry.meta.columns ?? 1;
+    const rows = entry.meta.rows ?? 1;
+    const frameWidth = entry.frameConfig.frameWidth;
+    const frameHeight = entry.frameConfig.frameHeight;
+    const maxWidth = 780;
+    const maxHeight = 340;
+    const cellScale = Math.min(maxWidth / (cols * frameWidth), maxHeight / (rows * frameHeight));
+    const cellW = frameWidth * cellScale;
+    const cellH = frameHeight * cellScale;
+    const startX = (GAME_WIDTH / 2) - ((cols * cellW) / 2) + (cellW / 2);
+    const startY = 360 - ((rows * cellH) / 2) + (cellH / 2);
+    const container = this.add.container(0, 0).setDepth(4);
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let col = 0; col < cols; col += 1) {
+        const frameIndex = (row * cols) + col;
+        const x = startX + (col * cellW);
+        const y = startY + (row * cellH);
+        const sprite = this.add.image(x, y, cacheKey, frameIndex)
+          .setDisplaySize(cellW, cellH)
+          .setDepth(4);
+        const border = this.add.rectangle(x, y, cellW, cellH)
+          .setStrokeStyle(1, 0xe8d9a5, 0.35)
+          .setFillStyle(0x000000, 0)
+          .setDepth(5);
+        const label = this.add.text(x - (cellW / 2) + 4, y - (cellH / 2) + 2, `${frameIndex}`, {
+          fontFamily: 'monospace',
+          fontSize: `${Math.max(10, Math.floor(12 * cellScale))}px`,
+          color: '#fff4cf',
+          stroke: '#111820',
+          strokeThickness: 3,
+        }).setOrigin(0, 0).setDepth(6);
+        container.add([sprite, border, label]);
+      }
+    }
+
+    return container;
   }
 
   formatEntryMeta(entry) {
