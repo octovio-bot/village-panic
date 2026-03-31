@@ -333,7 +333,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       wordWrap: { width: 1060 },
     }).setDepth(5);
 
-    this.helpText = this.add.text(GAME_WIDTH / 2, 712, '← / → : asset précédent/suivant · ↑ / ↓ : catégorie · Espace : relancer · ESC : menu', {
+    this.helpText = this.add.text(GAME_WIDTH / 2, 712, '← / → : asset précédent/suivant · ↑ / ↓ : catégorie · terrain=grille, water foam=anim · ESC : menu', {
       fontFamily: 'Georgia',
       fontSize: '18px',
       color: '#d9d1b4',
@@ -802,6 +802,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       `Path: ${entry.path.replace(ASSET_BASE_URL, 'assets/tinyswords')}`,
       entry.frameConfig ? `Frame: ${entry.frameConfig.frameWidth}x${entry.frameConfig.frameHeight}` : 'Frame: image fixe',
       `Frames: ${entry.frames ?? 1}`,
+      `Preview mode: ${entry.meta?.category === 'terrain-tilemap' ? 'tile grid with frame ids' : 'animated preview'}`,
       `Meta: ${JSON.stringify(entry.meta)}`,
     ].join('\n');
   }
