@@ -96,7 +96,7 @@ export function preloadTinySwords(loader) {
 }
 
 export function createTinySwordsAnimations(scene) {
-  const animations = [
+  const sheetAnimations = [
     { key: 'player-idle-base', texture: 'tinyswords.units.blue.pawn.idle', frameRate: 6, repeat: -1 },
     { key: 'player-run-base', texture: 'tinyswords.units.blue.pawn.run', frameRate: 10, repeat: -1 },
     { key: 'player-idle-wood', texture: 'tinyswords.units.blue.pawn.idle.wood', frameRate: 6, repeat: -1 },
@@ -114,7 +114,7 @@ export function createTinySwordsAnimations(scene) {
     { key: 'sheep-idle', texture: 'tinyswords.resources.sheep-idle', frameRate: 5, repeat: -1 }
   ];
 
-  animations.forEach((animation) => {
+  sheetAnimations.forEach((animation) => {
     if (scene.anims.exists(animation.key)) {
       return;
     }
@@ -125,5 +125,38 @@ export function createTinySwordsAnimations(scene) {
       frameRate: animation.frameRate,
       repeat: animation.repeat
     });
+  });
+
+  const textureAnimations = [
+    {
+      key: 'bush-wind',
+      frameRate: 8,
+      repeat: -1,
+      frames: [
+        { key: 'tinyswords.decor.bush1' },
+        { key: 'tinyswords.decor.bush2' },
+        { key: 'tinyswords.decor.bush3' },
+        { key: 'tinyswords.decor.bush4' }
+      ]
+    },
+    {
+      key: 'tree-wind',
+      frameRate: 6,
+      repeat: -1,
+      frames: [
+        { key: 'tinyswords.resources.tree1' },
+        { key: 'tinyswords.resources.tree2' },
+        { key: 'tinyswords.resources.tree3' },
+        { key: 'tinyswords.resources.tree4' }
+      ]
+    }
+  ];
+
+  textureAnimations.forEach((animation) => {
+    if (scene.anims.exists(animation.key)) {
+      return;
+    }
+
+    scene.anims.create(animation);
   });
 }

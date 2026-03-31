@@ -178,19 +178,13 @@ export class GameScene extends Phaser.Scene {
       { x: 1194, y: 1410, texture: 'tinyswords.decor.bush1', scale: 1.1, kind: 'bush' },
       { x: 1950, y: 1504, texture: 'tinyswords.decor.rock1', scale: 1.15, kind: 'rock' },
     ].forEach((decor, index) => {
-      const bushFrames = ['tinyswords.decor.bush1', 'tinyswords.decor.bush2', 'tinyswords.decor.bush3', 'tinyswords.decor.bush4'];
-      const sprite = this.add.image(
-        decor.x,
-        decor.y,
-        decor.kind === 'bush' ? bushFrames[index % bushFrames.length] : decor.texture
-      );
+      const sprite = decor.kind === 'bush'
+        ? this.add.sprite(decor.x, decor.y, 'tinyswords.decor.bush1')
+        : this.add.image(decor.x, decor.y, decor.texture);
       sprite.setScale(decor.scale).setDepth(1);
       if (decor.kind === 'bush') {
-        this.addWindSway(sprite, {
-          baseAngle: (index % 2 === 0 ? -1 : 1) * (2 + (index % 3)),
-          duration: 1800 + (index * 140),
-          driftY: 2 + (index % 2)
-        });
+        sprite.play('bush-wind');
+        sprite.anims.setProgress((index * 0.17) % 1);
       }
       this.blockingDecor.push({
         ...decor,
@@ -455,13 +449,10 @@ export class GameScene extends Phaser.Scene {
         sprite.play('sheep-idle');
         sprite.setScale(0.58);
       } else if (node.resourceType === 'wood') {
-        sprite = this.add.image(node.x, node.y, node.texture).setDepth(4);
+        sprite = this.add.sprite(node.x, node.y, node.texture).setDepth(4);
         sprite.setScale(1.3);
-        this.addWindSway(sprite, {
-          baseAngle: node.id === 'wood-2' ? 4 : -3,
-          duration: node.id === 'wood-2' ? 2400 : 2100,
-          driftY: 2
-        });
+        sprite.play('tree-wind');
+        sprite.anims.setProgress(node.id === 'wood-2' ? 0.45 : 0.1);
       } else {
         sprite = this.add.image(node.x, node.y, node.texture).setDepth(4);
         sprite.setScale(node.resourceType === 'gold' ? 1.15 : 1.3);
@@ -515,19 +506,6 @@ export class GameScene extends Phaser.Scene {
     this.player.body.setCircle(26, 70, 112);
     this.player.play('player-idle-base');
     this.playerFacing = 'right';
-  }
-
-  addWindSway(target, { baseAngle = 3, duration = 2200, driftY = 2 } = {}) {
-    const startY = target.y;
-    this.tweens.add({
-      targets: target,
-      angle: baseAngle,
-      y: startY - driftY,
-      duration,
-      ease: 'Sine.inOut',
-      yoyo: true,
-      repeat: -1
-    });
   }
 
   createObstacleBody(x, y, width, height, offsetY = 0) {
