@@ -866,7 +866,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         y: 330,
         textureKey: 'tinyswords.ui.bigbar.base.frame',
         width: 360,
-        height: 46,
+        height: 51,
       }).container;
       const fill = this.add.tileSprite(GAME_WIDTH / 2 - 122, 330, 244, 26, 'tinyswords.ui.bigbar.fill')
         .setOrigin(0, 0.5)
@@ -887,15 +887,15 @@ export class AssetPreviewScene extends Phaser.Scene {
         textureKey: 'tinyswords.ui.ribbons.big',
         row: 1,
         width: 340,
-        height: 92,
+        height: 103,
       }).container;
       const swords = createThreeSliceHorizontal(this, {
         x: GAME_WIDTH / 2,
-        y: 394,
+        y: 404,
         textureKey: 'tinyswords.ui.swords',
         row: 2,
         width: 250,
-        height: 72,
+        height: 128,
       }).container;
       const code = this.add.text(120, 500, "createThreeSliceHorizontal(... 'tinyswords.ui.ribbons.big') / (... 'tinyswords.ui.swords')", {
         fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
