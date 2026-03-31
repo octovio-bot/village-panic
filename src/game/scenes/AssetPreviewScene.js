@@ -863,9 +863,9 @@ export class AssetPreviewScene extends Phaser.Scene {
     if (entry.meta.category === 'ui-bar') {
       const baseWidth = 360;
       const baseHeight = 51;
-      const fillInsetLeft = 18;
+      const fillInsetLeft = 10;
       const fillInsetRight = 18;
-      const fillInsetVertical = 9;
+      const fillInsetVertical = 5;
       const fillRatio = 0.72;
       const usableFillWidth = baseWidth - fillInsetLeft - fillInsetRight;
       const fillWidth = usableFillWidth * fillRatio;
