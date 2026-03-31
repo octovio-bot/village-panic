@@ -576,7 +576,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         label: `Wood tree · ${item.tree}`,
         kind: 'sheet',
         path: assetPath(`Terrain/Resources/Wood/Trees/${item.tree}`),
-        frameConfig: { frameWidth: item.width / item.frames, frameHeight: item.height },
+        frameConfig: { frameWidth: item.frameWidth ?? (item.width / item.frames), frameHeight: item.frameHeight ?? item.height },
         frames: item.frames,
         meta: { category: 'wood-tree', categoryGroup: 'resources', stump: item.stump },
         fit: 'height',

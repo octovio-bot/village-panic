@@ -600,7 +600,7 @@
               "width": 1536,
               "height": 256,
               "frames": 6,
-              "frameWidth": 256,
+              "frameWidth": 192,
               "frameHeight": 256
             },
             {
@@ -609,7 +609,7 @@
               "width": 1536,
               "height": 256,
               "frames": 6,
-              "frameWidth": 256,
+              "frameWidth": 192,
               "frameHeight": 256
             },
             {
