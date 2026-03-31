@@ -3,6 +3,17 @@ import assetManifest from '../../../public/assets/tinyswords/assets.json';
 import { GAME_HEIGHT, GAME_WIDTH } from '../data.js';
 import { createPlaque, createThreeSliceHorizontal, setImageDisplayHeight, setImageDisplayWidth } from '../ui/tinySwordsUi.js';
 
+const PARTICLE_FRAME_CONFIGS = {
+  'Dust_01.png': { frameWidth: 64, frameHeight: 64, frames: 8 },
+  'Dust_02.png': { frameWidth: 64, frameHeight: 64, frames: 10 },
+  'Fire_01.png': { frameWidth: 64, frameHeight: 64, frames: 8 },
+  'Fire_02.png': { frameWidth: 64, frameHeight: 64, frames: 10 },
+  'Fire_03.png': { frameWidth: 64, frameHeight: 64, frames: 12 },
+  'Explosion_01.png': { frameWidth: 192, frameHeight: 192, frames: 8 },
+  'Explosion_02.png': { frameWidth: 192, frameHeight: 192, frames: 10 },
+  'Water Splash.png': { frameWidth: 192, frameHeight: 192, frames: 9 },
+};
+
 const ICON_KEYS = [
   'tinyswords.ui.icon.wood',
   'tinyswords.ui.icon.coin',
@@ -333,7 +344,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       wordWrap: { width: 1060 },
     }).setDepth(5);
 
-    this.helpText = this.add.text(GAME_WIDTH / 2, 712, '← / → : asset précédent/suivant · ↑ / ↓ : catégorie · terrain=grille, water foam=anim · ESC : menu', {
+    this.helpText = this.add.text(GAME_WIDTH / 2, 712, '← / → : asset précédent/suivant · ↑ / ↓ : catégorie · terrain=grille · ui=exemples · particles=anim · ESC : menu', {
       fontFamily: 'Georgia',
       fontSize: '18px',
       color: '#d9d1b4',
@@ -634,6 +645,27 @@ export class AssetPreviewScene extends Phaser.Scene {
       });
     });
 
+    entries.push(
+      { label: 'UI example · bouton rouge', kind: 'ui-example', meta: { category: 'ui-button', categoryGroup: 'ui' } },
+      { label: 'UI example · cadre papier', kind: 'ui-example', meta: { category: 'ui-paper', categoryGroup: 'ui' } },
+      { label: 'UI example · wood table', kind: 'ui-example', meta: { category: 'ui-wood-table', categoryGroup: 'ui' } },
+      { label: 'UI example · big bar', kind: 'ui-example', meta: { category: 'ui-bar', categoryGroup: 'ui' } },
+      { label: 'UI example · ribbon + swords', kind: 'ui-example', meta: { category: 'ui-ribbon', categoryGroup: 'ui' } }
+    );
+
+    Object.entries(PARTICLE_FRAME_CONFIGS).forEach(([file, config]) => {
+      entries.push({
+        label: `Particle · ${file}`,
+        kind: 'sheet',
+        path: assetPath(`Particle FX/${file}`),
+        frameConfig: { frameWidth: config.frameWidth, frameHeight: config.frameHeight },
+        frames: config.frames,
+        meta: { category: 'particle', categoryGroup: 'particles', file },
+        fit: config.frameWidth > 64 ? 'height' : 'width',
+        targetSize: config.frameWidth > 64 ? 220 : 280,
+      });
+    });
+
     return entries;
   }
 
@@ -703,6 +735,11 @@ export class AssetPreviewScene extends Phaser.Scene {
       this.carouselAnimEvent = null;
     }
 
+    if (entry.kind === 'ui-example') {
+      this.carouselPreview = this.renderUiExamplePreview(entry);
+      return;
+    }
+
     const cacheKey = `carousel::${entry.path}`;
     if (!this.textures.exists(cacheKey)) {
       if (entry.kind === 'sheet') {
@@ -756,6 +793,113 @@ export class AssetPreviewScene extends Phaser.Scene {
     }
   }
 
+  renderUiExamplePreview(entry) {
+    const container = this.add.container(0, 0).setDepth(4);
+
+    if (entry.meta.category === 'ui-button') {
+      const plaque = createPlaque(this, {
+        x: GAME_WIDTH / 2,
+        y: 340,
+        frameKey: 'tinyswords.ui.button.red.frame',
+        width: 210,
+        height: 118,
+      }).container;
+      const label = this.add.text(GAME_WIDTH / 2, 340, 'Construire', {
+        fontFamily: 'Georgia',
+        fontSize: '30px',
+        color: '#f7efcf',
+        stroke: '#4b2115',
+        strokeThickness: 5,
+      }).setOrigin(0.5).setDepth(5);
+      const code = this.add.text(120, 470, "createPlaque(... frameKey: 'tinyswords.ui.button.red.frame')", {
+        fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0'
+      }).setDepth(5);
+      container.add([plaque, label, code]);
+    }
+
+    if (entry.meta.category === 'ui-paper') {
+      const plaque = createPlaque(this, {
+        x: GAME_WIDTH / 2,
+        y: 340,
+        frameKey: 'tinyswords.ui.paper.special.frame',
+        width: 420,
+        height: 240,
+      }).container;
+      const title = this.add.text(GAME_WIDTH / 2, 280, 'Fiche de commande', {
+        fontFamily: 'Georgia', fontSize: '28px', color: '#57311a'
+      }).setOrigin(0.5).setDepth(5);
+      const body = this.add.text(GAME_WIDTH / 2, 350, '2x Bois\n1x Pierre d’or\n1x Outil', {
+        fontFamily: 'Georgia', fontSize: '24px', align: 'center', color: '#4f341f'
+      }).setOrigin(0.5).setDepth(5);
+      const code = this.add.text(120, 500, "createPlaque(... frameKey: 'tinyswords.ui.paper.special.frame')", {
+        fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0'
+      }).setDepth(5);
+      container.add([plaque, title, body, code]);
+    }
+
+    if (entry.meta.category === 'ui-wood-table') {
+      const plaque = createPlaque(this, {
+        x: GAME_WIDTH / 2,
+        y: 338,
+        frameKey: 'tinyswords.ui.wood-table.frame',
+        fillKey: 'tinyswords.ui.wood-table.fill',
+        width: 420,
+        height: 230,
+        fillInsetX: 24,
+        fillInsetY: 24,
+      }).container;
+      const code = this.add.text(120, 500, "createPlaque(... frameKey: 'tinyswords.ui.wood-table.frame', fillKey: 'tinyswords.ui.wood-table.fill')", {
+        fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
+      }).setDepth(5);
+      container.add([plaque, code]);
+    }
+
+    if (entry.meta.category === 'ui-bar') {
+      const base = createThreeSliceHorizontal(this, {
+        x: GAME_WIDTH / 2,
+        y: 330,
+        textureKey: 'tinyswords.ui.bigbar.base.frame',
+        width: 360,
+        height: 46,
+      }).container;
+      const fill = this.add.tileSprite(GAME_WIDTH / 2 - 122, 330, 244, 26, 'tinyswords.ui.bigbar.fill')
+        .setOrigin(0, 0.5)
+        .setDepth(5);
+      const label = this.add.text(GAME_WIDTH / 2, 330, 'CHAOS', {
+        fontFamily: 'Georgia', fontSize: '22px', color: '#31140f'
+      }).setOrigin(0.5).setDepth(6);
+      const code = this.add.text(120, 500, "createThreeSliceHorizontal(... 'tinyswords.ui.bigbar.base.frame') + tileSprite('tinyswords.ui.bigbar.fill')", {
+        fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
+      }).setDepth(5);
+      container.add([base, fill, label, code]);
+    }
+
+    if (entry.meta.category === 'ui-ribbon') {
+      const ribbon = createThreeSliceHorizontal(this, {
+        x: GAME_WIDTH / 2,
+        y: 300,
+        textureKey: 'tinyswords.ui.ribbons.big',
+        row: 1,
+        width: 340,
+        height: 92,
+      }).container;
+      const swords = createThreeSliceHorizontal(this, {
+        x: GAME_WIDTH / 2,
+        y: 394,
+        textureKey: 'tinyswords.ui.swords',
+        row: 2,
+        width: 250,
+        height: 72,
+      }).container;
+      const code = this.add.text(120, 500, "createThreeSliceHorizontal(... 'tinyswords.ui.ribbons.big') / (... 'tinyswords.ui.swords')", {
+        fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
+      }).setDepth(5);
+      container.add([ribbon, swords, code]);
+    }
+
+    return container;
+  }
+
   renderTilemapGridPreview(cacheKey, entry) {
     const cols = entry.meta.columns ?? 1;
     const rows = entry.meta.rows ?? 1;
@@ -799,10 +943,10 @@ export class AssetPreviewScene extends Phaser.Scene {
   formatEntryMeta(entry) {
     return [
       `Type: ${entry.kind}`,
-      `Path: ${entry.path.replace(ASSET_BASE_URL, 'assets/tinyswords')}`,
+      `Path: ${entry.path ? entry.path.replace(ASSET_BASE_URL, 'assets/tinyswords') : 'example composition (no direct asset path)'}`,
       entry.frameConfig ? `Frame: ${entry.frameConfig.frameWidth}x${entry.frameConfig.frameHeight}` : 'Frame: image fixe',
       `Frames: ${entry.frames ?? 1}`,
-      `Preview mode: ${entry.meta?.category === 'terrain-tilemap' ? 'tile grid with frame ids' : 'animated preview'}`,
+      `Preview mode: ${entry.kind === 'ui-example' ? 'concrete ui composition example' : entry.meta?.category === 'terrain-tilemap' ? 'tile grid with frame ids' : 'animated preview'}`,
       `Meta: ${JSON.stringify(entry.meta)}`,
     ].join('\n');
   }
