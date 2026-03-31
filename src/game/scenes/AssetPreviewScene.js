@@ -993,21 +993,21 @@ export class AssetPreviewScene extends Phaser.Scene {
     }
 
     const category = entry.meta?.category;
-    if (category === 'wood-tree' || category === 'terrain-bush' || category === 'terrain-rock' || category === 'gold-stone' || category === 'gold-stone-highlight') {
+    if (category === 'wood-tree' || category === 'terrain-bush' || category === 'terrain-rock' || category === 'gold-stone' || category === 'gold-stone-highlight' || category === 'building') {
       return {
         x: preview.x,
         y: preview.y + (preview.displayHeight * 0.22),
-        width: preview.displayWidth * 0.48,
-        height: preview.displayHeight * 0.28,
+        width: preview.displayWidth * (category === 'building' ? 0.52 : 0.48),
+        height: preview.displayHeight * (category === 'building' ? 0.24 : 0.28),
       };
     }
 
-    if (category === 'sheep' || category === 'terrain-water-rock' || category === 'meat-resource' || category === 'wood-resource' || category === 'tool') {
+    if (category === 'unit' || category === 'unit-extra' || category === 'sheep' || category === 'terrain-water-rock' || category === 'meat-resource' || category === 'wood-resource' || category === 'tool') {
       return {
         x: preview.x,
         y: preview.y + (preview.displayHeight * 0.18),
-        width: preview.displayWidth * 0.56,
-        height: preview.displayHeight * 0.34,
+        width: preview.displayWidth * (category === 'unit' ? 0.34 : 0.56),
+        height: preview.displayHeight * (category === 'unit' ? 0.3 : 0.34),
       };
     }
 
