@@ -31,6 +31,26 @@ const config = {
 
 const game = new Phaser.Game(config);
 window.__VILLAGE_PANIC__ = game;
+
+const requestFullscreenIfPossible = async () => {
+  const root = document.documentElement;
+  if (!document.fullscreenEnabled || document.fullscreenElement || !root?.requestFullscreen) {
+    return false;
+  }
+  try {
+    await root.requestFullscreen({ navigationUI: 'hide' });
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const isStandalone = () => window.matchMedia?.('(display-mode: standalone)')?.matches
+  || window.matchMedia?.('(display-mode: fullscreen)')?.matches
+  || window.navigator.standalone === true;
+
+window.__requestVillagePanicFullscreen__ = requestFullscreenIfPossible;
+window.__isVillagePanicStandalone__ = isStandalone;
 window.__startAssetPreview__ = () => {
   game.scene.stop('UIScene');
   game.scene.stop('GameScene');

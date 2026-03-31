@@ -167,9 +167,14 @@ export class MenuScene extends Phaser.Scene {
     });
   }
 
-  startGame() {
+  async startGame() {
     if (this.started) return;
     this.started = true;
+
+    if (window.__requestVillagePanicFullscreen__ && window.__isVillagePanicStandalone__?.()) {
+      await window.__requestVillagePanicFullscreen__();
+    }
+
     this.scene.start('GameScene');
   }
 }

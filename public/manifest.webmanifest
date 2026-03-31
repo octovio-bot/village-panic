@@ -3,7 +3,7 @@
   "short_name": "Village Panic",
   "start_url": "/village-panic/",
   "scope": "/village-panic/",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "landscape",
   "background_color": "#102217",
   "theme_color": "#102217",
