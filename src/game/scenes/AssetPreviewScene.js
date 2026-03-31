@@ -616,7 +616,10 @@ export class AssetPreviewScene extends Phaser.Scene {
       label: `Unit anim · ${color}/${unit}/${animName}`,
       kind: 'sheet',
       path: this.resolveAssetPath(`${basePath}/${pathTemplate.replace('{Color}', this.capitalize(color)).replace('{unit}', this.capitalize(unit)).replace('{file}', animDef.file)}`),
-      frameConfig: frameSize,
+      frameConfig: {
+        frameWidth: frameSize.width,
+        frameHeight: frameSize.height,
+      },
       frames: animDef.frames,
       meta: { category: 'unit', color, unit, animName },
       fit: 'height',
