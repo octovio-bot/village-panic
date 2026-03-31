@@ -135,10 +135,8 @@ export const WORLD_ZONES = {
 };
 
 export const RESOURCE_NODES = [
-  { id: 'wood-1', resourceType: ResourceType.WOOD, x: 326, y: 248, texture: 'tinyswords.resources.tree1', label: 'Arbre' },
-  { id: 'wood-2', resourceType: ResourceType.WOOD, x: 514, y: 430, texture: 'tinyswords.resources.tree2', label: 'Arbre' },
-  { id: 'wood-3', resourceType: ResourceType.WOOD, x: 410, y: 336, texture: 'tinyswords.resources.tree3', label: 'Arbre' },
-  { id: 'wood-4', resourceType: ResourceType.WOOD, x: 612, y: 286, texture: 'tinyswords.resources.tree4', label: 'Arbre' },
+  { id: 'wood-1', resourceType: ResourceType.WOOD, x: 326, y: 248, texture: 'tinyswords.resources.tree3', label: 'Arbre' },
+  { id: 'wood-2', resourceType: ResourceType.WOOD, x: 514, y: 430, texture: 'tinyswords.resources.tree4', label: 'Arbre' },
   { id: 'gold-1', resourceType: ResourceType.GOLD, x: 2484, y: 258, texture: 'tinyswords.resources.gold-stone1', label: 'Rocher d or' },
   { id: 'gold-2', resourceType: ResourceType.GOLD, x: 2708, y: 398, texture: 'tinyswords.resources.gold-stone2', label: 'Rocher d or' },
   { id: 'meat-1', resourceType: ResourceType.MEAT, x: 2468, y: 1322, texture: 'tinyswords.resources.sheep-idle', label: 'Mouton' },

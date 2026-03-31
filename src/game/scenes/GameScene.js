@@ -456,8 +456,6 @@ export class GameScene extends Phaser.Scene {
         const treeOffsets = {
           'wood-1': 0.1,
           'wood-2': 0.45,
-          'wood-3': 0.7,
-          'wood-4': 0.25,
         };
         sprite.anims.setProgress(treeOffsets[node.id] ?? 0.1);
       } else {
