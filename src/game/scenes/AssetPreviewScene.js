@@ -795,6 +795,12 @@ export class AssetPreviewScene extends Phaser.Scene {
 
   renderUiExamplePreview(entry) {
     const container = this.add.container(0, 0).setDepth(4);
+    const attach = (...objects) => {
+      objects.flat().forEach((obj) => {
+        obj.setData('carousel-ui-preview', true);
+        container.add(obj);
+      });
+    };
 
     if (entry.meta.category === 'ui-button') {
       const plaque = createPlaque(this, {
@@ -814,7 +820,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       const code = this.add.text(120, 470, "createPlaque(... frameKey: 'tinyswords.ui.button.red.frame')", {
         fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0'
       }).setDepth(5);
-      container.add([plaque, label, code]);
+      attach(plaque, label, code);
     }
 
     if (entry.meta.category === 'ui-paper') {
@@ -834,7 +840,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       const code = this.add.text(120, 500, "createPlaque(... frameKey: 'tinyswords.ui.paper.special.frame')", {
         fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0'
       }).setDepth(5);
-      container.add([plaque, title, body, code]);
+      attach(plaque, title, body, code);
     }
 
     if (entry.meta.category === 'ui-wood-table') {
@@ -851,7 +857,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       const code = this.add.text(120, 500, "createPlaque(... frameKey: 'tinyswords.ui.wood-table.frame', fillKey: 'tinyswords.ui.wood-table.fill')", {
         fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
       }).setDepth(5);
-      container.add([plaque, code]);
+      attach(plaque, code);
     }
 
     if (entry.meta.category === 'ui-bar') {
@@ -871,7 +877,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       const code = this.add.text(120, 500, "createThreeSliceHorizontal(... 'tinyswords.ui.bigbar.base.frame') + tileSprite('tinyswords.ui.bigbar.fill')", {
         fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
       }).setDepth(5);
-      container.add([base, fill, label, code]);
+      attach(base, fill, label, code);
     }
 
     if (entry.meta.category === 'ui-ribbon') {
@@ -894,7 +900,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       const code = this.add.text(120, 500, "createThreeSliceHorizontal(... 'tinyswords.ui.ribbons.big') / (... 'tinyswords.ui.swords')", {
         fontFamily: 'monospace', fontSize: '16px', color: '#dbe5f0', wordWrap: { width: 1040 }
       }).setDepth(5);
-      container.add([ribbon, swords, code]);
+      attach(ribbon, swords, code);
     }
 
     return container;
