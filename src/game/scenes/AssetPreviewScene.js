@@ -296,6 +296,8 @@ export class AssetPreviewScene extends Phaser.Scene {
     this.carouselIndex = 0;
     this.carouselPreview = null;
     this.carouselAnimEvent = null;
+    this.showCollisionOverlay = false;
+    this.collisionOverlay = null;
 
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0f1720, 0.92).setDepth(0);
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 1180, 640, 0x182232, 0.9)
@@ -344,7 +346,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       wordWrap: { width: 1060 },
     }).setDepth(5);
 
-    this.helpText = this.add.text(GAME_WIDTH / 2, 712, '← / → : asset précédent/suivant · ↑ / ↓ : catégorie · terrain=grille · ui=exemples · particles=anim · ESC : menu', {
+    this.helpText = this.add.text(GAME_WIDTH / 2, 712, '← / → : asset précédent/suivant · ↑ / ↓ : catégorie · C : collisions · terrain=grille · ui=exemples · ESC : menu', {
       fontFamily: 'Georgia',
       fontSize: '18px',
       color: '#d9d1b4',
@@ -356,6 +358,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-RIGHT', () => this.stepCarousel(1));
     this.input.keyboard.on('keydown-UP', () => this.stepCarouselCategory(-1));
     this.input.keyboard.on('keydown-DOWN', () => this.stepCarouselCategory(1));
+    this.input.keyboard.on('keydown-C', () => this.toggleCollisionOverlay());
     this.input.keyboard.on('keydown-SPACE', () => this.renderCarouselEntry());
     this.input.keyboard.once('keydown-ESC', () => this.scene.start('MenuScene'));
 
@@ -386,6 +389,11 @@ export class AssetPreviewScene extends Phaser.Scene {
     this.carouselCategoryIndex = (this.carouselCategoryIndex + delta + total) % total;
     this.filteredCarouselEntries = this.getFilteredCarouselEntries();
     this.carouselIndex = 0;
+    this.renderCarouselEntry();
+  }
+
+  toggleCollisionOverlay() {
+    this.showCollisionOverlay = !this.showCollisionOverlay;
     this.renderCarouselEntry();
   }
 
@@ -735,6 +743,10 @@ export class AssetPreviewScene extends Phaser.Scene {
       this.carouselAnimEvent.remove(false);
       this.carouselAnimEvent = null;
     }
+    if (this.collisionOverlay) {
+      this.collisionOverlay.destroy();
+      this.collisionOverlay = null;
+    }
 
     if (entry.kind === 'ui-example') {
       this.carouselPreview = this.renderUiExamplePreview(entry);
@@ -791,6 +803,10 @@ export class AssetPreviewScene extends Phaser.Scene {
         setImageDisplayWidth(this, image, entry.targetSize);
       }
       this.carouselPreview = image;
+    }
+
+    if (this.showCollisionOverlay) {
+      this.collisionOverlay = this.renderCollisionOverlay(entry, this.carouselPreview);
     }
   }
 
@@ -951,6 +967,51 @@ export class AssetPreviewScene extends Phaser.Scene {
     }
 
     return container;
+  }
+
+  renderCollisionOverlay(entry, preview) {
+    const box = this.getCollisionBox(entry, preview);
+    if (!box) {
+      return null;
+    }
+
+    const rect = this.add.rectangle(box.x, box.y, box.width, box.height)
+      .setOrigin(0.5)
+      .setStrokeStyle(3, 0xff5d73, 0.95)
+      .setFillStyle(0xff5d73, 0.08)
+      .setDepth(20);
+    const label = this.add.text(box.x, box.y - (box.height / 2) - 10, 'collision', {
+      fontFamily: 'monospace', fontSize: '14px', color: '#ffccd3', stroke: '#111820', strokeThickness: 3,
+    }).setOrigin(0.5, 1).setDepth(21);
+
+    return this.add.container(0, 0, [rect, label]).setDepth(20);
+  }
+
+  getCollisionBox(entry, preview) {
+    if (!preview || !preview.displayWidth || !preview.displayHeight) {
+      return null;
+    }
+
+    const category = entry.meta?.category;
+    if (category === 'wood-tree' || category === 'terrain-bush' || category === 'terrain-rock' || category === 'gold-stone' || category === 'gold-stone-highlight') {
+      return {
+        x: preview.x,
+        y: preview.y + (preview.displayHeight * 0.22),
+        width: preview.displayWidth * 0.48,
+        height: preview.displayHeight * 0.28,
+      };
+    }
+
+    if (category === 'sheep' || category === 'terrain-water-rock' || category === 'meat-resource' || category === 'wood-resource' || category === 'tool') {
+      return {
+        x: preview.x,
+        y: preview.y + (preview.displayHeight * 0.18),
+        width: preview.displayWidth * 0.56,
+        height: preview.displayHeight * 0.34,
+      };
+    }
+
+    return null;
   }
 
   renderTilemapGridPreview(cacheKey, entry) {
