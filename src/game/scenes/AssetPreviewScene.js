@@ -279,6 +279,9 @@ export class AssetPreviewScene extends Phaser.Scene {
   createCarouselPreview() {
     this.cameras.main.setBackgroundColor('#1d2530');
     this.carouselEntries = this.buildCarouselEntries();
+    this.carouselCategories = [...new Set(this.carouselEntries.map((entry) => entry.meta?.categoryGroup ?? entry.meta?.category ?? 'misc'))];
+    this.carouselCategoryIndex = 0;
+    this.filteredCarouselEntries = this.getFilteredCarouselEntries();
     this.carouselIndex = 0;
     this.carouselPreview = null;
     this.carouselAnimEvent = null;
@@ -304,7 +307,15 @@ export class AssetPreviewScene extends Phaser.Scene {
       strokeThickness: 4,
     }).setOrigin(0.5).setDepth(5);
 
-    this.nameText = this.add.text(GAME_WIDTH / 2, 140, '', {
+    this.categoryText = this.add.text(GAME_WIDTH / 2, 122, '', {
+      fontFamily: 'Georgia',
+      fontSize: '18px',
+      color: '#9ed0ff',
+      stroke: '#111820',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(5);
+
+    this.nameText = this.add.text(GAME_WIDTH / 2, 154, '', {
       fontFamily: 'Georgia',
       fontSize: '28px',
       color: '#fff3c7',
@@ -322,7 +333,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       wordWrap: { width: 1060 },
     }).setDepth(5);
 
-    this.helpText = this.add.text(GAME_WIDTH / 2, 712, '← / → : asset précédent/suivant · Espace : relancer l’anim · ESC : menu', {
+    this.helpText = this.add.text(GAME_WIDTH / 2, 712, '← / → : asset précédent/suivant · ↑ / ↓ : catégorie · Espace : relancer · ESC : menu', {
       fontFamily: 'Georgia',
       fontSize: '18px',
       color: '#d9d1b4',
@@ -332,6 +343,8 @@ export class AssetPreviewScene extends Phaser.Scene {
 
     this.input.keyboard.on('keydown-LEFT', () => this.stepCarousel(-1));
     this.input.keyboard.on('keydown-RIGHT', () => this.stepCarousel(1));
+    this.input.keyboard.on('keydown-UP', () => this.stepCarouselCategory(-1));
+    this.input.keyboard.on('keydown-DOWN', () => this.stepCarouselCategory(1));
     this.input.keyboard.on('keydown-SPACE', () => this.renderCarouselEntry());
     this.input.keyboard.once('keydown-ESC', () => this.scene.start('MenuScene'));
 
@@ -346,9 +359,22 @@ export class AssetPreviewScene extends Phaser.Scene {
     this.renderCarouselEntry();
   }
 
+  getFilteredCarouselEntries() {
+    const category = this.carouselCategories[this.carouselCategoryIndex];
+    return this.carouselEntries.filter((entry) => (entry.meta?.categoryGroup ?? entry.meta?.category ?? 'misc') === category);
+  }
+
   stepCarousel(delta) {
-    const total = this.carouselEntries.length;
+    const total = this.filteredCarouselEntries.length;
     this.carouselIndex = (this.carouselIndex + delta + total) % total;
+    this.renderCarouselEntry();
+  }
+
+  stepCarouselCategory(delta) {
+    const total = this.carouselCategories.length;
+    this.carouselCategoryIndex = (this.carouselCategoryIndex + delta + total) % total;
+    this.filteredCarouselEntries = this.getFilteredCarouselEntries();
+    this.carouselIndex = 0;
     this.renderCarouselEntry();
   }
 
@@ -358,20 +384,20 @@ export class AssetPreviewScene extends Phaser.Scene {
     const unitsPath = assetManifest.units.pathTemplate;
     const assetPath = (relativePath) => this.resolveAssetPath(`${basePath}/${relativePath}`);
 
-    assetManifest.buildings.colorVariants.forEach((color) => {
+    ['black'].forEach((color) => {
       Object.keys(assetManifest.buildings.types).forEach((type) => {
         entries.push({
           label: `Building · ${color}/${type}`,
           kind: 'image',
           path: assetPath(assetManifest.buildings.pathTemplate.replace('{Color}', this.capitalize(color)).replace('{file}', assetManifest.buildings.types[type].file)),
-          meta: { category: 'building', color, type },
+          meta: { category: 'building', categoryGroup: 'buildings', color, type },
           fit: 'height',
           targetSize: 260,
         });
       });
     });
 
-    assetManifest.units.colorVariants.forEach((color) => {
+    ['black'].forEach((color) => {
       Object.entries(assetManifest.units.types).forEach(([unit, unitDef]) => {
         Object.entries(unitDef.animations).forEach(([animName, animDef]) => {
           if (animDef.file) {
@@ -390,7 +416,7 @@ export class AssetPreviewScene extends Phaser.Scene {
             path: this.resolveAssetPath(`${basePath}/${unitsPath.replace('{Color}', this.capitalize(color)).replace('{unit}', this.capitalize(unit)).replace('{file}', extraDef.file)}`),
             frameConfig: extraDef.frames ? { frameWidth: extraDef.width / extraDef.frames, frameHeight: extraDef.height } : null,
             frames: extraDef.frames ?? 1,
-            meta: { category: 'unit-extra', color, unit, extraName },
+            meta: { category: 'unit-extra', categoryGroup: 'units', color, unit, extraName },
             fit: 'width',
             targetSize: 320,
           });
@@ -405,7 +431,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         path: assetPath(`Terrain/Tileset/${value.file}`),
         frameConfig: { frameWidth: 64, frameHeight: 64 },
         frames: value.columns * value.rows,
-        meta: { category: 'terrain-tilemap', ...value },
+        meta: { category: 'terrain-tilemap', categoryGroup: 'terrain', ...value },
         fit: 'width',
         targetSize: 420,
       });
@@ -415,7 +441,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       label: 'Terrain water background',
       kind: 'image',
       path: assetPath(`Terrain/Tileset/${assetManifest.terrain.tileset.water.background.file}`),
-      meta: { category: 'terrain-water' },
+      meta: { category: 'terrain-water', categoryGroup: 'terrain' },
       fit: 'width',
       targetSize: 320,
     });
@@ -429,7 +455,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         frameHeight: assetManifest.terrain.tileset.water.foam.height,
       },
       frames: assetManifest.terrain.tileset.water.foam.frames,
-      meta: { category: 'terrain-water-foam' },
+      meta: { category: 'terrain-water-foam', categoryGroup: 'terrain' },
       fit: 'width',
       targetSize: 420,
     });
@@ -438,7 +464,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       label: 'Terrain shadow',
       kind: 'image',
       path: assetPath(`Terrain/Tileset/${assetManifest.terrain.tileset.shadow.file}`),
-      meta: { category: 'terrain-shadow' },
+      meta: { category: 'terrain-shadow', categoryGroup: 'terrain' },
       fit: 'height',
       targetSize: 220,
     });
@@ -450,7 +476,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         path: assetPath(`Terrain/Decorations/Bushes/${item.file}`),
         frameConfig: assetManifest.terrain.decorations.bushes.frameSize,
         frames: item.frames,
-        meta: { category: 'terrain-bush' },
+        meta: { category: 'terrain-bush', categoryGroup: 'decorations' },
         fit: 'height',
         targetSize: 180,
       });
@@ -461,7 +487,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         label: `Decoration cloud · ${item.file}`,
         kind: 'image',
         path: assetPath(`Terrain/Decorations/Clouds/${item.file}`),
-        meta: { category: 'terrain-cloud' },
+        meta: { category: 'terrain-cloud', categoryGroup: 'decorations' },
         fit: 'width',
         targetSize: 440,
       });
@@ -472,7 +498,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         label: `Decoration rock · ${item}`,
         kind: 'image',
         path: assetPath(`Terrain/Decorations/Rocks/${item}`),
-        meta: { category: 'terrain-rock' },
+        meta: { category: 'terrain-rock', categoryGroup: 'decorations' },
         fit: 'height',
         targetSize: 140,
       });
@@ -485,7 +511,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         path: assetPath(`Terrain/Decorations/Rocks in the Water/${item.file}`),
         frameConfig: assetManifest.terrain.decorations.waterRocks.frameSize,
         frames: item.frames,
-        meta: { category: 'terrain-water-rock' },
+        meta: { category: 'terrain-water-rock', categoryGroup: 'decorations' },
         fit: 'height',
         targetSize: 160,
       });
@@ -500,7 +526,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         frameHeight: assetManifest.terrain.decorations.rubberDuck.height,
       },
       frames: assetManifest.terrain.decorations.rubberDuck.frames,
-      meta: { category: 'terrain-rubber-duck' },
+      meta: { category: 'terrain-rubber-duck', categoryGroup: 'decorations' },
       fit: 'width',
       targetSize: 260,
     });
@@ -510,7 +536,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         label: `Gold stone · ${item.normal}`,
         kind: 'image',
         path: assetPath(`Terrain/Resources/Gold/Gold Stones/${item.normal}`),
-        meta: { category: 'gold-stone' },
+        meta: { category: 'gold-stone', categoryGroup: 'resources' },
         fit: 'height',
         targetSize: 180,
       });
@@ -520,7 +546,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         path: assetPath(`Terrain/Resources/Gold/Gold Stones/${item.highlight}`),
         frameConfig: { frameWidth: 128, frameHeight: 128 },
         frames: assetManifest.terrain.resources.gold.stones.highlightFrames,
-        meta: { category: 'gold-stone-highlight' },
+        meta: { category: 'gold-stone-highlight', categoryGroup: 'resources' },
         fit: 'height',
         targetSize: 180,
       });
@@ -530,7 +556,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       label: 'Gold resource',
       kind: 'image',
       path: assetPath(`Terrain/Resources/Gold/Gold Resource/${assetManifest.terrain.resources.gold.resource.normal.file}`),
-      meta: { category: 'gold-resource' },
+      meta: { category: 'gold-resource', categoryGroup: 'resources' },
       fit: 'height',
       targetSize: 180,
     });
@@ -540,7 +566,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       path: assetPath(`Terrain/Resources/Gold/Gold Resource/${assetManifest.terrain.resources.gold.resource.highlight.file}`),
       frameConfig: { frameWidth: 128, frameHeight: 128 },
       frames: assetManifest.terrain.resources.gold.resource.highlight.frames,
-      meta: { category: 'gold-resource-highlight' },
+      meta: { category: 'gold-resource-highlight', categoryGroup: 'resources' },
       fit: 'height',
       targetSize: 180,
     });
@@ -552,7 +578,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         path: assetPath(`Terrain/Resources/Wood/Trees/${item.tree}`),
         frameConfig: { frameWidth: item.width / item.frames, frameHeight: item.height },
         frames: item.frames,
-        meta: { category: 'wood-tree', stump: item.stump },
+        meta: { category: 'wood-tree', categoryGroup: 'resources', stump: item.stump },
         fit: 'height',
         targetSize: 230,
       });
@@ -560,7 +586,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         label: `Wood stump · ${item.stump}`,
         kind: 'image',
         path: assetPath(`Terrain/Resources/Wood/Trees/${item.stump}`),
-        meta: { category: 'wood-stump', index },
+        meta: { category: 'wood-stump', categoryGroup: 'resources', index },
         fit: 'height',
         targetSize: 180,
       });
@@ -570,7 +596,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       label: 'Wood resource',
       kind: 'image',
       path: assetPath(`Terrain/Resources/Wood/Wood Resource/${assetManifest.terrain.resources.wood.resource.file}`),
-      meta: { category: 'wood-resource' },
+      meta: { category: 'wood-resource', categoryGroup: 'resources' },
       fit: 'height',
       targetSize: 140,
     });
@@ -579,7 +605,7 @@ export class AssetPreviewScene extends Phaser.Scene {
       label: 'Meat resource',
       kind: 'image',
       path: assetPath(`Terrain/Resources/Meat/Meat Resource/${assetManifest.terrain.resources.meat.resource.file}`),
-      meta: { category: 'meat-resource' },
+      meta: { category: 'meat-resource', categoryGroup: 'resources' },
       fit: 'height',
       targetSize: 140,
     });
@@ -591,7 +617,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         path: assetPath(`Terrain/Resources/Meat/Sheep/${animDef.file}`),
         frameConfig: assetManifest.terrain.resources.meat.sheep.frameSize,
         frames: animDef.frames,
-        meta: { category: 'sheep', animName },
+        meta: { category: 'sheep', categoryGroup: 'resources', animName },
         fit: 'height',
         targetSize: 180,
       });
@@ -602,7 +628,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         label: `Tool · ${item}`,
         kind: 'image',
         path: assetPath(`Terrain/Resources/Tools/${item}`),
-        meta: { category: 'tool' },
+        meta: { category: 'tool', categoryGroup: 'resources' },
         fit: 'height',
         targetSize: 140,
       });
@@ -621,7 +647,7 @@ export class AssetPreviewScene extends Phaser.Scene {
         frameHeight: frameSize.height,
       },
       frames: animDef.frames,
-      meta: { category: 'unit', color, unit, animName },
+      meta: { category: 'unit', categoryGroup: 'units', color, unit, animName },
       fit: 'height',
       targetSize: unit === 'lancer' ? 280 : 240,
     };
@@ -659,8 +685,9 @@ export class AssetPreviewScene extends Phaser.Scene {
   }
 
   async renderCarouselEntry() {
-    const entry = this.carouselEntries[this.carouselIndex];
-    this.indexText.setText(`${this.carouselIndex + 1} / ${this.carouselEntries.length}`);
+    const entry = this.filteredCarouselEntries[this.carouselIndex];
+    this.indexText.setText(`${this.carouselIndex + 1} / ${this.filteredCarouselEntries.length}`);
+    this.categoryText.setText(`Catégorie : ${this.carouselCategories[this.carouselCategoryIndex]}`);
     this.nameText.setText(entry.label);
     this.metaText.setText(this.formatEntryMeta(entry));
 
@@ -689,10 +716,14 @@ export class AssetPreviewScene extends Phaser.Scene {
     if (entry.kind === 'sheet') {
       const sprite = this.add.sprite(GAME_WIDTH / 2, 360, cacheKey, 0).setDepth(4);
       sprite.setOrigin(0.5, 0.5);
+      const frameWidth = entry.frameConfig?.frameWidth ?? sprite.width;
+      const frameHeight = entry.frameConfig?.frameHeight ?? sprite.height;
       if (entry.fit === 'height') {
-        setImageDisplayHeight(this, sprite, entry.targetSize);
+        const scale = entry.targetSize / frameHeight;
+        sprite.setDisplaySize(frameWidth * scale, entry.targetSize);
       } else {
-        setImageDisplayWidth(this, sprite, entry.targetSize);
+        const scale = entry.targetSize / frameWidth;
+        sprite.setDisplaySize(entry.targetSize, frameHeight * scale);
       }
 
       const animKey = `${cacheKey}::anim`;
