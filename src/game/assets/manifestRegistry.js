@@ -106,7 +106,10 @@ export function getTinySwordsAssetDef(tinySwordsKey) {
     return {
       ...base,
       kind: 'sheet',
-      frameConfig: { ...assetManifest.terrain.resources.meat.sheep.frameSize },
+      frameConfig: {
+        frameWidth: assetManifest.terrain.resources.meat.sheep.frameSize.width,
+        frameHeight: assetManifest.terrain.resources.meat.sheep.frameSize.height,
+      },
       frames: assetManifest.terrain.resources.meat.sheep.animations.idle.frames,
       animationKey: 'sheep-idle',
     };
@@ -127,5 +130,6 @@ export function getTinySwordsAnimationDef(animationKey) {
     'sheep-idle': { texture: 'tinyswords.resources.sheep-idle', frameRate: 5, repeat: -1 },
   };
 
-  return animationDefs[animationKey] ?? null;
+  const def = animationDefs[animationKey];
+  return def ? { key: animationKey, ...def } : null;
 }

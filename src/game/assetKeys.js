@@ -1,13 +1,12 @@
+import { getTinySwordsAnimationDef, getTinySwordsAssetDef } from './assets/manifestRegistry.js';
+
 const ASSET_BASE = `${import.meta.env.BASE_URL}assets/tinyswords`;
 
 const image = (key, path) => ({ key, path, kind: 'image' });
 const sheet = (key, path, config) => ({ key, path, kind: 'sheet', config });
 
 const UNIT_FRAME = { frameWidth: 192, frameHeight: 192 };
-const SHEEP_FRAME = { frameWidth: 128, frameHeight: 128 };
 const BUSH_FRAME = { frameWidth: 128, frameHeight: 128 };
-const TREE_LARGE_FRAME = { frameWidth: 256, frameHeight: 256 };
-const TREE_SMALL_FRAME = { frameWidth: 192, frameHeight: 192 };
 const UI_FRAME_128 = { frameWidth: 128, frameHeight: 128, spacing: 32 };
 const UI_FRAME_96 = { frameWidth: 96, frameHeight: 96, spacing: 16 };
 const UI_FRAME_64 = { frameWidth: 64, frameHeight: 64 };
@@ -29,11 +28,12 @@ export const TINY_SWORDS_ASSETS = [
   sheet('tinyswords.units.red.warrior.run', `${ASSET_BASE}/Units/Red Units/Warrior/Warrior_Run.png`, UNIT_FRAME),
   sheet('tinyswords.units.black.lancer.run', `${ASSET_BASE}/Units/Black Units/Lancer/Lancer_Run.png`, UNIT_FRAME),
   sheet('tinyswords.units.black.lancer.idle', `${ASSET_BASE}/Units/Black Units/Lancer/Lancer_Idle.png`, UNIT_FRAME),
-  sheet('tinyswords.resources.sheep-idle', `${ASSET_BASE}/Terrain/Resources/Meat/Sheep/Sheep_Idle.png`, SHEEP_FRAME),
-  sheet('tinyswords.resources.tree1', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree1.png`, TREE_LARGE_FRAME),
-  sheet('tinyswords.resources.tree2', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree2.png`, TREE_LARGE_FRAME),
-  sheet('tinyswords.resources.tree3', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree3.png`, TREE_SMALL_FRAME),
-  sheet('tinyswords.resources.tree4', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Tree4.png`, TREE_SMALL_FRAME),
+  ...['tinyswords.resources.sheep-idle', 'tinyswords.resources.tree1', 'tinyswords.resources.tree2', 'tinyswords.resources.tree3', 'tinyswords.resources.tree4'].map((key) => {
+    const def = getTinySwordsAssetDef(key);
+    return def.kind === 'sheet'
+      ? sheet(key, def.assetPath, def.frameConfig)
+      : image(key, def.assetPath);
+  }),
   image('tinyswords.resources.gold-stone1', `${ASSET_BASE}/Terrain/Resources/Gold/Gold Stones/Gold Stone 1.png`),
   image('tinyswords.resources.gold-stone2', `${ASSET_BASE}/Terrain/Resources/Gold/Gold Stones/Gold Stone 2.png`),
   image('tinyswords.resources.wood-item', `${ASSET_BASE}/Terrain/Resources/Wood/Wood Resource/Wood Resource.png`),
@@ -117,7 +117,7 @@ export function createTinySwordsAnimations(scene) {
     { key: 'monster-idle-warrior', texture: 'tinyswords.units.red.warrior.idle', frameRate: 6, repeat: -1 },
     { key: 'monster-run-lancer', texture: 'tinyswords.units.black.lancer.run', frameRate: 10, repeat: -1 },
     { key: 'monster-idle-lancer', texture: 'tinyswords.units.black.lancer.idle', frameRate: 6, repeat: -1 },
-    { key: 'sheep-idle', texture: 'tinyswords.resources.sheep-idle', frameRate: 5, repeat: -1 }
+    getTinySwordsAnimationDef('sheep-idle')
   ];
 
   sheetAnimations.forEach((animation) => {
@@ -138,10 +138,10 @@ export function createTinySwordsAnimations(scene) {
     { key: 'bush2-wind', texture: 'tinyswords.decor.bush2', frameRate: 12, repeat: -1 },
     { key: 'bush3-wind', texture: 'tinyswords.decor.bush3', frameRate: 12, repeat: -1 },
     { key: 'bush4-wind', texture: 'tinyswords.decor.bush4', frameRate: 12, repeat: -1 },
-    { key: 'tree1-wind', texture: 'tinyswords.resources.tree1', frameRate: 10, repeat: -1 },
-    { key: 'tree2-wind', texture: 'tinyswords.resources.tree2', frameRate: 10, repeat: -1 },
-    { key: 'tree3-wind', texture: 'tinyswords.resources.tree3', frameRate: 10, repeat: -1 },
-    { key: 'tree4-wind', texture: 'tinyswords.resources.tree4', frameRate: 10, repeat: -1 }
+    getTinySwordsAnimationDef('tree1-wind'),
+    getTinySwordsAnimationDef('tree2-wind'),
+    getTinySwordsAnimationDef('tree3-wind'),
+    getTinySwordsAnimationDef('tree4-wind')
   ];
 
   sheetVariantAnimations.forEach((animation) => {
