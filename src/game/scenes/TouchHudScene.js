@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../data.js';
+import { createPlaque } from '../ui/tinySwordsUi.js';
 
 const BASE_ALPHA = 0.34;
 const ACTION_ALPHA = 0.68;
@@ -22,10 +23,15 @@ export class TouchHudScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(141);
 
-    this.actionButton = this.add.circle(0, 0, 10, 0x8b2c2c, ACTION_ALPHA)
-      .setStrokeStyle(3, 0xf7e8bd, 0.35)
-      .setScrollFactor(0)
-      .setDepth(140);
+    this.actionButton = createPlaque(this, {
+      x: 0,
+      y: 0,
+      frameKey: 'tinyswords.ui.button.red.frame',
+      width: 116,
+      height: 116,
+      depth: 140,
+      alpha: ACTION_ALPHA,
+    }).container.setScrollFactor(0);
     this.actionLabel = this.add.text(0, 0, 'ACT', {
       fontFamily: 'Georgia',
       fontSize: '24px',
@@ -75,7 +81,7 @@ export class TouchHudScene extends Phaser.Scene {
       this.actionPointerId = pointer.id;
       this.inputManager.setTouchActionHeld(true);
       this.inputManager.pulseTouchAction();
-      this.actionButton.setScale(0.94);
+      this.actionButton.setScale(((this.actionRadius * 2) / 116) * 0.94);
       this.setHudActive(true);
     });
 
@@ -122,7 +128,7 @@ export class TouchHudScene extends Phaser.Scene {
 
     this.base.setPosition(this.joyBasePos.x, this.joyBasePos.y).setRadius(this.joystickRadius);
     this.knob.setPosition(this.joyBasePos.x, this.joyBasePos.y).setRadius(this.knobRadius);
-    this.actionButton.setPosition(this.actionPos.x, this.actionPos.y).setRadius(this.actionRadius);
+    this.actionButton.setPosition(this.actionPos.x, this.actionPos.y).setScale((this.actionRadius * 2) / 116);
     this.actionLabel.setPosition(this.actionPos.x, this.actionPos.y).setFontSize(Math.round(24 * scaleFactor));
     this.baseZone.setPosition(this.joyBasePos.x, this.joyBasePos.y).setSize(this.joystickRadius * 2.8, this.joystickRadius * 2.8);
     this.actionZone.setPosition(this.actionPos.x, this.actionPos.y).setSize(this.actionRadius * 3, this.actionRadius * 3);
@@ -187,6 +193,6 @@ export class TouchHudScene extends Phaser.Scene {
 
   releaseAction() {
     this.inputManager.setTouchActionHeld(false);
-    this.actionButton.setScale(1);
+    this.actionButton.setScale((this.actionRadius * 2) / 116);
   }
 }

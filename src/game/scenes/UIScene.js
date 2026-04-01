@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, RESOURCE_LABELS } from '../data.js';
-import { createThreeSliceHorizontal } from '../ui/tinySwordsUi.js';
+import { createHudPanel, createChaosBar } from '../ui/tinySwordsHud.js';
 
 export class UIScene extends Phaser.Scene {
   constructor() {
@@ -10,15 +10,33 @@ export class UIScene extends Phaser.Scene {
   create() {
     this.gameScene = this.scene.get('GameScene');
 
-    this.add.rectangle(176, 48, 312, 72, 0x0f1a14, 0.78)
-      .setStrokeStyle(2, 0xe8d9a5, 0.24)
-      .setDepth(95);
-    this.add.rectangle(GAME_WIDTH - 120, 32, 170, 44, 0x0f1a14, 0.78)
-      .setStrokeStyle(2, 0xe8d9a5, 0.24)
-      .setDepth(95);
-    this.add.rectangle(196, GAME_HEIGHT - 34, 368, 46, 0x0f1a14, 0.84)
-      .setStrokeStyle(2, 0xe8d9a5, 0.24)
-      .setDepth(95);
+    createHudPanel(this, {
+      x: 176,
+      y: 48,
+      width: 312,
+      height: 72,
+      frameKey: 'tinyswords.ui.paper.special.frame',
+      depth: 95,
+      alpha: 0.92,
+    });
+    createHudPanel(this, {
+      x: GAME_WIDTH - 120,
+      y: 32,
+      width: 170,
+      height: 44,
+      frameKey: 'tinyswords.ui.paper.special.frame',
+      depth: 95,
+      alpha: 0.92,
+    });
+    createHudPanel(this, {
+      x: 196,
+      y: GAME_HEIGHT - 34,
+      width: 368,
+      height: 46,
+      frameKey: 'tinyswords.ui.paper.special.frame',
+      depth: 95,
+      alpha: 0.94,
+    });
 
     this.toastText = this.add.text(GAME_WIDTH / 2, 30, '', {
       fontFamily: 'Georgia',
@@ -54,24 +72,18 @@ export class UIScene extends Phaser.Scene {
       strokeThickness: 4,
     }).setDepth(100);
 
-    this.chaosBase = createThreeSliceHorizontal(this, {
+    const chaosBar = createChaosBar(this, {
       x: GAME_WIDTH / 2,
       y: 48,
-      textureKey: 'tinyswords.ui.bigbar.base.frame',
       width: 320,
       height: 40,
-      alpha: 1,
-    }).container.setDepth(100);
-    this.chaosFill = this.add.tileSprite(GAME_WIDTH / 2 - 114, 48, 228, 24, 'tinyswords.ui.bigbar.fill')
-      .setOrigin(0, 0.5)
-      .setDepth(101);
-    this.chaosFill.tileScaleX = 24 / 64;
-    this.chaosFill.tileScaleY = 24 / 64;
-    this.add.text(GAME_WIDTH / 2, 48, 'CHAOS', {
-      fontFamily: 'Georgia',
-      fontSize: '18px',
-      color: '#31140f',
-    }).setOrigin(0.5).setDepth(102);
+      fillWidth: 228,
+      fillHeight: 24,
+      depth: 100,
+    });
+    this.chaosBase = chaosBar.base;
+    this.chaosFill = chaosBar.fill;
+    this.chaosFillWidth = chaosBar.fillWidth;
   }
 
   update() {
@@ -84,7 +96,7 @@ export class UIScene extends Phaser.Scene {
     this.timeText.setText(`Temps ${this.formatTime(snapshot.remainingRoundTime)}`);
     this.carryText.setText(snapshot.carriedItem ? `Porte: ${RESOURCE_LABELS[snapshot.carriedItem]}` : 'Porte: rien');
     this.promptText.setText(snapshot.interactionPrompt ?? 'Explore le village');
-    this.chaosFill.width = 228 * (snapshot.chaos.value / snapshot.chaos.threshold);
+    this.chaosFill.width = this.chaosFillWidth * (snapshot.chaos.value / snapshot.chaos.threshold);
 
     if (snapshot.toast) {
       this.toastText.setText(snapshot.toast.message);
