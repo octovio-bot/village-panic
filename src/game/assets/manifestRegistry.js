@@ -1,6 +1,7 @@
 import assetManifest from '../../../public/assets/tinyswords/assets.json';
 
 const ASSET_BASE_URL = `${import.meta.env.BASE_URL}assets/tinyswords`;
+const capitalize = (value) => `${value[0].toUpperCase()}${value.slice(1)}`;
 
 function normalizeAssetPath(assetPath) {
   if (!assetPath) return null;
@@ -70,4 +71,61 @@ export function getAssetPathForTinySwordsKey(tinySwordsKey) {
   };
 
   return keyToPath[tinySwordsKey] ?? null;
+}
+
+export function getTinySwordsAssetDef(tinySwordsKey) {
+  const relativePath = getAssetPathForTinySwordsKey(tinySwordsKey);
+  if (!relativePath) {
+    return null;
+  }
+
+  const base = {
+    key: tinySwordsKey,
+    relativePath,
+    assetPath: `${ASSET_BASE_URL}/${relativePath}`,
+    collisionBox: getGameplayCollisionByAssetPath(relativePath),
+  };
+
+  const treeMatch = tinySwordsKey.match(/^tinyswords\.resources\.tree([1-4])$/);
+  if (treeMatch) {
+    const treeIndex = Number(treeMatch[1]) - 1;
+    const treeDef = assetManifest.terrain.resources.wood.trees.items[treeIndex];
+    return {
+      ...base,
+      kind: 'sheet',
+      frameConfig: {
+        frameWidth: treeDef.frameWidth,
+        frameHeight: treeDef.frameHeight,
+      },
+      frames: treeDef.frames,
+      animationKey: `tree${treeMatch[1]}-wind`,
+    };
+  }
+
+  if (tinySwordsKey === 'tinyswords.resources.sheep-idle') {
+    return {
+      ...base,
+      kind: 'sheet',
+      frameConfig: { ...assetManifest.terrain.resources.meat.sheep.frameSize },
+      frames: assetManifest.terrain.resources.meat.sheep.animations.idle.frames,
+      animationKey: 'sheep-idle',
+    };
+  }
+
+  return {
+    ...base,
+    kind: 'image',
+  };
+}
+
+export function getTinySwordsAnimationDef(animationKey) {
+  const animationDefs = {
+    'tree1-wind': { texture: 'tinyswords.resources.tree1', frameRate: 10, repeat: -1 },
+    'tree2-wind': { texture: 'tinyswords.resources.tree2', frameRate: 10, repeat: -1 },
+    'tree3-wind': { texture: 'tinyswords.resources.tree3', frameRate: 10, repeat: -1 },
+    'tree4-wind': { texture: 'tinyswords.resources.tree4', frameRate: 10, repeat: -1 },
+    'sheep-idle': { texture: 'tinyswords.resources.sheep-idle', frameRate: 5, repeat: -1 },
+  };
+
+  return animationDefs[animationKey] ?? null;
 }
