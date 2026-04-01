@@ -52,20 +52,51 @@ export class TilesetPreviewScene extends Phaser.Scene {
     this.input.keyboard.once('keydown-ENTER', () => this.scene.start('GameScene'));
   }
 
+  getTileCrop(index) {
+    const col = index % GRID_COLS;
+    const row = Math.floor(index / GRID_COLS);
+    return {
+      col,
+      row,
+      x: col * TILE_SIZE,
+      y: row * TILE_SIZE,
+      width: TILE_SIZE,
+      height: TILE_SIZE,
+    };
+  }
+
+  getTileTextureKey(index) {
+    return `${TILE_TEXTURE_KEY}::tile-${index}`;
+  }
+
+  ensureTileTexture(index) {
+    const key = this.getTileTextureKey(index);
+    if (this.textures.exists(key)) {
+      return key;
+    }
+
+    const crop = this.getTileCrop(index);
+    const source = this.textures.get(TILE_TEXTURE_KEY).getSourceImage();
+    const canvasTexture = this.textures.createCanvas(key, TILE_SIZE, TILE_SIZE);
+    const context = canvasTexture.getContext();
+    context.clearRect(0, 0, TILE_SIZE, TILE_SIZE);
+    context.drawImage(source, crop.x, crop.y, crop.width, crop.height, 0, 0, TILE_SIZE, TILE_SIZE);
+    canvasTexture.refresh();
+    return key;
+  }
+
   createGrid() {
     const startX = PAGE_PADDING_X;
     const startY = PAGE_PADDING_Y;
 
     for (let index = 0; index < tileIndexMapping.meta.totalTiles; index += 1) {
-      const col = index % GRID_COLS;
-      const row = Math.floor(index / GRID_COLS);
+      const { col, row } = this.getTileCrop(index);
       const x = startX + (col * (GRID_TILE_PREVIEW_SIZE + GAP));
       const y = startY + (row * (GRID_TILE_PREVIEW_SIZE + 34));
 
-      const frame = this.add.image(x, y, TILE_TEXTURE_KEY)
+      const frame = this.add.image(x, y, this.ensureTileTexture(index))
         .setOrigin(0, 0)
         .setDisplaySize(GRID_TILE_PREVIEW_SIZE, GRID_TILE_PREVIEW_SIZE)
-        .setCrop(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
         .setInteractive(new Phaser.Geom.Rectangle(0, 0, GRID_TILE_PREVIEW_SIZE, GRID_TILE_PREVIEW_SIZE), Phaser.Geom.Rectangle.Contains)
         .setDepth(2);
 
@@ -114,7 +145,7 @@ export class TilesetPreviewScene extends Phaser.Scene {
       strokeThickness: 4,
     }).setDepth(6);
 
-    this.inspectorPreview = this.add.image(panelX + 170, panelY + 154, TILE_TEXTURE_KEY)
+    this.inspectorPreview = this.add.image(panelX + 170, panelY + 154, this.ensureTileTexture(0))
       .setDisplaySize(INSPECTOR_PREVIEW_SIZE, INSPECTOR_PREVIEW_SIZE)
       .setDepth(6);
 
@@ -149,10 +180,8 @@ export class TilesetPreviewScene extends Phaser.Scene {
   refreshSelection() {
     this.selectionBoxes.forEach((box, index) => box.setVisible(index === this.selectedIndex));
 
-    const col = this.selectedIndex % GRID_COLS;
-    const row = Math.floor(this.selectedIndex / GRID_COLS);
     this.inspectorTitle.setText(`Tile #${this.selectedIndex}`);
-    this.inspectorPreview.setCrop(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    this.inspectorPreview.setTexture(this.ensureTileTexture(this.selectedIndex));
 
     const mapping = this.mappingEntries[String(this.selectedIndex)] ?? { name: '', category: '', tags: [], notes: '' };
     this.mappingText.setText([
