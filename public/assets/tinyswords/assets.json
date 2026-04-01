@@ -955,5 +955,1611 @@
       ],
       "pattern": "Ribbon_{Color}.png"
     }
+  },
+  "collisions": {
+    "version": 1,
+    "generatedAt": "2026-04-01T06:41:34.063Z",
+    "alphaThreshold": 8,
+    "gameplay": {
+      "Buildings/Black Buildings/Archery.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.4948,
+          "y": 0.8672,
+          "width": 0.5521,
+          "height": 0.125
+        }
+      },
+      "Buildings/Black Buildings/Barracks.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8828,
+          "width": 0.5573,
+          "height": 0.1328
+        }
+      },
+      "Buildings/Black Buildings/Castle.png": {
+        "frame": {
+          "width": 320,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5016,
+          "y": 0.8926,
+          "width": 0.5656,
+          "height": 0.1445
+        }
+      },
+      "Buildings/Black Buildings/House1.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.8177,
+          "width": 0.5078,
+          "height": 0.1458
+        }
+      },
+      "Buildings/Black Buildings/House2.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.8438,
+          "width": 0.5781,
+          "height": 0.1458
+        }
+      },
+      "Buildings/Black Buildings/House3.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.8281,
+          "width": 0.5547,
+          "height": 0.125
+        }
+      },
+      "Buildings/Black Buildings/Monastery.png": {
+        "frame": {
+          "width": 192,
+          "height": 320,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8844,
+          "width": 0.4844,
+          "height": 0.15
+        }
+      },
+      "Buildings/Black Buildings/Tower.png": {
+        "frame": {
+          "width": 128,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.8262,
+          "width": 0.5469,
+          "height": 0.1289
+        }
+      },
+      "Buildings/Blue Buildings/Archery.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.4948,
+          "y": 0.8672,
+          "width": 0.5521,
+          "height": 0.125
+        }
+      },
+      "Buildings/Blue Buildings/Barracks.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8828,
+          "width": 0.5573,
+          "height": 0.1328
+        }
+      },
+      "Buildings/Blue Buildings/Castle.png": {
+        "frame": {
+          "width": 320,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5016,
+          "y": 0.8926,
+          "width": 0.5656,
+          "height": 0.1445
+        }
+      },
+      "Buildings/Blue Buildings/House1.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.8177,
+          "width": 0.5078,
+          "height": 0.1458
+        }
+      },
+      "Buildings/Blue Buildings/House2.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.8438,
+          "width": 0.5781,
+          "height": 0.1458
+        }
+      },
+      "Buildings/Blue Buildings/House3.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.8281,
+          "width": 0.5547,
+          "height": 0.125
+        }
+      },
+      "Buildings/Blue Buildings/Monastery.png": {
+        "frame": {
+          "width": 192,
+          "height": 320,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8844,
+          "width": 0.4844,
+          "height": 0.15
+        }
+      },
+      "Buildings/Blue Buildings/Tower.png": {
+        "frame": {
+          "width": 128,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.8262,
+          "width": 0.5469,
+          "height": 0.1289
+        }
+      },
+      "Buildings/Purple Buildings/Archery.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.4948,
+          "y": 0.8672,
+          "width": 0.5521,
+          "height": 0.125
+        }
+      },
+      "Buildings/Purple Buildings/Barracks.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8828,
+          "width": 0.5573,
+          "height": 0.1328
+        }
+      },
+      "Buildings/Purple Buildings/Castle.png": {
+        "frame": {
+          "width": 320,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5016,
+          "y": 0.8926,
+          "width": 0.5656,
+          "height": 0.1445
+        }
+      },
+      "Buildings/Purple Buildings/House1.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.8177,
+          "width": 0.5078,
+          "height": 0.1458
+        }
+      },
+      "Buildings/Purple Buildings/House2.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.8438,
+          "width": 0.5781,
+          "height": 0.1458
+        }
+      },
+      "Buildings/Purple Buildings/House3.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.8281,
+          "width": 0.5547,
+          "height": 0.125
+        }
+      },
+      "Buildings/Purple Buildings/Monastery.png": {
+        "frame": {
+          "width": 192,
+          "height": 320,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8844,
+          "width": 0.4844,
+          "height": 0.15
+        }
+      },
+      "Buildings/Purple Buildings/Tower.png": {
+        "frame": {
+          "width": 128,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.8262,
+          "width": 0.5469,
+          "height": 0.1289
+        }
+      },
+      "Buildings/Red Buildings/Archery.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.4948,
+          "y": 0.8672,
+          "width": 0.5521,
+          "height": 0.125
+        }
+      },
+      "Buildings/Red Buildings/Barracks.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8828,
+          "width": 0.5573,
+          "height": 0.1328
+        }
+      },
+      "Buildings/Red Buildings/Castle.png": {
+        "frame": {
+          "width": 320,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5016,
+          "y": 0.8926,
+          "width": 0.5656,
+          "height": 0.1445
+        }
+      },
+      "Buildings/Red Buildings/House1.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.8177,
+          "width": 0.5078,
+          "height": 0.1458
+        }
+      },
+      "Buildings/Red Buildings/House2.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.8438,
+          "width": 0.5781,
+          "height": 0.1458
+        }
+      },
+      "Buildings/Red Buildings/House3.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.8281,
+          "width": 0.5547,
+          "height": 0.125
+        }
+      },
+      "Buildings/Red Buildings/Monastery.png": {
+        "frame": {
+          "width": 192,
+          "height": 320,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8844,
+          "width": 0.4844,
+          "height": 0.15
+        }
+      },
+      "Buildings/Red Buildings/Tower.png": {
+        "frame": {
+          "width": 128,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.8262,
+          "width": 0.5469,
+          "height": 0.1289
+        }
+      },
+      "Buildings/Yellow Buildings/Archery.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.4948,
+          "y": 0.8672,
+          "width": 0.5521,
+          "height": 0.125
+        }
+      },
+      "Buildings/Yellow Buildings/Barracks.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8828,
+          "width": 0.5573,
+          "height": 0.1328
+        }
+      },
+      "Buildings/Yellow Buildings/Castle.png": {
+        "frame": {
+          "width": 320,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5016,
+          "y": 0.8926,
+          "width": 0.5656,
+          "height": 0.1445
+        }
+      },
+      "Buildings/Yellow Buildings/House1.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.8177,
+          "width": 0.5078,
+          "height": 0.1458
+        }
+      },
+      "Buildings/Yellow Buildings/House2.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.8438,
+          "width": 0.5781,
+          "height": 0.1458
+        }
+      },
+      "Buildings/Yellow Buildings/House3.png": {
+        "frame": {
+          "width": 128,
+          "height": 192,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.8281,
+          "width": 0.5547,
+          "height": 0.125
+        }
+      },
+      "Buildings/Yellow Buildings/Monastery.png": {
+        "frame": {
+          "width": 192,
+          "height": 320,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8844,
+          "width": 0.4844,
+          "height": 0.15
+        }
+      },
+      "Buildings/Yellow Buildings/Tower.png": {
+        "frame": {
+          "width": 128,
+          "height": 256,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.8262,
+          "width": 0.5469,
+          "height": 0.1289
+        }
+      },
+      "Terrain/Decorations/Bushes/Bushe1.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.5078,
+          "y": 0.5625,
+          "width": 0.375,
+          "height": 0.0938
+        }
+      },
+      "Terrain/Decorations/Bushes/Bushe2.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.5508,
+          "width": 0.2578,
+          "height": 0.0703
+        }
+      },
+      "Terrain/Decorations/Bushes/Bushe3.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.4844,
+          "y": 0.5898,
+          "width": 0.4453,
+          "height": 0.1172
+        }
+      },
+      "Terrain/Decorations/Bushes/Bushe4.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.4961,
+          "y": 0.5664,
+          "width": 0.2578,
+          "height": 0.0859
+        }
+      },
+      "Terrain/Decorations/Rocks/Rock1.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.4844,
+          "y": 0.7109,
+          "width": 0.4063,
+          "height": 0.1719
+        }
+      },
+      "Terrain/Decorations/Rocks/Rock2.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5078,
+          "y": 0.7109,
+          "width": 0.6406,
+          "height": 0.2344
+        }
+      },
+      "Terrain/Decorations/Rocks/Rock3.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5313,
+          "y": 0.7188,
+          "width": 0.5,
+          "height": 0.1875
+        }
+      },
+      "Terrain/Decorations/Rocks/Rock4.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.7344,
+          "width": 0.75,
+          "height": 0.2813
+        }
+      },
+      "Terrain/Decorations/Rocks in the Water/Water Rocks_01.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 16
+        },
+        "box": {
+          "x": 0.4844,
+          "y": 0.7656,
+          "width": 0.5156,
+          "height": 0.1563
+        }
+      },
+      "Terrain/Decorations/Rocks in the Water/Water Rocks_02.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 16
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.7734,
+          "width": 0.7656,
+          "height": 0.2031
+        }
+      },
+      "Terrain/Decorations/Rocks in the Water/Water Rocks_03.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 16
+        },
+        "box": {
+          "x": 0.5313,
+          "y": 0.7734,
+          "width": 0.625,
+          "height": 0.1719
+        }
+      },
+      "Terrain/Decorations/Rocks in the Water/Water Rocks_04.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 16
+        },
+        "box": {
+          "x": 0.4844,
+          "y": 0.8047,
+          "width": 0.7969,
+          "height": 0.2344
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 1.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.5859,
+          "width": 0.1953,
+          "height": 0.0625
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 1_Highlight.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5039,
+          "y": 0.5859,
+          "width": 0.1953,
+          "height": 0.0625
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 2.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5156,
+          "y": 0.5547,
+          "width": 0.2031,
+          "height": 0.0625
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 2_Highlight.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5156,
+          "y": 0.5547,
+          "width": 0.2031,
+          "height": 0.0625
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 3.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.4961,
+          "y": 0.6211,
+          "width": 0.3516,
+          "height": 0.1172
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 3_Highlight.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.4961,
+          "y": 0.6211,
+          "width": 0.3516,
+          "height": 0.1172
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 4.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5195,
+          "y": 0.6055,
+          "width": 0.3828,
+          "height": 0.1172
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 4_Highlight.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5195,
+          "y": 0.6055,
+          "width": 0.3828,
+          "height": 0.1172
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 5.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5078,
+          "y": 0.6875,
+          "width": 0.4531,
+          "height": 0.1719
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 5_Highlight.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5078,
+          "y": 0.6875,
+          "width": 0.4531,
+          "height": 0.1719
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 6.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.4922,
+          "y": 0.668,
+          "width": 0.5625,
+          "height": 0.1797
+        }
+      },
+      "Terrain/Resources/Gold/Gold Stones/Gold Stone 6_Highlight.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.4922,
+          "y": 0.668,
+          "width": 0.5625,
+          "height": 0.1797
+        }
+      },
+      "Terrain/Resources/Gold/Gold Resource/Gold_Resource.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.4961,
+          "y": 0.5586,
+          "width": 0.1328,
+          "height": 0.0547
+        }
+      },
+      "Terrain/Resources/Gold/Gold Resource/Gold_Resource_Highlight.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.4961,
+          "y": 0.5586,
+          "width": 0.1328,
+          "height": 0.0547
+        }
+      },
+      "Terrain/Resources/Wood/Trees/Tree1.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5104,
+          "y": 0.8672,
+          "width": 0.3229,
+          "height": 0.1328
+        }
+      },
+      "Terrain/Resources/Wood/Trees/Tree2.png": {
+        "frame": {
+          "width": 192,
+          "height": 256,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.8789,
+          "width": 0.2865,
+          "height": 0.1719
+        }
+      },
+      "Terrain/Resources/Wood/Trees/Tree3.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.4948,
+          "y": 0.8125,
+          "width": 0.25,
+          "height": 0.1354
+        }
+      },
+      "Terrain/Resources/Wood/Trees/Tree4.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.4974,
+          "y": 0.8125,
+          "width": 0.2188,
+          "height": 0.1146
+        }
+      },
+      "Terrain/Resources/Wood/Wood Resource/Wood Resource.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5078,
+          "y": 0.625,
+          "width": 0.6094,
+          "height": 0.1563
+        }
+      },
+      "Terrain/Resources/Meat/Meat Resource/Meat Resource.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5078,
+          "y": 0.7031,
+          "width": 0.6094,
+          "height": 0.1875
+        }
+      },
+      "Terrain/Resources/Tools/Tool_01.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5391,
+          "y": 0.6094,
+          "width": 0.3594,
+          "height": 0.1563
+        }
+      },
+      "Terrain/Resources/Tools/Tool_02.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.6094,
+          "width": 0.3438,
+          "height": 0.125
+        }
+      },
+      "Terrain/Resources/Tools/Tool_03.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5156,
+          "y": 0.6016,
+          "width": 0.25,
+          "height": 0.1094
+        }
+      },
+      "Terrain/Resources/Tools/Tool_04.png": {
+        "frame": {
+          "width": 64,
+          "height": 64,
+          "frames": 1
+        },
+        "box": {
+          "x": 0.5078,
+          "y": 0.6016,
+          "width": 0.2969,
+          "height": 0.1406
+        }
+      },
+      "Terrain/Resources/Meat/Sheep/Sheep_Idle.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.6055,
+          "width": 0.2188,
+          "height": 0.0859
+        }
+      },
+      "Terrain/Resources/Meat/Sheep/Sheep_Move.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 4
+        },
+        "box": {
+          "x": 0.4805,
+          "y": 0.6094,
+          "width": 0.2266,
+          "height": 0.0859
+        }
+      },
+      "Terrain/Resources/Meat/Sheep/Sheep_Grass.png": {
+        "frame": {
+          "width": 128,
+          "height": 128,
+          "frames": 12
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.6094,
+          "width": 0.2266,
+          "height": 0.0859
+        }
+      },
+      "Units/Black Units/Archer/Archer_Idle.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.487,
+          "y": 0.6667,
+          "width": 0.1146,
+          "height": 0.0729
+        }
+      },
+      "Units/Black Units/Archer/Archer_Run.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 4
+        },
+        "box": {
+          "x": 0.487,
+          "y": 0.6667,
+          "width": 0.1146,
+          "height": 0.0729
+        }
+      },
+      "Units/Black Units/Archer/Archer_Shoot.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.4792,
+          "y": 0.6693,
+          "width": 0.1354,
+          "height": 0.0729
+        }
+      },
+      "Units/Black Units/Warrior/Warrior_Idle.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.526,
+          "y": 0.6719,
+          "width": 0.1302,
+          "height": 0.0729
+        }
+      },
+      "Units/Black Units/Warrior/Warrior_Run.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5104,
+          "y": 0.6745,
+          "width": 0.1458,
+          "height": 0.0781
+        }
+      },
+      "Units/Black Units/Warrior/Warrior_Attack1.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 4
+        },
+        "box": {
+          "x": 0.5208,
+          "y": 0.7604,
+          "width": 0.1875,
+          "height": 0.0885
+        }
+      },
+      "Units/Black Units/Warrior/Warrior_Attack2.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 4
+        },
+        "box": {
+          "x": 0.5651,
+          "y": 0.7396,
+          "width": 0.1719,
+          "height": 0.0833
+        }
+      },
+      "Units/Black Units/Warrior/Warrior_Guard.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.474,
+          "y": 0.6719,
+          "width": 0.1094,
+          "height": 0.0781
+        }
+      },
+      "Units/Black Units/Monk/Idle.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.6641,
+          "width": 0.0885,
+          "height": 0.0573
+        }
+      },
+      "Units/Black Units/Monk/Run.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 4
+        },
+        "box": {
+          "x": 0.5078,
+          "y": 0.6641,
+          "width": 0.1302,
+          "height": 0.0573
+        }
+      },
+      "Units/Black Units/Monk/Heal.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 11
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.6667,
+          "width": 0.1875,
+          "height": 0.0573
+        }
+      },
+      "Units/Black Units/Monk/Heal_Effect.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 11
+        },
+        "box": {
+          "x": 0.5286,
+          "y": 0.6901,
+          "width": 0.1719,
+          "height": 0.1354
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Idle.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.4896,
+          "y": 0.6693,
+          "width": 0.0833,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Idle Axe.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.4609,
+          "y": 0.6693,
+          "width": 0.1042,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Idle Gold.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.513,
+          "y": 0.6693,
+          "width": 0.099,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Idle Hammer.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.5339,
+          "y": 0.6693,
+          "width": 0.1094,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Idle Knife.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.5182,
+          "y": 0.6693,
+          "width": 0.099,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Idle Meat.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.4974,
+          "y": 0.6667,
+          "width": 0.0938,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Idle Pickaxe.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.4688,
+          "y": 0.6693,
+          "width": 0.0938,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Idle Wood.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 8
+        },
+        "box": {
+          "x": 0.5104,
+          "y": 0.6693,
+          "width": 0.0938,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Run.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.6693,
+          "width": 0.1042,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Run Axe.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.4792,
+          "y": 0.6693,
+          "width": 0.1198,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Run Gold.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5286,
+          "y": 0.6693,
+          "width": 0.1042,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Run Hammer.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5547,
+          "y": 0.6693,
+          "width": 0.1198,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Run Knife.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5234,
+          "y": 0.6693,
+          "width": 0.1198,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Run Meat.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5156,
+          "y": 0.6693,
+          "width": 0.1042,
+          "height": 0.0677
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Run Pickaxe.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.4792,
+          "y": 0.6693,
+          "width": 0.1198,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Run Wood.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5,
+          "y": 0.6693,
+          "width": 0.0938,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Interact Axe.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.4922,
+          "y": 0.6693,
+          "width": 0.151,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Interact Hammer.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 3
+        },
+        "box": {
+          "x": 0.5964,
+          "y": 0.6849,
+          "width": 0.1302,
+          "height": 0.0573
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Interact Knife.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 4
+        },
+        "box": {
+          "x": 0.5417,
+          "y": 0.6953,
+          "width": 0.125,
+          "height": 0.0677
+        }
+      },
+      "Units/Black Units/Pawn/Pawn_Interact Pickaxe.png": {
+        "frame": {
+          "width": 192,
+          "height": 192,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5026,
+          "y": 0.6693,
+          "width": 0.1406,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_Idle.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 12
+        },
+        "box": {
+          "x": 0.4672,
+          "y": 0.5797,
+          "width": 0.0625,
+          "height": 0.0656
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_Run.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.4562,
+          "y": 0.5969,
+          "width": 0.0625,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_Up_Attack.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 3
+        },
+        "box": {
+          "x": 0.4641,
+          "y": 0.5828,
+          "width": 0.0469,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_Down_Attack.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 3
+        },
+        "box": {
+          "x": 0.5141,
+          "y": 0.9047,
+          "width": 0.0406,
+          "height": 0.0656
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_Right_Attack.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 3
+        },
+        "box": {
+          "x": 0.6125,
+          "y": 0.6,
+          "width": 0.1437,
+          "height": 0.0344
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_UpRight_Attack.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 3
+        },
+        "box": {
+          "x": 0.5828,
+          "y": 0.5875,
+          "width": 0.1094,
+          "height": 0.0469
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_DownRight_Attack.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 3
+        },
+        "box": {
+          "x": 0.5422,
+          "y": 0.8203,
+          "width": 0.0906,
+          "height": 0.0594
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_Up_Defence.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.4656,
+          "y": 0.5859,
+          "width": 0.0437,
+          "height": 0.0531
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_Down_Defence.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5172,
+          "y": 0.8375,
+          "width": 0.0406,
+          "height": 0.0625
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_Right_Defence.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.6234,
+          "y": 0.6,
+          "width": 0.1344,
+          "height": 0.0344
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_UpRight_Defence.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5891,
+          "y": 0.5906,
+          "width": 0.0969,
+          "height": 0.0406
+        }
+      },
+      "Units/Black Units/Lancer/Lancer_DownRight_Defence.png": {
+        "frame": {
+          "width": 320,
+          "height": 320,
+          "frames": 6
+        },
+        "box": {
+          "x": 0.5547,
+          "y": 0.7734,
+          "width": 0.0906,
+          "height": 0.0531
+        }
+      }
+    }
   }
 }

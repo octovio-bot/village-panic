@@ -1040,30 +1040,22 @@ export class AssetPreviewScene extends Phaser.Scene {
   }
 
   getCollisionBox(entry, preview) {
-    if (!preview || !preview.displayWidth || !preview.displayHeight) {
+    if (!preview || !preview.displayWidth || !preview.displayHeight || !entry.path) {
       return null;
     }
 
-    const category = entry.meta?.category;
-    if (category === 'wood-tree' || category === 'terrain-bush' || category === 'terrain-rock' || category === 'gold-stone' || category === 'gold-stone-highlight' || category === 'building') {
-      return {
-        x: preview.x,
-        y: preview.y + (preview.displayHeight * 0.22),
-        width: preview.displayWidth * (category === 'building' ? 0.52 : 0.48),
-        height: preview.displayHeight * (category === 'building' ? 0.24 : 0.28),
-      };
+    const relativePath = entry.path.replace(`${ASSET_BASE_URL}/`, '');
+    const collisionDef = assetManifest.collisions?.gameplay?.[relativePath]?.box;
+    if (!collisionDef) {
+      return null;
     }
 
-    if (category === 'unit' || category === 'unit-extra' || category === 'sheep' || category === 'terrain-water-rock' || category === 'meat-resource' || category === 'wood-resource' || category === 'tool') {
-      return {
-        x: preview.x,
-        y: preview.y + (preview.displayHeight * 0.18),
-        width: preview.displayWidth * (category === 'unit' ? 0.34 : 0.56),
-        height: preview.displayHeight * (category === 'unit' ? 0.3 : 0.34),
-      };
-    }
-
-    return null;
+    return {
+      x: preview.x + ((collisionDef.x - 0.5) * preview.displayWidth),
+      y: preview.y + ((collisionDef.y - 0.5) * preview.displayHeight),
+      width: preview.displayWidth * collisionDef.width,
+      height: preview.displayHeight * collisionDef.height,
+    };
   }
 
   renderTilemapGridPreview(cacheKey, entry) {

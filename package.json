@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "playwright test"
+    "test": "playwright test",
+    "generate:asset-collisions": "node scripts/generate-asset-collisions.mjs",
+    "test:asset-collisions": "node scripts/verify-asset-collisions.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"
@@ -15,6 +17,7 @@
   "devDependencies": {
     "@playwright/cli": "^0.1.1",
     "@playwright/test": "^1.58.2",
+    "pngjs": "^7.0.0",
     "playwright": "^1.58.2",
     "vite": "^7.1.0"
   }
