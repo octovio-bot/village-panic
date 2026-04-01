@@ -148,7 +148,9 @@ export class SpawnManager {
       }
       const bob = Math.sin((this.scene.time.now / 250) + index) * 4;
       item.sprite.setY(item.y + bob);
+      item.sprite.setDepth(Math.round((item.sprite.y + (item.sprite.displayHeight * 0.5)) * 10) + 110);
       item.marker.setY(item.y + 4 + (bob * 0.25));
+      item.marker.setDepth(Math.round((item.sprite.y + (item.sprite.displayHeight * 0.5)) * 10) + 100);
     });
   }
 
@@ -161,6 +163,8 @@ export class SpawnManager {
       if (monster.state === MonsterState.STUNNED && time >= monster.despawnAt) {
         monster.state = MonsterState.DESPAWNING;
       }
+
+      monster.sprite.setDepth(Math.round((monster.sprite.y + (monster.sprite.displayHeight * 0.5)) * 10) + 150);
 
       if (monster.state === MonsterState.DESPAWNING) {
         monster.sprite.setVelocity(0, 0);

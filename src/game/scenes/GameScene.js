@@ -566,6 +566,7 @@ export class GameScene extends Phaser.Scene {
     this.updateHarvesting(delta);
     this.updateStations();
     this.updatePlayer();
+    this.updateTopDownDepths();
     this.updateSiteDisplays();
     this.updateInteractionEntries();
     this.updateToast(time);
@@ -602,6 +603,33 @@ export class GameScene extends Phaser.Scene {
     if (this.player.anims.currentAnim?.key !== anim) {
       this.player.play(anim, true);
     }
+  }
+
+  updateTopDownDepths() {
+    const depthFromFoot = (sprite, extra = 0) => {
+      if (!sprite) return 0;
+      return Math.round((sprite.y + (sprite.displayHeight * 0.5)) * 10) + extra;
+    };
+
+    if (this.player) {
+      this.player.setDepth(depthFromFoot(this.player, 200));
+    }
+
+    this.resourceNodes?.forEach((node) => {
+      node.sprite?.setDepth(depthFromFoot(node.sprite, 120));
+      node.progressBack?.setDepth(depthFromFoot(node.sprite, 123));
+      node.progressFill?.setDepth(depthFromFoot(node.sprite, 124));
+      node.progressLabel?.setDepth(depthFromFoot(node.sprite, 125));
+    });
+
+    this.blockingDecor?.forEach((decor) => {
+      decor.sprite?.setDepth(depthFromFoot(decor.sprite, 80));
+    });
+
+    this.completedStructures?.forEach((structure) => {
+      structure.sprite?.setDepth(depthFromFoot(structure.sprite, 90));
+      structure.shadow?.setDepth(depthFromFoot(structure.sprite, 10));
+    });
   }
 
   updateStations() {
