@@ -6,9 +6,11 @@ const TILE_TEXTURE_KEY = 'tinyswords.terrain.tilemap1';
 const TILE_SIZE = tileIndexMapping.meta.tileSize;
 const GRID_COLS = tileIndexMapping.meta.columns;
 const GRID_ROWS = tileIndexMapping.meta.rows;
-const PAGE_PADDING_X = 56;
+const PAGE_PADDING_X = 36;
 const PAGE_PADDING_Y = 96;
-const GAP = 14;
+const GAP = 10;
+const GRID_TILE_PREVIEW_SIZE = 84;
+const INSPECTOR_PREVIEW_SIZE = 256;
 
 export class TilesetPreviewScene extends Phaser.Scene {
   constructor() {
@@ -57,14 +59,14 @@ export class TilesetPreviewScene extends Phaser.Scene {
     for (let index = 0; index < tileIndexMapping.meta.totalTiles; index += 1) {
       const col = index % GRID_COLS;
       const row = Math.floor(index / GRID_COLS);
-      const x = startX + (col * (TILE_SIZE + GAP));
-      const y = startY + (row * (TILE_SIZE + 56));
+      const x = startX + (col * (GRID_TILE_PREVIEW_SIZE + GAP));
+      const y = startY + (row * (GRID_TILE_PREVIEW_SIZE + 34));
 
       const frame = this.add.image(x, y, TILE_TEXTURE_KEY)
         .setOrigin(0, 0)
-        .setDisplaySize(tileIndexMapping.meta.columns * 0 + TILE_SIZE, TILE_SIZE)
+        .setDisplaySize(GRID_TILE_PREVIEW_SIZE, GRID_TILE_PREVIEW_SIZE)
         .setCrop(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-        .setInteractive(new Phaser.Geom.Rectangle(0, 0, TILE_SIZE, TILE_SIZE), Phaser.Geom.Rectangle.Contains)
+        .setInteractive(new Phaser.Geom.Rectangle(0, 0, GRID_TILE_PREVIEW_SIZE, GRID_TILE_PREVIEW_SIZE), Phaser.Geom.Rectangle.Contains)
         .setDepth(2);
 
       frame.on('pointerdown', () => {
@@ -72,17 +74,17 @@ export class TilesetPreviewScene extends Phaser.Scene {
         this.refreshSelection();
       });
 
-      this.add.rectangle(x + (TILE_SIZE / 2), y + (TILE_SIZE / 2), TILE_SIZE + 4, TILE_SIZE + 4, 0x000000, 0)
+      this.add.rectangle(x + (GRID_TILE_PREVIEW_SIZE / 2), y + (GRID_TILE_PREVIEW_SIZE / 2), GRID_TILE_PREVIEW_SIZE + 4, GRID_TILE_PREVIEW_SIZE + 4, 0x000000, 0)
         .setStrokeStyle(2, 0xecd9a2, 0.24)
         .setDepth(1);
 
-      const label = this.add.text(x + (TILE_SIZE / 2), y + TILE_SIZE + 8, `#${index}`, {
+      const label = this.add.text(x + (GRID_TILE_PREVIEW_SIZE / 2), y + GRID_TILE_PREVIEW_SIZE + 4, `#${index}`, {
         fontFamily: 'monospace',
-        fontSize: '14px',
+        fontSize: '16px',
         color: '#f4f0d8',
       }).setOrigin(0.5, 0).setDepth(3);
 
-      const selection = this.add.rectangle(x + (TILE_SIZE / 2), y + (TILE_SIZE / 2), TILE_SIZE + 8, TILE_SIZE + 8, 0xffd86b, 0)
+      const selection = this.add.rectangle(x + (GRID_TILE_PREVIEW_SIZE / 2), y + (GRID_TILE_PREVIEW_SIZE / 2), GRID_TILE_PREVIEW_SIZE + 8, GRID_TILE_PREVIEW_SIZE + 8, 0xffd86b, 0)
         .setStrokeStyle(4, 0xffd86b, 0.96)
         .setDepth(4)
         .setVisible(false);
@@ -94,10 +96,10 @@ export class TilesetPreviewScene extends Phaser.Scene {
   }
 
   createInspector() {
-    const panelX = 860;
-    const panelY = 140;
-    const panelWidth = 360;
-    const panelHeight = 520;
+    const panelX = 900;
+    const panelY = 112;
+    const panelWidth = 340;
+    const panelHeight = 580;
 
     this.add.rectangle(panelX, panelY, panelWidth, panelHeight, 0x101914, 0.88)
       .setOrigin(0, 0)
@@ -112,11 +114,11 @@ export class TilesetPreviewScene extends Phaser.Scene {
       strokeThickness: 4,
     }).setDepth(6);
 
-    this.inspectorPreview = this.add.image(panelX + 180, panelY + 110, TILE_TEXTURE_KEY)
-      .setDisplaySize(160, 160)
+    this.inspectorPreview = this.add.image(panelX + 170, panelY + 154, TILE_TEXTURE_KEY)
+      .setDisplaySize(INSPECTOR_PREVIEW_SIZE, INSPECTOR_PREVIEW_SIZE)
       .setDepth(6);
 
-    this.mappingText = this.add.text(panelX + 20, panelY + 220, '', {
+    this.mappingText = this.add.text(panelX + 20, panelY + 312, '', {
       fontFamily: 'monospace',
       fontSize: '16px',
       color: '#dbe5f0',
@@ -124,7 +126,7 @@ export class TilesetPreviewScene extends Phaser.Scene {
       lineSpacing: 6,
     }).setDepth(6);
 
-    this.helperText = this.add.text(panelX + 20, panelY + 430, 'Remplis ensuite `src/game/data/tileIndexMapping.json` en me donnant pour chaque index :\n- name\n- category\n- tags\n- notes', {
+    this.helperText = this.add.text(panelX + 20, panelY + 498, 'Remplis ensuite `src/game/data/tileIndexMapping.json` en me donnant pour chaque index :\n- name\n- category\n- tags\n- notes', {
       fontFamily: 'Georgia',
       fontSize: '16px',
       color: '#f4f0d8',

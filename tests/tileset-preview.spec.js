@@ -17,6 +17,7 @@ test.describe('tileset preview scene', () => {
         title: scene?.inspectorTitle?.text,
         mapping: scene?.mappingText?.text,
         boxes: scene?.selectionBoxes?.length ?? 0,
+        previewWidth: scene?.inspectorPreview?.displayWidth ?? 0,
       };
     });
 
@@ -24,5 +25,6 @@ test.describe('tileset preview scene', () => {
     expect(info.title).toContain('Tile #0');
     expect(info.mapping).toContain('name: <vide>');
     expect(info.boxes).toBe(54);
+    expect(info.previewWidth).toBeGreaterThanOrEqual(256);
   });
 });
