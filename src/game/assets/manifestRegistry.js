@@ -68,6 +68,16 @@ export function getAssetPathForTinySwordsKey(tinySwordsKey) {
     'tinyswords.resources.meat-item': 'Terrain/Resources/Meat/Meat Resource/Meat Resource.png',
     'tinyswords.resources.tools-item': 'Terrain/Resources/Tools/Tool_01.png',
     'tinyswords.resources.sheep-idle': 'Terrain/Resources/Meat/Sheep/Sheep_Idle.png',
+    'tinyswords.buildings.blue.house1': 'Buildings/Blue Buildings/House1.png',
+    'tinyswords.buildings.blue.tower': 'Buildings/Blue Buildings/Tower.png',
+    'tinyswords.buildings.blue.barracks': 'Buildings/Blue Buildings/Barracks.png',
+    'tinyswords.buildings.blue.archery': 'Buildings/Blue Buildings/Archery.png',
+    'tinyswords.buildings.blue.monastery': 'Buildings/Blue Buildings/Monastery.png',
+    'tinyswords.buildings.blue.castle': 'Buildings/Blue Buildings/Castle.png',
+    'tinyswords.units.red.warrior.idle': 'Units/Red Units/Warrior/Warrior_Idle.png',
+    'tinyswords.units.red.warrior.run': 'Units/Red Units/Warrior/Warrior_Run.png',
+    'tinyswords.units.black.lancer.idle': 'Units/Black Units/Lancer/Lancer_Idle.png',
+    'tinyswords.units.black.lancer.run': 'Units/Black Units/Lancer/Lancer_Run.png',
   };
 
   return keyToPath[tinySwordsKey] ?? null;
@@ -115,6 +125,38 @@ export function getTinySwordsAssetDef(tinySwordsKey) {
     };
   }
 
+  if (tinySwordsKey.startsWith('tinyswords.buildings.blue.')) {
+    const buildingMap = {
+      'tinyswords.buildings.blue.house1': 'house1',
+      'tinyswords.buildings.blue.tower': 'tower',
+      'tinyswords.buildings.blue.barracks': 'barracks',
+      'tinyswords.buildings.blue.archery': 'archery',
+      'tinyswords.buildings.blue.monastery': 'monastery',
+      'tinyswords.buildings.blue.castle': 'castle',
+    };
+    const buildingKey = buildingMap[tinySwordsKey];
+    const buildingDef = assetManifest.buildings.types[buildingKey];
+    return {
+      ...base,
+      kind: 'image',
+      size: { width: buildingDef.width, height: buildingDef.height },
+    };
+  }
+
+  if (tinySwordsKey.startsWith('tinyswords.units.red.warrior') || tinySwordsKey.startsWith('tinyswords.units.black.lancer')) {
+    const isLancer = tinySwordsKey.includes('.lancer.');
+    const unitDef = isLancer ? assetManifest.units.types.lancer : assetManifest.units.types.warrior;
+    return {
+      ...base,
+      kind: 'sheet',
+      frameConfig: {
+        frameWidth: unitDef.frameSize.width,
+        frameHeight: unitDef.frameSize.height,
+      },
+      frames: 1,
+    };
+  }
+
   return {
     ...base,
     kind: 'image',
@@ -128,6 +170,10 @@ export function getTinySwordsAnimationDef(animationKey) {
     'tree3-wind': { texture: 'tinyswords.resources.tree3', frameRate: 10, repeat: -1 },
     'tree4-wind': { texture: 'tinyswords.resources.tree4', frameRate: 10, repeat: -1 },
     'sheep-idle': { texture: 'tinyswords.resources.sheep-idle', frameRate: 5, repeat: -1 },
+    'monster-run-warrior': { texture: 'tinyswords.units.red.warrior.run', frameRate: 10, repeat: -1 },
+    'monster-idle-warrior': { texture: 'tinyswords.units.red.warrior.idle', frameRate: 6, repeat: -1 },
+    'monster-run-lancer': { texture: 'tinyswords.units.black.lancer.run', frameRate: 10, repeat: -1 },
+    'monster-idle-lancer': { texture: 'tinyswords.units.black.lancer.idle', frameRate: 6, repeat: -1 },
   };
 
   const def = animationDefs[animationKey];

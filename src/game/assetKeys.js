@@ -24,11 +24,7 @@ export const TINY_SWORDS_ASSETS = [
   sheet('tinyswords.units.blue.pawn.run.meat', `${ASSET_BASE}/Units/Blue Units/Pawn/Pawn_Run Meat.png`, UNIT_FRAME),
   sheet('tinyswords.units.blue.pawn.idle.tools', `${ASSET_BASE}/Units/Blue Units/Pawn/Pawn_Idle Hammer.png`, UNIT_FRAME),
   sheet('tinyswords.units.blue.pawn.run.tools', `${ASSET_BASE}/Units/Blue Units/Pawn/Pawn_Run Hammer.png`, UNIT_FRAME),
-  sheet('tinyswords.units.red.warrior.idle', `${ASSET_BASE}/Units/Red Units/Warrior/Warrior_Idle.png`, UNIT_FRAME),
-  sheet('tinyswords.units.red.warrior.run', `${ASSET_BASE}/Units/Red Units/Warrior/Warrior_Run.png`, UNIT_FRAME),
-  sheet('tinyswords.units.black.lancer.run', `${ASSET_BASE}/Units/Black Units/Lancer/Lancer_Run.png`, UNIT_FRAME),
-  sheet('tinyswords.units.black.lancer.idle', `${ASSET_BASE}/Units/Black Units/Lancer/Lancer_Idle.png`, UNIT_FRAME),
-  ...['tinyswords.resources.sheep-idle', 'tinyswords.resources.tree1', 'tinyswords.resources.tree2', 'tinyswords.resources.tree3', 'tinyswords.resources.tree4'].map((key) => {
+  ...['tinyswords.units.red.warrior.idle', 'tinyswords.units.red.warrior.run', 'tinyswords.units.black.lancer.run', 'tinyswords.units.black.lancer.idle', 'tinyswords.resources.sheep-idle', 'tinyswords.resources.tree1', 'tinyswords.resources.tree2', 'tinyswords.resources.tree3', 'tinyswords.resources.tree4'].map((key) => {
     const def = getTinySwordsAssetDef(key);
     return def.kind === 'sheet'
       ? sheet(key, def.assetPath, def.frameConfig)
@@ -36,16 +32,10 @@ export const TINY_SWORDS_ASSETS = [
   }),
   image('tinyswords.resources.gold-stone1', `${ASSET_BASE}/Terrain/Resources/Gold/Gold Stones/Gold Stone 1.png`),
   image('tinyswords.resources.gold-stone2', `${ASSET_BASE}/Terrain/Resources/Gold/Gold Stones/Gold Stone 2.png`),
-  image('tinyswords.resources.wood-item', `${ASSET_BASE}/Terrain/Resources/Wood/Wood Resource/Wood Resource.png`),
-  image('tinyswords.resources.gold-item', `${ASSET_BASE}/Terrain/Resources/Gold/Gold Resource/Gold_Resource.png`),
-  image('tinyswords.resources.meat-item', `${ASSET_BASE}/Terrain/Resources/Meat/Meat Resource/Meat Resource.png`),
-  image('tinyswords.resources.tools-item', `${ASSET_BASE}/Terrain/Resources/Tools/Tool_01.png`),
-  image('tinyswords.buildings.blue.house1', `${ASSET_BASE}/Buildings/Blue Buildings/House1.png`),
-  image('tinyswords.buildings.blue.tower', `${ASSET_BASE}/Buildings/Blue Buildings/Tower.png`),
-  image('tinyswords.buildings.blue.barracks', `${ASSET_BASE}/Buildings/Blue Buildings/Barracks.png`),
-  image('tinyswords.buildings.blue.archery', `${ASSET_BASE}/Buildings/Blue Buildings/Archery.png`),
-  image('tinyswords.buildings.blue.monastery', `${ASSET_BASE}/Buildings/Blue Buildings/Monastery.png`),
-  image('tinyswords.buildings.blue.castle', `${ASSET_BASE}/Buildings/Blue Buildings/Castle.png`),
+  ...['tinyswords.resources.wood-item', 'tinyswords.resources.gold-item', 'tinyswords.resources.meat-item', 'tinyswords.resources.tools-item', 'tinyswords.buildings.blue.house1', 'tinyswords.buildings.blue.tower', 'tinyswords.buildings.blue.barracks', 'tinyswords.buildings.blue.archery', 'tinyswords.buildings.blue.monastery', 'tinyswords.buildings.blue.castle'].map((key) => {
+    const def = getTinySwordsAssetDef(key);
+    return image(key, def.assetPath);
+  }),
   image('tinyswords.fx.fire1', `${ASSET_BASE}/Particle FX/Fire_01.png`),
   image('tinyswords.fx.explosion1', `${ASSET_BASE}/Particle FX/Explosion_01.png`),
   image('tinyswords.ui.banner', `${ASSET_BASE}/UI Elements/UI Elements/Banners/Banner.png`),
@@ -113,10 +103,10 @@ export function createTinySwordsAnimations(scene) {
     { key: 'player-run-meat', texture: 'tinyswords.units.blue.pawn.run.meat', frameRate: 10, repeat: -1 },
     { key: 'player-idle-tools', texture: 'tinyswords.units.blue.pawn.idle.tools', frameRate: 6, repeat: -1 },
     { key: 'player-run-tools', texture: 'tinyswords.units.blue.pawn.run.tools', frameRate: 10, repeat: -1 },
-    { key: 'monster-run-warrior', texture: 'tinyswords.units.red.warrior.run', frameRate: 10, repeat: -1 },
-    { key: 'monster-idle-warrior', texture: 'tinyswords.units.red.warrior.idle', frameRate: 6, repeat: -1 },
-    { key: 'monster-run-lancer', texture: 'tinyswords.units.black.lancer.run', frameRate: 10, repeat: -1 },
-    { key: 'monster-idle-lancer', texture: 'tinyswords.units.black.lancer.idle', frameRate: 6, repeat: -1 },
+    getTinySwordsAnimationDef('monster-run-warrior'),
+    getTinySwordsAnimationDef('monster-idle-warrior'),
+    getTinySwordsAnimationDef('monster-run-lancer'),
+    getTinySwordsAnimationDef('monster-idle-lancer'),
     getTinySwordsAnimationDef('sheep-idle')
   ];
 
