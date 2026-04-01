@@ -1,5 +1,10 @@
 import Phaser from 'phaser';
 import { MONSTER_SPAWNS, MonsterState, RESOURCE_COLORS, ResourceType } from '../data.js';
+import {
+  createStaticCollisionRectFromManifest,
+  getAssetPathForTinySwordsKey,
+  getGameplayCollisionByAssetPath,
+} from '../assets/manifestRegistry.js';
 
 const ITEM_TEXTURES = {
   [ResourceType.WOOD]: 'tinyswords.resources.wood-item',
@@ -55,12 +60,21 @@ export class SpawnManager {
   }
 
   createDroppedItem(resourceType, x, y) {
-    const sprite = this.scene.add.image(x, y, ITEM_TEXTURES[resourceType]);
+    const textureKey = ITEM_TEXTURES[resourceType];
+    const sprite = this.scene.add.image(x, y, textureKey);
     sprite.setScale(0.7);
     sprite.setDepth(7);
 
     const marker = this.scene.add.circle(x, y + 4, 20, RESOURCE_COLORS[resourceType], 0.35);
     marker.setDepth(6);
+
+    const manifestAssetPath = getAssetPathForTinySwordsKey(textureKey);
+    const manifestCollision = getGameplayCollisionByAssetPath(manifestAssetPath);
+    const obstacle = manifestCollision
+      ? this.scene.registerObstacleBody(
+        createStaticCollisionRectFromManifest(this.scene, x, y, sprite.displayWidth, sprite.displayHeight, manifestCollision)
+      )
+      : null;
 
     const item = {
       id: Phaser.Utils.String.UUID(),
@@ -69,6 +83,7 @@ export class SpawnManager {
       y,
       sprite,
       marker,
+      obstacle,
       active: true
     };
 
@@ -85,6 +100,10 @@ export class SpawnManager {
     item.active = false;
     item.sprite.destroy();
     item.marker.destroy();
+    if (item.obstacle) {
+      this.scene.obstacleBodies = this.scene.obstacleBodies.filter((candidate) => candidate !== item.obstacle);
+      item.obstacle.destroy();
+    }
     this.droppedItems = this.droppedItems.filter((candidate) => candidate.id !== itemId);
   }
 

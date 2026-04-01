@@ -25,6 +25,11 @@ import { OrderManager } from '../managers/OrderManager.js';
 import { SpawnManager } from '../managers/SpawnManager.js';
 import { createPlaque, setImageDisplayHeight } from '../ui/tinySwordsUi.js';
 import { InputManager } from '../input/InputManager.js';
+import {
+  createStaticCollisionRectFromManifest,
+  getAssetPathForTinySwordsKey,
+  getGameplayCollisionByAssetPath,
+} from '../assets/manifestRegistry.js';
 
 const PLAYER_ANIMS = {
   base: { idle: 'player-idle-base', run: 'player-run-base' },
@@ -486,19 +491,25 @@ export class GameScene extends Phaser.Scene {
         strokeThickness: 4,
       }).setOrigin(0.5).setVisible(false).setDepth(7);
 
+      const manifestAssetPath = getAssetPathForTinySwordsKey(node.texture);
+      const manifestCollision = getGameplayCollisionByAssetPath(manifestAssetPath);
+      const obstacle = manifestCollision
+        ? this.registerObstacleBody(createStaticCollisionRectFromManifest(this, node.x, node.y, sprite.displayWidth, sprite.displayHeight, manifestCollision))
+        : this.createObstacleBody(
+          node.x,
+          node.y,
+          node.resourceType === 'wood' ? OBSTACLE_BODY_CONFIG.tree.width : node.resourceType === 'gold' ? OBSTACLE_BODY_CONFIG.gold.width : OBSTACLE_BODY_CONFIG.meat.width,
+          node.resourceType === 'wood' ? OBSTACLE_BODY_CONFIG.tree.height : node.resourceType === 'gold' ? OBSTACLE_BODY_CONFIG.gold.height : OBSTACLE_BODY_CONFIG.meat.height,
+          node.resourceType === 'wood' ? OBSTACLE_BODY_CONFIG.tree.offsetY : node.resourceType === 'gold' ? OBSTACLE_BODY_CONFIG.gold.offsetY : OBSTACLE_BODY_CONFIG.meat.offsetY
+        );
+
       return {
         ...node,
         sprite,
         progressBack,
         progressFill,
         progressLabel,
-        obstacle: this.createObstacleBody(
-          node.x,
-          node.y,
-          node.resourceType === 'wood' ? OBSTACLE_BODY_CONFIG.tree.width : node.resourceType === 'gold' ? OBSTACLE_BODY_CONFIG.gold.width : OBSTACLE_BODY_CONFIG.meat.width,
-          node.resourceType === 'wood' ? OBSTACLE_BODY_CONFIG.tree.height : node.resourceType === 'gold' ? OBSTACLE_BODY_CONFIG.gold.height : OBSTACLE_BODY_CONFIG.meat.height,
-          node.resourceType === 'wood' ? OBSTACLE_BODY_CONFIG.tree.offsetY : node.resourceType === 'gold' ? OBSTACLE_BODY_CONFIG.gold.offsetY : OBSTACLE_BODY_CONFIG.meat.offsetY
-        )
+        obstacle
       };
     });
   }
@@ -513,15 +524,22 @@ export class GameScene extends Phaser.Scene {
     this.playerFacing = 'right';
   }
 
-  createObstacleBody(x, y, width, height, offsetY = 0) {
-    const bodyRect = this.add.rectangle(x, y + offsetY, width, height, 0x000000, 0);
-    this.physics.add.existing(bodyRect, true);
-    bodyRect.setDepth(-20);
+  registerObstacleBody(bodyRect) {
+    if (!bodyRect) {
+      return null;
+    }
     this.obstacleBodies.push(bodyRect);
     if (this.player) {
       this.physics.add.collider(this.player, bodyRect);
     }
     return bodyRect;
+  }
+
+  createObstacleBody(x, y, width, height, offsetY = 0) {
+    const bodyRect = this.add.rectangle(x, y + offsetY, width, height, 0x000000, 0);
+    this.physics.add.existing(bodyRect, true);
+    bodyRect.setDepth(-20);
+    return this.registerObstacleBody(bodyRect);
   }
 
   setupObstacleCollisions() {
