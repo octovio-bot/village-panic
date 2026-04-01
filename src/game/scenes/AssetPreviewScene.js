@@ -346,13 +346,15 @@ export class AssetPreviewScene extends Phaser.Scene {
       wordWrap: { width: 1060 },
     }).setDepth(5);
 
-    this.helpText = this.add.text(GAME_WIDTH / 2, 712, '← / → : asset précédent/suivant · ↑ / ↓ : catégorie · C : collisions · terrain=grille · ui=exemples · ESC : menu', {
+    this.helpText = this.add.text(GAME_WIDTH / 2, 712, '← / → : asset précédent/suivant · ↑ / ↓ : catégorie · C : collisions · boutons tactiles sur mobile · terrain=grille · ui=exemples · ESC : menu', {
       fontFamily: 'Georgia',
       fontSize: '18px',
       color: '#d9d1b4',
       stroke: '#111820',
       strokeThickness: 4,
     }).setOrigin(0.5).setDepth(5);
+
+    this.createCarouselTouchControls();
 
     this.input.keyboard.on('keydown-LEFT', () => this.stepCarousel(-1));
     this.input.keyboard.on('keydown-RIGHT', () => this.stepCarousel(1));
@@ -371,6 +373,43 @@ export class AssetPreviewScene extends Phaser.Scene {
     });
 
     this.renderCarouselEntry();
+  }
+
+  createCarouselTouchControls() {
+    const makeButton = ({ x, y, width, height, label, onTap, fill = 0x243245, stroke = 0xe1d39f, textColor = '#f4f0d8' }) => {
+      const button = this.add.container(x, y).setDepth(6);
+      const bg = this.add.rectangle(0, 0, width, height, fill, 0.92)
+        .setStrokeStyle(3, stroke, 0.95)
+        .setInteractive({ useHandCursor: true });
+      const text = this.add.text(0, 0, label, {
+        fontFamily: 'Georgia',
+        fontSize: '20px',
+        color: textColor,
+        stroke: '#111820',
+        strokeThickness: 4,
+        align: 'center',
+      }).setOrigin(0.5);
+
+      bg.on('pointerdown', (pointer) => {
+        pointer.event?.stopPropagation?.();
+        onTap();
+      });
+      bg.on('pointerover', () => bg.setFillStyle(0x31445e, 0.96));
+      bg.on('pointerout', () => bg.setFillStyle(fill, 0.92));
+
+      button.add([bg, text]);
+      button.bg = bg;
+      button.label = text;
+      return button;
+    };
+
+    this.touchControls = {
+      prevCategory: makeButton({ x: 110, y: 120, width: 92, height: 52, label: 'Cat -', onTap: () => this.stepCarouselCategory(-1) }),
+      nextCategory: makeButton({ x: GAME_WIDTH - 110, y: 120, width: 92, height: 52, label: 'Cat +', onTap: () => this.stepCarouselCategory(1) }),
+      prevAsset: makeButton({ x: 100, y: GAME_HEIGHT / 2, width: 76, height: 96, label: '◀', onTap: () => this.stepCarousel(-1) }),
+      nextAsset: makeButton({ x: GAME_WIDTH - 100, y: GAME_HEIGHT / 2, width: 76, height: 96, label: '▶', onTap: () => this.stepCarousel(1) }),
+      collisions: makeButton({ x: GAME_WIDTH / 2, y: 662, width: 260, height: 52, label: 'Collisions : OFF', onTap: () => this.toggleCollisionOverlay() }),
+    };
   }
 
   getFilteredCarouselEntries() {
@@ -395,6 +434,18 @@ export class AssetPreviewScene extends Phaser.Scene {
   toggleCollisionOverlay() {
     this.showCollisionOverlay = !this.showCollisionOverlay;
     this.renderCarouselEntry();
+  }
+
+  updateCarouselTouchControls() {
+    if (!this.touchControls?.collisions) {
+      return;
+    }
+
+    const active = this.showCollisionOverlay;
+    this.touchControls.collisions.label.setText(`Collisions : ${active ? 'ON' : 'OFF'}`);
+    this.touchControls.collisions.bg
+      .setFillStyle(active ? 0x3d5f36 : 0x243245, 0.92)
+      .setStrokeStyle(3, active ? 0x9fe870 : 0xe1d39f, 0.95);
   }
 
   buildCarouselEntries() {
@@ -732,6 +783,7 @@ export class AssetPreviewScene extends Phaser.Scene {
     this.categoryText.setText(`Catégorie : ${activeCategory}`);
     this.nameText.setText(entry.label);
     this.metaText.setText(this.formatEntryMeta(entry));
+    this.updateCarouselTouchControls();
 
     if (this.carouselPreview) {
       if (typeof this.carouselPreview.destroy === 'function') {
