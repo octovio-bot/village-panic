@@ -23,7 +23,7 @@ test.describe('tileset preview scene', () => {
 
     expect(info.selectedIndex).toBe(0);
     expect(info.title).toContain('Tile #0');
-    expect(info.mapping).toContain('name: <vide>');
+    expect(info.mapping).toContain('name: level1-water-nw');
     expect(info.boxes).toBe(54);
     expect(info.previewWidth).toBeGreaterThanOrEqual(256);
   });
