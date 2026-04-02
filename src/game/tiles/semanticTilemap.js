@@ -31,6 +31,40 @@ export function buildSemanticLayer(grid) {
   }));
 }
 
+export function getTileCrop(index) {
+  const col = index % tileIndexMapping.meta.columns;
+  const row = Math.floor(index / tileIndexMapping.meta.columns);
+  return {
+    col,
+    row,
+    x: col * tileIndexMapping.meta.tileSize,
+    y: row * tileIndexMapping.meta.tileSize,
+    width: tileIndexMapping.meta.tileSize,
+    height: tileIndexMapping.meta.tileSize,
+  };
+}
+
+export function getSemanticTileTextureKey(colorVariant, index) {
+  return `${getTilesetTextureKey(colorVariant)}::tile-${index}`;
+}
+
+export function ensureSemanticTileTexture(scene, colorVariant, index) {
+  const key = getSemanticTileTextureKey(colorVariant, index);
+  if (scene.textures.exists(key)) {
+    return key;
+  }
+
+  const crop = getTileCrop(index);
+  const sourceTextureKey = getTilesetTextureKey(colorVariant);
+  const source = scene.textures.get(sourceTextureKey).getSourceImage();
+  const canvasTexture = scene.textures.createCanvas(key, tileIndexMapping.meta.tileSize, tileIndexMapping.meta.tileSize);
+  const context = canvasTexture.getContext();
+  context.clearRect(0, 0, tileIndexMapping.meta.tileSize, tileIndexMapping.meta.tileSize);
+  context.drawImage(source, crop.x, crop.y, crop.width, crop.height, 0, 0, tileIndexMapping.meta.tileSize, tileIndexMapping.meta.tileSize);
+  canvasTexture.refresh();
+  return key;
+}
+
 export function createSemanticTileSprites(scene, {
   x = 0,
   y = 0,
@@ -38,7 +72,6 @@ export function createSemanticTileSprites(scene, {
   colorVariant = 'color1',
   grid = [],
 }) {
-  const textureKey = getTilesetTextureKey(colorVariant);
   const sprites = [];
 
   grid.forEach((row, gridY) => {
@@ -47,12 +80,9 @@ export function createSemanticTileSprites(scene, {
       if (index < 0) {
         return;
       }
-      const col = index % tileIndexMapping.meta.columns;
-      const tileRow = Math.floor(index / tileIndexMapping.meta.columns);
-      const sprite = scene.add.image(x + (gridX * tileSize), y + (gridY * tileSize), textureKey)
+      const sprite = scene.add.image(x + (gridX * tileSize), y + (gridY * tileSize), ensureSemanticTileTexture(scene, colorVariant, index))
         .setOrigin(0, 0)
-        .setDisplaySize(tileSize, tileSize)
-        .setCrop(col * tileSize, tileRow * tileSize, tileSize, tileSize);
+        .setDisplaySize(tileSize, tileSize);
       sprites.push(sprite);
     });
   });
