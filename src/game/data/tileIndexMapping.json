@@ -52,7 +52,7 @@
     "41": { "name": "cliff-face-left", "category": "cliff-face-horizontal", "tags": ["cliff", "face", "horizontal", "3-slice", "left", "grass-top"], "notes": "3-slice de falaise avec l’herbe au-dessus." },
     "42": { "name": "cliff-face-center", "category": "cliff-face-horizontal", "tags": ["cliff", "face", "horizontal", "3-slice", "center", "grass-top"], "notes": "3-slice de falaise avec l’herbe au-dessus." },
     "43": { "name": "cliff-face-right", "category": "cliff-face-horizontal", "tags": ["cliff", "face", "horizontal", "3-slice", "right", "grass-top"], "notes": "3-slice de falaise avec l’herbe au-dessus." },
-    "44": { "name": "", "category": "", "tags": [], "notes": "" },
+    "44": { "name": "cliff-three-edge", "category": "cliff-three-edge", "tags": ["cliff", "three-edge", "3-borders"], "notes": "Variante de falaise avec trois bords." },
     "45": { "name": "", "category": "", "tags": [], "notes": "" },
     "46": { "name": "", "category": "", "tags": [], "notes": "" },
     "47": { "name": "", "category": "", "tags": [], "notes": "" },
@@ -61,6 +61,6 @@
     "50": { "name": "cliff-face-water-left", "category": "cliff-face-water-horizontal", "tags": ["cliff", "face", "water", "horizontal", "3-slice", "left", "grass-top"], "notes": "Même face de falaise que 41-43, mais avec la base directement dans l’eau." },
     "51": { "name": "cliff-face-water-center", "category": "cliff-face-water-horizontal", "tags": ["cliff", "face", "water", "horizontal", "3-slice", "center", "grass-top"], "notes": "Même face de falaise que 41-43, mais avec la base directement dans l’eau." },
     "52": { "name": "cliff-face-water-right", "category": "cliff-face-water-horizontal", "tags": ["cliff", "face", "water", "horizontal", "3-slice", "right", "grass-top"], "notes": "Même face de falaise que 41-43, mais avec la base directement dans l’eau." },
-    "53": { "name": "", "category": "", "tags": [], "notes": "" }
+    "53": { "name": "cliff-three-edge-water", "category": "cliff-three-edge-water", "tags": ["cliff", "three-edge", "3-borders", "water"], "notes": "Variante de falaise équivalente avec trois bords et base vers l’eau." }
   }
 }
