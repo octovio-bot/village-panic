@@ -103,6 +103,7 @@ export class SemanticTilemapDemoScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.pawn, true, 0.12, 0.12);
     this.cameras.main.setBounds(0, 0, 1400, 900);
     this.physics.world.setBounds(0, 0, 1400, 900);
+    this.scene.launch('TouchHudScene');
   }
 
   renderDemoLayers() {
