@@ -58,9 +58,9 @@
     "47": { "name": "", "category": "", "tags": [], "notes": "" },
     "48": { "name": "", "category": "", "tags": [], "notes": "" },
     "49": { "name": "", "category": "", "tags": [], "notes": "" },
-    "50": { "name": "", "category": "", "tags": [], "notes": "" },
-    "51": { "name": "", "category": "", "tags": [], "notes": "" },
-    "52": { "name": "", "category": "", "tags": [], "notes": "" },
+    "50": { "name": "cliff-face-water-left", "category": "cliff-face-water-horizontal", "tags": ["cliff", "face", "water", "horizontal", "3-slice", "left", "grass-top"], "notes": "Même face de falaise que 41-43, mais avec la base directement dans l’eau." },
+    "51": { "name": "cliff-face-water-center", "category": "cliff-face-water-horizontal", "tags": ["cliff", "face", "water", "horizontal", "3-slice", "center", "grass-top"], "notes": "Même face de falaise que 41-43, mais avec la base directement dans l’eau." },
+    "52": { "name": "cliff-face-water-right", "category": "cliff-face-water-horizontal", "tags": ["cliff", "face", "water", "horizontal", "3-slice", "right", "grass-top"], "notes": "Même face de falaise que 41-43, mais avec la base directement dans l’eau." },
     "53": { "name": "", "category": "", "tags": [], "notes": "" }
   }
 }
