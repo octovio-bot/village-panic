@@ -3,7 +3,6 @@ import { InputManager } from '../input/InputManager.js';
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SPEED } from '../data.js';
 import {
   createSemanticTileSprites,
-  getTilesetTextureKey,
 } from '../tiles/semanticTilemap.js';
 
 const TILE = 64;
@@ -107,7 +106,7 @@ export class SemanticTilemapDemoScene extends Phaser.Scene {
   }
 
   renderDemoLayers() {
-    this.add.tileSprite(700, 450, 1400, 900, getTilesetTextureKey('color2')).setDepth(0);
+    createSemanticTileSprites(this, { x: MAP_ORIGIN_X, y: MAP_ORIGIN_Y, tileSize: TILE, colorVariant: 'color2', grid: DEMO_LAYOUT.background }).forEach((sprite) => sprite.setDepth(0));
 
     createSemanticTileSprites(this, { x: MAP_ORIGIN_X, y: MAP_ORIGIN_Y, tileSize: TILE, colorVariant: 'color1', grid: DEMO_LAYOUT.flat }).forEach((sprite) => sprite.setDepth(20));
     createSemanticTileSprites(this, { x: MAP_ORIGIN_X, y: MAP_ORIGIN_Y + TILE, tileSize: TILE, colorVariant: 'color4', grid: DEMO_LAYOUT.shadow1 }).forEach((sprite) => sprite.setAlpha(0.35).setDepth(30));
