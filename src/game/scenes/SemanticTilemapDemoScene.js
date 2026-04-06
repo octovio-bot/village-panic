@@ -9,7 +9,7 @@ const TILE = 64;
 const MAP_ORIGIN_X = 96;
 const MAP_ORIGIN_Y = 112;
 const DEMO_LAYOUT = {
-  background: Array.from({ length: 10 }, () => Array.from({ length: 14 }, () => 0)),
+  background: Array.from({ length: 10 }, () => Array.from({ length: 14 }, () => null)),
   flat: [
     [null, null, null, null, null, null, null, null, null, null, null, null, null, null],
     [null, 'level1-water-nw', 'level1-water-north', 'level1-water-north', 'level1-water-ne', null, null, null, null, null, null, null, null, null],
@@ -80,6 +80,7 @@ export class SemanticTilemapDemoScene extends Phaser.Scene {
   create() {
     this.cameras.main.setBackgroundColor('#102217');
     this.inputManager = new InputManager(this);
+    window.__SEMANTIC_TILEMAP_DEMO__ = { layout: DEMO_LAYOUT };
 
     this.add.text(28, 20, 'Semantic Tilemap Demo', {
       fontFamily: 'Georgia',
@@ -106,6 +107,7 @@ export class SemanticTilemapDemoScene extends Phaser.Scene {
   }
 
   renderDemoLayers() {
+    this.add.rectangle(MAP_ORIGIN_X + (14 * TILE / 2), MAP_ORIGIN_Y + (10 * TILE / 2), 14 * TILE, 10 * TILE, 0x3a6ea5, 1).setOrigin(0.5).setDepth(-5);
     createSemanticTileSprites(this, { x: MAP_ORIGIN_X, y: MAP_ORIGIN_Y, tileSize: TILE, colorVariant: 'color2', grid: DEMO_LAYOUT.background }).forEach((sprite) => sprite.setDepth(0));
 
     createSemanticTileSprites(this, { x: MAP_ORIGIN_X, y: MAP_ORIGIN_Y, tileSize: TILE, colorVariant: 'color1', grid: DEMO_LAYOUT.flat }).forEach((sprite) => sprite.setDepth(20));

@@ -16,6 +16,7 @@ test.describe('semantic tilemap demo scene', () => {
         x: scene?.pawn?.x ?? 0,
         y: scene?.pawn?.y ?? 0,
         spriteCount: scene?.children?.list?.filter?.((child) => child.type === 'Image')?.length ?? 0,
+        bgCount: window.__SEMANTIC_TILEMAP_DEMO__?.layout?.background?.length ?? 0,
       };
     });
 
@@ -32,6 +33,7 @@ test.describe('semantic tilemap demo scene', () => {
     });
 
     expect(before.spriteCount).toBeGreaterThan(20);
+    expect(before.bgCount).toBe(10);
     expect(after.x).toBeGreaterThan(before.x);
   });
 });
