@@ -76,6 +76,7 @@ export const TINY_SWORDS_ASSETS = [
   image('tinyswords.terrain.tilemap3', `${ASSET_BASE}/Terrain/Tileset/Tilemap_color3.png`),
   image('tinyswords.terrain.tilemap4', `${ASSET_BASE}/Terrain/Tileset/Tilemap_color4.png`),
   image('tinyswords.terrain.tilemap5', `${ASSET_BASE}/Terrain/Tileset/Tilemap_color5.png`),
+  image('tinyswords.terrain.water-background', `${ASSET_BASE}/Terrain/Tileset/Water Background color.png`),
   sheet('tinyswords.decor.bush1', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe1.png`, BUSH_FRAME),
   sheet('tinyswords.decor.bush2', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe2.png`, BUSH_FRAME),
   sheet('tinyswords.decor.bush3', `${ASSET_BASE}/Terrain/Decorations/Bushes/Bushe3.png`, BUSH_FRAME),

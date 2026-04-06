@@ -107,7 +107,8 @@ export class SemanticTilemapDemoScene extends Phaser.Scene {
   }
 
   renderDemoLayers() {
-    this.add.rectangle(MAP_ORIGIN_X + (14 * TILE / 2), MAP_ORIGIN_Y + (10 * TILE / 2), 14 * TILE, 10 * TILE, 0x3a6ea5, 1).setOrigin(0.5).setDepth(-5);
+    this.add.tileSprite(MAP_ORIGIN_X + (14 * TILE / 2), MAP_ORIGIN_Y + (10 * TILE / 2), 14 * TILE, 10 * TILE, 'tinyswords.terrain.water-background')
+      .setDepth(-5);
     createSemanticTileSprites(this, { x: MAP_ORIGIN_X, y: MAP_ORIGIN_Y, tileSize: TILE, colorVariant: 'color2', grid: DEMO_LAYOUT.background }).forEach((sprite) => sprite.setDepth(0));
 
     createSemanticTileSprites(this, { x: MAP_ORIGIN_X, y: MAP_ORIGIN_Y, tileSize: TILE, colorVariant: 'color1', grid: DEMO_LAYOUT.flat }).forEach((sprite) => sprite.setDepth(20));
