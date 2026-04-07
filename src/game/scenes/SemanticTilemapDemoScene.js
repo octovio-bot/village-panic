@@ -8,6 +8,12 @@ import {
 const TILE = 64;
 const MAP_ORIGIN_X = 96;
 const MAP_ORIGIN_Y = 112;
+const MAP_COLS = 14;
+const MAP_ROWS = 10;
+const MAP_PIXEL_WIDTH = MAP_COLS * TILE;
+const MAP_PIXEL_HEIGHT = MAP_ROWS * TILE;
+const DEMO_WORLD_WIDTH = MAP_ORIGIN_X * 2 + MAP_PIXEL_WIDTH;
+const DEMO_WORLD_HEIGHT = MAP_ORIGIN_Y * 2 + MAP_PIXEL_HEIGHT;
 const DEMO_LAYOUT = {
   background: Array.from({ length: 10 }, () => Array.from({ length: 14 }, () => null)),
   flat: [
@@ -101,13 +107,13 @@ export class SemanticTilemapDemoScene extends Phaser.Scene {
     this.renderDemoLayers();
     this.createPawn();
     this.cameras.main.startFollow(this.pawn, true, 0.12, 0.12);
-    this.cameras.main.setBounds(0, 0, 1400, 900);
-    this.physics.world.setBounds(0, 0, 1400, 900);
+    this.cameras.main.setBounds(0, 0, DEMO_WORLD_WIDTH, DEMO_WORLD_HEIGHT);
+    this.physics.world.setBounds(0, 0, DEMO_WORLD_WIDTH, DEMO_WORLD_HEIGHT);
     this.scene.launch('TouchHudScene');
   }
 
   renderDemoLayers() {
-    this.add.tileSprite(MAP_ORIGIN_X + (14 * TILE / 2), MAP_ORIGIN_Y + (10 * TILE / 2), 14 * TILE, 10 * TILE, 'tinyswords.terrain.water-background')
+    this.add.tileSprite(DEMO_WORLD_WIDTH / 2, DEMO_WORLD_HEIGHT / 2, DEMO_WORLD_WIDTH, DEMO_WORLD_HEIGHT, 'tinyswords.terrain.water-background')
       .setDepth(-5);
     createSemanticTileSprites(this, { x: MAP_ORIGIN_X, y: MAP_ORIGIN_Y, tileSize: TILE, colorVariant: 'color2', grid: DEMO_LAYOUT.background }).forEach((sprite) => sprite.setDepth(0));
 
