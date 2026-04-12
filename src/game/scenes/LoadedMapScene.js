@@ -26,15 +26,21 @@ export class LoadedMapScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#102217');
     this.inputManager = new InputManager(this);
 
-    this.mapData = this.cache.json.get(MAP_KEY) ?? this.cache.tilemap.get(MAP_KEY)?.data;
+    this.map = this.make.tilemap({ key: MAP_KEY });
+    this.mapData = {
+      width: this.map.width,
+      height: this.map.height,
+      layers: this.map.layers,
+    };
     this.layers = [];
 
     this.mapData.layers.forEach((layerData, layerIndex) => {
-      if (layerData.type !== 'tilelayer') return;
+      const raw = layerData.tilemapLayer ?? layerData;
+      if (raw.type !== 'tilelayer') return;
       const tiles = [];
-      for (let y = 0; y < layerData.height; y += 1) {
-        for (let x = 0; x < layerData.width; x += 1) {
-          const gid = layerData.data[(y * layerData.width) + x];
+      for (let y = 0; y < raw.height; y += 1) {
+        for (let x = 0; x < raw.width; x += 1) {
+          const gid = raw.data[(y * raw.width) + x];
           const texture = textureForGid(this, gid);
           if (!texture) continue;
           const image = this.add.image(x * TILE_SIZE, y * TILE_SIZE, texture)
@@ -44,7 +50,7 @@ export class LoadedMapScene extends Phaser.Scene {
           tiles.push(image);
         }
       }
-      this.layers.push({ name: layerData.name, width: layerData.width, height: layerData.height, tiles });
+      this.layers.push({ name: raw.name, width: raw.width, height: raw.height, tiles });
     });
 
     this.add.text(28, 20, 'Loaded Map Scene', {
