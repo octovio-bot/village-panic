@@ -27,6 +27,13 @@ function textureForGid(scene, gid) {
   return null;
 }
 
+function objectDefForGid(gid) {
+  const defs = {
+    111: { texture: 'tinyswords.resources.tree1', kind: 'animated', anim: 'tree1-wind', originX: 0, originY: 1 },
+  };
+  return defs[gid] ?? null;
+}
+
 export class LoadedMapScene extends Phaser.Scene {
   constructor() {
     super('LoadedMapScene');
@@ -55,22 +62,40 @@ export class LoadedMapScene extends Phaser.Scene {
     }
 
     this.mapData.layers.forEach((raw, layerIndex) => {
-      if (raw.type !== 'tilelayer') return;
-      const tiles = [];
-      for (let y = 0; y < raw.height; y += 1) {
-        for (let x = 0; x < raw.width; x += 1) {
-          const tile = Array.isArray(raw.data?.[y]) ? raw.data[y][x] : raw.data?.[(y * raw.width) + x];
-          const gid = typeof tile === 'number' ? tile : tile?.gid ?? tile?.index;
-          const texture = textureForGid(this, gid);
-          if (!texture) continue;
-          const image = this.add.image(x * TILE_SIZE, y * TILE_SIZE, texture)
-            .setOrigin(0, 0)
-            .setDisplaySize(TILE_SIZE, TILE_SIZE)
-            .setDepth(layerIndex * 10);
-          tiles.push(image);
+      if (raw.type === 'tilelayer') {
+        const tiles = [];
+        for (let y = 0; y < raw.height; y += 1) {
+          for (let x = 0; x < raw.width; x += 1) {
+            const tile = Array.isArray(raw.data?.[y]) ? raw.data[y][x] : raw.data?.[(y * raw.width) + x];
+            const gid = typeof tile === 'number' ? tile : tile?.gid ?? tile?.index;
+            const texture = textureForGid(this, gid);
+            if (!texture) continue;
+            const image = this.add.image(x * TILE_SIZE, y * TILE_SIZE, texture)
+              .setOrigin(0, 0)
+              .setDisplaySize(TILE_SIZE, TILE_SIZE)
+              .setDepth(layerIndex * 10);
+            tiles.push(image);
+          }
         }
+        this.layers.push({ name: raw.name, width: raw.width, height: raw.height, tiles });
+        return;
       }
-      this.layers.push({ name: raw.name, width: raw.width, height: raw.height, tiles });
+
+      if (raw.type === 'objectgroup') {
+        const objects = [];
+        raw.objects?.forEach((obj) => {
+          const def = objectDefForGid(obj.gid);
+          if (!def) return;
+          const sprite = this.add.sprite(obj.x, obj.y, def.texture)
+            .setOrigin(def.originX ?? 0, def.originY ?? 1)
+            .setDepth(Math.round(obj.y * 10) + (layerIndex * 10));
+          if (def.anim) {
+            sprite.play(def.anim);
+          }
+          objects.push(sprite);
+        });
+        this.layers.push({ name: raw.name, width: 0, height: 0, objects });
+      }
     });
 
     this.add.text(28, 20, 'Loaded Map Scene', {
