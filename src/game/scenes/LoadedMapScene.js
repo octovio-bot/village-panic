@@ -22,6 +22,10 @@ export class LoadedMapScene extends Phaser.Scene {
     super('LoadedMapScene');
   }
 
+  preload() {
+    this.load.tilemapTiledJSON(MAP_KEY, `${import.meta.env.BASE_URL}maps/map1.json`);
+  }
+
   create() {
     this.cameras.main.setBackgroundColor('#102217');
     this.inputManager = new InputManager(this);
@@ -40,7 +44,8 @@ export class LoadedMapScene extends Phaser.Scene {
       const tiles = [];
       for (let y = 0; y < raw.height; y += 1) {
         for (let x = 0; x < raw.width; x += 1) {
-          const gid = raw.data[(y * raw.width) + x];
+          const tile = Array.isArray(raw.data?.[y]) ? raw.data[y][x] : raw.data?.[(y * raw.width) + x];
+          const gid = typeof tile === 'number' ? tile : tile?.index;
           const texture = textureForGid(this, gid);
           if (!texture) continue;
           const image = this.add.image(x * TILE_SIZE, y * TILE_SIZE, texture)

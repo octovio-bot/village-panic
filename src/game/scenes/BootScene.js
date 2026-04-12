@@ -27,9 +27,6 @@ export class BootScene extends Phaser.Scene {
     });
 
     preloadTinySwords(this.load);
-    if (DEFAULT_POST_BOOT_SCENE === 'LoadedMapScene') {
-      this.load.tilemapTiledJSON('custom-map-1', `${import.meta.env.BASE_URL}maps/map1.json`);
-    }
 
     this.load.once('complete', () => {
       createTinySwordsAnimations(this);
