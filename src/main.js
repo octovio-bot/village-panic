@@ -5,6 +5,7 @@ import { AssetPreviewScene } from './game/scenes/AssetPreviewScene.js';
 import { TilesetPreviewScene } from './game/scenes/TilesetPreviewScene.js';
 import { SemanticTilemapPreviewScene } from './game/scenes/SemanticTilemapPreviewScene.js';
 import { SemanticTilemapDemoScene } from './game/scenes/SemanticTilemapDemoScene.js';
+import { LoadedMapScene } from './game/scenes/LoadedMapScene.js';
 import { BootScene } from './game/scenes/BootScene.js';
 import { GameOverScene } from './game/scenes/GameOverScene.js';
 import { GameScene } from './game/scenes/GameScene.js';
@@ -29,7 +30,7 @@ const config = {
       debug: false,
     },
   },
-  scene: [BootScene, AssetPreviewScene, TilesetPreviewScene, SemanticTilemapPreviewScene, SemanticTilemapDemoScene, MenuScene, GameScene, UIScene, TouchHudScene, GameOverScene],
+  scene: [BootScene, AssetPreviewScene, TilesetPreviewScene, SemanticTilemapPreviewScene, SemanticTilemapDemoScene, LoadedMapScene, MenuScene, GameScene, UIScene, TouchHudScene, GameOverScene],
 };
 
 const game = new Phaser.Game(config);

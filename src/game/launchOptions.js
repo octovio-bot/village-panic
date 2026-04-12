@@ -8,4 +8,6 @@ export const DEFAULT_POST_BOOT_SCENE = sceneParam === 'asset-preview'
       ? 'SemanticTilemapPreviewScene'
       : sceneParam === 'semantic-tilemap-demo'
         ? 'SemanticTilemapDemoScene'
-        : 'MenuScene';
+        : sceneParam === 'loaded-map'
+          ? 'LoadedMapScene'
+          : 'MenuScene';
