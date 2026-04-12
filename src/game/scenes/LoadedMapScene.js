@@ -23,29 +23,32 @@ export class LoadedMapScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.tilemapTiledJSON(MAP_KEY, `${import.meta.env.BASE_URL}maps/map1.json`);
+    this.load.json(MAP_KEY, `${import.meta.env.BASE_URL}maps/map1.json`);
   }
 
   create() {
     this.cameras.main.setBackgroundColor('#102217');
     this.inputManager = new InputManager(this);
 
-    this.map = this.make.tilemap({ key: MAP_KEY });
-    this.mapData = {
-      width: this.map.width,
-      height: this.map.height,
-      layers: this.map.layers,
-    };
+    this.mapData = this.cache.json.get(MAP_KEY);
     this.layers = [];
 
-    this.mapData.layers.forEach((layerData, layerIndex) => {
-      const raw = layerData.tilemapLayer ?? layerData;
+    if (!this.mapData?.layers) {
+      this.add.text(28, 110, 'Erreur: impossible de charger maps/map1.json', {
+        fontFamily: 'Georgia',
+        fontSize: '20px',
+        color: '#ffb3b3',
+      }).setScrollFactor(0).setDepth(1000);
+      return;
+    }
+
+    this.mapData.layers.forEach((raw, layerIndex) => {
       if (raw.type !== 'tilelayer') return;
       const tiles = [];
       for (let y = 0; y < raw.height; y += 1) {
         for (let x = 0; x < raw.width; x += 1) {
           const tile = Array.isArray(raw.data?.[y]) ? raw.data[y][x] : raw.data?.[(y * raw.width) + x];
-          const gid = typeof tile === 'number' ? tile : tile?.index;
+          const gid = typeof tile === 'number' ? tile : tile?.gid ?? tile?.index;
           const texture = textureForGid(this, gid);
           if (!texture) continue;
           const image = this.add.image(x * TILE_SIZE, y * TILE_SIZE, texture)
