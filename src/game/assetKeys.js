@@ -32,6 +32,10 @@ export const TINY_SWORDS_ASSETS = [
   }),
   image('tinyswords.resources.gold-stone1', `${ASSET_BASE}/Terrain/Resources/Gold/Gold Stones/Gold Stone 1.png`),
   image('tinyswords.resources.gold-stone2', `${ASSET_BASE}/Terrain/Resources/Gold/Gold Stones/Gold Stone 2.png`),
+  image('tinyswords.resources.stump1', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Stump 1.png`),
+  image('tinyswords.resources.stump2', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Stump 2.png`),
+  image('tinyswords.resources.stump3', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Stump 3.png`),
+  image('tinyswords.resources.stump4', `${ASSET_BASE}/Terrain/Resources/Wood/Trees/Stump 4.png`),
   ...['tinyswords.resources.wood-item', 'tinyswords.resources.gold-item', 'tinyswords.resources.meat-item', 'tinyswords.resources.tools-item', 'tinyswords.buildings.blue.house1', 'tinyswords.buildings.blue.tower', 'tinyswords.buildings.blue.barracks', 'tinyswords.buildings.blue.archery', 'tinyswords.buildings.blue.monastery', 'tinyswords.buildings.blue.castle'].map((key) => {
     const def = getTinySwordsAssetDef(key);
     return image(key, def.assetPath);

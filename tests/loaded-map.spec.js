@@ -14,6 +14,13 @@ test.describe('loaded map scene', () => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
       const objectLayer = scene?.layers?.find?.((layer) => layer.name === 'Arbres');
       return objectLayer?.objects?.length ?? 0;
-    }), { timeout: 15000 }).toBeGreaterThan(0);
+    }), { timeout: 15000 }).toBeGreaterThan(5);
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      const objectLayer = scene?.layers?.find?.((layer) => layer.name === 'Arbres');
+      const objects = objectLayer?.objects ?? [];
+      return objects.filter((obj) => obj.anims).length;
+    }), { timeout: 15000 }).toBeGreaterThan(2);
   });
 });

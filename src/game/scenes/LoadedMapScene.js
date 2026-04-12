@@ -30,6 +30,15 @@ function textureForGid(scene, gid) {
 function objectDefForGid(gid) {
   const defs = {
     111: { texture: 'tinyswords.resources.tree1', kind: 'animated', anim: 'tree1-wind', originX: 0, originY: 1 },
+    112: { texture: 'tinyswords.resources.tree2', kind: 'animated', anim: 'tree2-wind', originX: 0, originY: 1 },
+    113: { texture: 'tinyswords.resources.tree2', kind: 'animated', anim: 'tree2-wind', originX: 0, originY: 1 },
+    114: { texture: 'tinyswords.resources.tree4', kind: 'animated', anim: 'tree4-wind', originX: 0, originY: 1 },
+    115: { texture: 'tinyswords.resources.stump1', kind: 'image', originX: 0, originY: 1 },
+    116: { texture: 'tinyswords.resources.stump2', kind: 'image', originX: 0, originY: 1 },
+    117: { texture: 'tinyswords.resources.stump3', kind: 'image', originX: 0, originY: 1 },
+    118: { texture: 'tinyswords.resources.stump4', kind: 'image', originX: 0, originY: 1 },
+    119: { texture: 'tinyswords.resources.gold-item', kind: 'image', originX: 0, originY: 1 },
+    121: { texture: 'tinyswords.resources.sheep-idle', kind: 'animated', anim: 'sheep-idle', originX: 0, originY: 1 },
   };
   return defs[gid] ?? null;
 }
