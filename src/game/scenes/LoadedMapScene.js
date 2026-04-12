@@ -3,16 +3,26 @@ import { InputManager } from '../input/InputManager.js';
 import { PLAYER_SPEED } from '../data.js';
 import { ensureSemanticTileTexture } from '../tiles/semanticTilemap.js';
 
-const MAP_KEY = 'custom-map-1';
 const TILE_SIZE = 64;
+
+function getSelectedMapName() {
+  const value = new URLSearchParams(window.location.search).get('map') || 'map1';
+  return /^[a-zA-Z0-9_-]+$/.test(value) ? value : 'map1';
+}
 
 function textureForGid(scene, gid) {
   if (!gid) return null;
   if (gid === 1) {
     return 'tinyswords.terrain.water-background';
   }
-  if (gid >= 2) {
+  if (gid >= 2 && gid < 56) {
     return ensureSemanticTileTexture(scene, 'color1', gid - 2);
+  }
+  if (gid >= 56 && gid < 110) {
+    return ensureSemanticTileTexture(scene, 'color2', gid - 56);
+  }
+  if (gid === 110) {
+    return 'tinyswords.terrain.shadow';
   }
   return null;
 }
@@ -23,14 +33,16 @@ export class LoadedMapScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.json(MAP_KEY, `${import.meta.env.BASE_URL}maps/map1.json`);
+    this.selectedMapName = getSelectedMapName();
+    this.mapCacheKey = `loaded-map::${this.selectedMapName}`;
+    this.load.json(this.mapCacheKey, `${import.meta.env.BASE_URL}maps/${this.selectedMapName}.json`);
   }
 
   create() {
     this.cameras.main.setBackgroundColor('#102217');
     this.inputManager = new InputManager(this);
 
-    this.mapData = this.cache.json.get(MAP_KEY);
+    this.mapData = this.cache.json.get(this.mapCacheKey);
     this.layers = [];
 
     if (!this.mapData?.layers) {
@@ -69,7 +81,7 @@ export class LoadedMapScene extends Phaser.Scene {
       strokeThickness: 5,
     }).setScrollFactor(0).setDepth(1000);
 
-    this.add.text(28, 58, 'Map chargée depuis maps/map1.json', {
+    this.add.text(28, 58, `Map chargée depuis maps/${this.selectedMapName}.json`, {
       fontFamily: 'Georgia',
       fontSize: '16px',
       color: '#f4f0d8',
