@@ -15,7 +15,9 @@ export class TouchHudScene extends Phaser.Scene {
       ? this.scene.get('GameScene')
       : this.scene.isActive('SemanticTilemapDemoScene')
         ? this.scene.get('SemanticTilemapDemoScene')
-        : null;
+        : this.scene.isActive('LoadedMapScene')
+          ? this.scene.get('LoadedMapScene')
+          : null;
     this.inputManager = this.gameScene?.inputManager ?? null;
     this.scale.on('resize', this.layoutHud, this);
 
