@@ -4,6 +4,7 @@ import { PLAYER_SPEED } from '../data.js';
 import { ensureSemanticTileTexture } from '../tiles/semanticTilemap.js';
 
 const TILE_SIZE = 64;
+const FLIPPED_TILE_FLAG_MASK = 0xE0000000;
 
 function getSelectedMapName() {
   const value = new URLSearchParams(window.location.search).get('map') || 'map1';
@@ -31,7 +32,7 @@ function objectDefForGid(gid) {
   const defs = {
     111: { texture: 'tinyswords.resources.tree1', kind: 'animated', anim: 'tree1-wind', originX: 0, originY: 1 },
     112: { texture: 'tinyswords.resources.tree2', kind: 'animated', anim: 'tree2-wind', originX: 0, originY: 1 },
-    113: { texture: 'tinyswords.resources.tree4', kind: 'animated', anim: 'tree4-wind', originX: 0, originY: 1 },
+    113: { texture: 'tinyswords.resources.tree3', kind: 'animated', anim: 'tree3-wind', originX: 0, originY: 1 },
     114: { texture: 'tinyswords.resources.tree4', kind: 'animated', anim: 'tree4-wind', originX: 0, originY: 1 },
     115: { texture: 'tinyswords.resources.stump1', kind: 'image', originX: 0, originY: 1 },
     116: { texture: 'tinyswords.resources.stump2', kind: 'image', originX: 0, originY: 1 },
@@ -93,7 +94,8 @@ export class LoadedMapScene extends Phaser.Scene {
       if (raw.type === 'objectgroup') {
         const objects = [];
         raw.objects?.forEach((obj) => {
-          const def = objectDefForGid(obj.gid);
+          const gid = typeof obj.gid === 'number' ? (obj.gid & ~FLIPPED_TILE_FLAG_MASK) : obj.gid;
+          const def = objectDefForGid(gid);
           if (!def) return;
           const sprite = this.add.sprite(obj.x, obj.y, def.texture)
             .setOrigin(def.originX ?? 0, def.originY ?? 1)
