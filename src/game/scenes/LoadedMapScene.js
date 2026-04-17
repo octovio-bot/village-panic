@@ -58,9 +58,14 @@ function objectDefForGid(gid) {
 }
 
 function createMapObject(scene, obj, gid, def, layerIndex) {
+  const displayWidth = obj.width || undefined;
+  const displayHeight = obj.height || undefined;
   const sprite = scene.add.sprite(obj.x, obj.y, def.texture)
     .setOrigin(def.originX ?? 0, def.originY ?? 1)
     .setDepth(Math.round(obj.y * 10) + (layerIndex * 10));
+  if (displayWidth && displayHeight) {
+    sprite.setDisplaySize(displayWidth, displayHeight);
+  }
   if (def.anim) {
     sprite.play(def.anim);
   }
@@ -74,6 +79,8 @@ function createMapObject(scene, obj, gid, def, layerIndex) {
     id: obj.id ?? `${gid}-${obj.x}-${obj.y}`,
     x: obj.x,
     y: obj.y,
+    interactionX: obj.x + (sprite.displayWidth * 0.5),
+    interactionY: obj.y - Math.min(28, sprite.displayHeight * 0.2),
     gid,
     kind: def.kind,
     texture: def.texture,
@@ -264,7 +271,7 @@ export class LoadedMapScene extends Phaser.Scene {
     let bestDistance = INTERACT_RANGE;
 
     candidates.forEach((obj) => {
-      const distance = Phaser.Math.Distance.Between(this.pawn.x, this.pawn.y, obj.x, obj.y);
+      const distance = Phaser.Math.Distance.Between(this.pawn.x, this.pawn.y, obj.interactionX ?? obj.x, obj.interactionY ?? obj.y);
       if (distance < bestDistance) {
         best = obj;
         bestDistance = distance;
@@ -360,6 +367,9 @@ export class LoadedMapScene extends Phaser.Scene {
     tree.sprite.stop?.();
     tree.sprite.setTexture(tree.stumpTexture);
     tree.sprite.setOrigin(0, 1);
+    tree.sprite.setDisplaySize(tree.sprite.displayWidth, Math.min(tree.sprite.displayHeight, 64));
+    tree.interactionX = tree.x + (tree.sprite.displayWidth * 0.5);
+    tree.interactionY = tree.y - Math.min(12, tree.sprite.displayHeight * 0.25);
     if (tree.obstacle) {
       tree.obstacle.destroy();
       this.obstacleBodies = this.obstacleBodies.filter((candidate) => candidate !== tree.obstacle);
