@@ -1,11 +1,16 @@
 import Phaser from 'phaser';
 import { InputManager } from '../input/InputManager.js';
-import { PLAYER_SPEED } from '../data.js';
+import { INTERACT_RANGE, PLAYER_SPEED, RESOURCE_HARVEST_DURATIONS, RESOURCE_LABELS } from '../data.js';
 import { ensureSemanticTileTexture } from '../tiles/semanticTilemap.js';
 import { createStaticCollisionRectFromManifest, getAssetPathForTinySwordsKey, getGameplayCollisionByAssetPath } from '../assets/manifestRegistry.js';
+import { InteractionSystem } from '../managers/InteractionSystem.js';
 
 const TILE_SIZE = 64;
 const FLIPPED_TILE_FLAG_MASK = 0xE0000000;
+const PLAYER_ANIMS = {
+  base: { idle: 'player-idle-base', run: 'player-run-base' },
+  wood: { idle: 'player-idle-wood', run: 'player-run-wood' },
+};
 
 function getSelectedMapName() {
   const value = new URLSearchParams(window.location.search).get('map') || 'map1';
@@ -37,18 +42,46 @@ function readLayerGid(raw, x, y) {
 
 function objectDefForGid(gid) {
   const defs = {
-    111: { texture: 'tinyswords.resources.tree1', kind: 'animated', anim: 'tree1-wind', originX: 0, originY: 1 },
-    112: { texture: 'tinyswords.resources.tree2', kind: 'animated', anim: 'tree2-wind', originX: 0, originY: 1 },
-    113: { texture: 'tinyswords.resources.tree3', kind: 'animated', anim: 'tree3-wind', originX: 0, originY: 1 },
-    114: { texture: 'tinyswords.resources.tree4', kind: 'animated', anim: 'tree4-wind', originX: 0, originY: 1 },
-    115: { texture: 'tinyswords.resources.stump1', kind: 'image', originX: 0, originY: 1 },
-    116: { texture: 'tinyswords.resources.stump2', kind: 'image', originX: 0, originY: 1 },
-    117: { texture: 'tinyswords.resources.stump3', kind: 'image', originX: 0, originY: 1 },
-    118: { texture: 'tinyswords.resources.stump4', kind: 'image', originX: 0, originY: 1 },
+    111: { texture: 'tinyswords.resources.tree1', kind: 'tree', anim: 'tree1-wind', originX: 0, originY: 1, stumpTexture: 'tinyswords.resources.stump1' },
+    112: { texture: 'tinyswords.resources.tree2', kind: 'tree', anim: 'tree2-wind', originX: 0, originY: 1, stumpTexture: 'tinyswords.resources.stump2' },
+    113: { texture: 'tinyswords.resources.tree3', kind: 'tree', anim: 'tree3-wind', originX: 0, originY: 1, stumpTexture: 'tinyswords.resources.stump3' },
+    114: { texture: 'tinyswords.resources.tree4', kind: 'tree', anim: 'tree4-wind', originX: 0, originY: 1, stumpTexture: 'tinyswords.resources.stump4' },
+    115: { texture: 'tinyswords.resources.stump1', kind: 'stump', originX: 0, originY: 1 },
+    116: { texture: 'tinyswords.resources.stump2', kind: 'stump', originX: 0, originY: 1 },
+    117: { texture: 'tinyswords.resources.stump3', kind: 'stump', originX: 0, originY: 1 },
+    118: { texture: 'tinyswords.resources.stump4', kind: 'stump', originX: 0, originY: 1 },
     119: { texture: 'tinyswords.resources.gold-item', kind: 'image', originX: 0, originY: 1 },
     121: { texture: 'tinyswords.resources.sheep-idle', kind: 'animated', anim: 'sheep-idle', originX: 0, originY: 1 },
   };
   return defs[gid] ?? null;
+}
+
+function createMapObject(scene, obj, gid, def, layerIndex) {
+  const sprite = scene.add.sprite(obj.x, obj.y, def.texture)
+    .setOrigin(def.originX ?? 0, def.originY ?? 1)
+    .setDepth(Math.round(obj.y * 10) + (layerIndex * 10));
+  if (def.anim) {
+    sprite.play(def.anim);
+  }
+  const manifestAssetPath = getAssetPathForTinySwordsKey(def.texture);
+  const manifestCollision = getGameplayCollisionByAssetPath(manifestAssetPath);
+  const obstacle = manifestCollision
+    ? scene.registerObstacleBody(createStaticCollisionRectFromManifest(scene, obj.x, obj.y, sprite.displayWidth, sprite.displayHeight, manifestCollision))
+    : null;
+
+  return {
+    id: obj.id ?? `${gid}-${obj.x}-${obj.y}`,
+    x: obj.x,
+    y: obj.y,
+    gid,
+    kind: def.kind,
+    texture: def.texture,
+    stumpTexture: def.stumpTexture ?? null,
+    anim: def.anim ?? null,
+    sprite,
+    obstacle,
+    harvested: def.kind === 'stump',
+  };
 }
 
 export class LoadedMapScene extends Phaser.Scene {
@@ -65,10 +98,16 @@ export class LoadedMapScene extends Phaser.Scene {
   create() {
     this.cameras.main.setBackgroundColor('#102217');
     this.inputManager = new InputManager(this);
+    this.interactionSystem = new InteractionSystem(this);
+    this.interactionPrompt = 'Explore la carte';
+    this.carriedItem = null;
+    this.harvestAction = null;
+    this.toast = null;
 
     this.mapData = this.cache.json.get(this.mapCacheKey);
     this.layers = [];
     this.obstacleBodies = [];
+    this.mapObjects = [];
 
     if (!this.mapData?.layers) {
       this.add.text(28, 110, 'Erreur: impossible de charger maps/map1.json', {
@@ -104,18 +143,9 @@ export class LoadedMapScene extends Phaser.Scene {
           const gid = typeof obj.gid === 'number' ? (obj.gid & ~FLIPPED_TILE_FLAG_MASK) : obj.gid;
           const def = objectDefForGid(gid);
           if (!def) return;
-          const sprite = this.add.sprite(obj.x, obj.y, def.texture)
-            .setOrigin(def.originX ?? 0, def.originY ?? 1)
-            .setDepth(Math.round(obj.y * 10) + (layerIndex * 10));
-          if (def.anim) {
-            sprite.play(def.anim);
-          }
-          const manifestAssetPath = getAssetPathForTinySwordsKey(def.texture);
-          const manifestCollision = getGameplayCollisionByAssetPath(manifestAssetPath);
-          const obstacle = manifestCollision
-            ? this.registerObstacleBody(createStaticCollisionRectFromManifest(this, obj.x, obj.y, sprite.displayWidth, sprite.displayHeight, manifestCollision))
-            : null;
-          objects.push({ sprite, obstacle, gid, texture: def.texture, anim: def.anim ?? null });
+          const entry = createMapObject(this, obj, gid, def, layerIndex);
+          objects.push(entry);
+          this.mapObjects.push(entry);
         });
         this.layers.push({ name: raw.name, width: 0, height: 0, objects });
       }
@@ -226,14 +256,134 @@ export class LoadedMapScene extends Phaser.Scene {
     });
   }
 
-  update() {
-    const move = this.inputManager.getMoveVector();
-    this.pawn.body.setVelocity(move.x * PLAYER_SPEED, move.y * PLAYER_SPEED);
-    if (move.lengthSq() > 0) {
-      this.pawn.play('player-run-base', true);
-    } else {
-      this.pawn.play('player-idle-base', true);
+  findInteractiveTree() {
+    const candidates = (this.mapObjects ?? []).filter((obj) => obj.kind === 'tree' && !obj.harvested);
+    let best = null;
+    let bestDistance = INTERACT_RANGE;
+
+    candidates.forEach((obj) => {
+      const distance = Phaser.Math.Distance.Between(this.pawn.x, this.pawn.y, obj.x, obj.y);
+      if (distance < bestDistance) {
+        best = obj;
+        bestDistance = distance;
+      }
+    });
+
+    return best;
+  }
+
+  handleAction() {
+    if (this.harvestAction || this.carriedItem) {
+      return;
     }
+
+    const tree = this.findInteractiveTree();
+    if (!tree) {
+      return;
+    }
+
+    this.harvestAction = {
+      target: tree,
+      elapsed: 0,
+      duration: RESOURCE_HARVEST_DURATIONS.wood ?? 1400,
+    };
+    tree.sprite.setTint(0xd9ffd0);
+    this.pawn.body.setVelocity(0, 0);
+  }
+
+  updateInteractions() {
+    const tree = this.harvestAction?.target ?? this.findInteractiveTree();
+    if (this.harvestAction?.target) {
+      this.interactionPrompt = '[Action] Coupe du bois...';
+      return;
+    }
+    this.interactionPrompt = tree && !this.carriedItem
+      ? '[Action] Couper cet arbre'
+      : this.carriedItem?.resourceType === 'wood'
+        ? 'Tu portes deja du bois'
+        : 'Explore la carte';
+  }
+
+  finishHarvest(tree) {
+    tree.harvested = true;
+    tree.sprite.clearTint();
+    tree.sprite.stop?.();
+    tree.sprite.setTexture(tree.stumpTexture);
+    tree.sprite.setOrigin(0, 1);
+    if (tree.obstacle) {
+      tree.obstacle.destroy();
+      this.obstacleBodies = this.obstacleBodies.filter((candidate) => candidate !== tree.obstacle);
+      tree.obstacle = null;
+    }
+    const manifestAssetPath = getAssetPathForTinySwordsKey(tree.stumpTexture);
+    const manifestCollision = getGameplayCollisionByAssetPath(manifestAssetPath);
+    tree.obstacle = manifestCollision
+      ? this.registerObstacleBody(createStaticCollisionRectFromManifest(this, tree.x, tree.y, tree.sprite.displayWidth, tree.sprite.displayHeight, manifestCollision))
+      : null;
+    tree.kind = 'stump';
+    this.carriedItem = { resourceType: 'wood' };
+    this.showToast(`${RESOURCE_LABELS.wood} recupere`, 900);
+  }
+
+  updateHarvesting(delta) {
+    if (!this.harvestAction) {
+      return;
+    }
+
+    const { target } = this.harvestAction;
+    this.harvestAction.elapsed = Math.min(this.harvestAction.duration, this.harvestAction.elapsed + delta);
+    if (this.harvestAction.elapsed >= this.harvestAction.duration) {
+      this.harvestAction = null;
+      this.finishHarvest(target);
+    }
+  }
+
+  showToast(message, duration = 1200) {
+    this.toast = {
+      message,
+      startTime: this.time.now,
+      duration,
+      elapsed: 0,
+    };
+  }
+
+  getUiSnapshot() {
+    return {
+      score: 0,
+      combo: 0,
+      remainingRoundTime: 0,
+      carriedItem: this.carriedItem?.resourceType ?? null,
+      interactionPrompt: this.interactionPrompt,
+      chaos: { value: 0, threshold: 100 },
+      toast: this.toast,
+    };
+  }
+
+  update(time, delta) {
+    if (this.inputManager.consumeActionPressed()) {
+      this.handleAction();
+    }
+
+    this.updateHarvesting(delta);
+
+    const move = this.harvestAction ? new Phaser.Math.Vector2(0, 0) : this.inputManager.getMoveVector();
+    this.pawn.body.setVelocity(move.x * PLAYER_SPEED, move.y * PLAYER_SPEED);
+
+    const moveKey = this.carriedItem?.resourceType ?? 'base';
+    if (move.lengthSq() > 0) {
+      this.pawn.play(PLAYER_ANIMS[moveKey]?.run ?? PLAYER_ANIMS.base.run, true);
+    } else {
+      this.pawn.play(PLAYER_ANIMS[moveKey]?.idle ?? PLAYER_ANIMS.base.idle, true);
+    }
+
+    this.updateInteractions();
     this.pawn.setDepth(Math.round((this.pawn.y + (this.pawn.displayHeight * 0.5)) * 10) + 500);
+
+    if (this.toast) {
+      this.toast.elapsed = time - this.toast.startTime;
+      if (this.toast.elapsed >= this.toast.duration) {
+        this.toast = null;
+      }
+    }
   }
 }

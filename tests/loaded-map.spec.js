@@ -32,4 +32,33 @@ test.describe('loaded map scene', () => {
       return scene?.obstacleBodies?.length ?? 0;
     }), { timeout: 15000 }).toBeGreaterThan(0);
   });
+
+  test('cuts a nearby tree and puts wood in the player hands', async ({ page }) => {
+    await page.goto('/village-panic/?scene=loaded-map&map=map2');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return (scene?.mapObjects ?? []).filter((obj) => obj.kind === 'tree' && !obj.harvested).length;
+    }), { timeout: 15000 }).toBeGreaterThan(0);
+
+    await page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      const tree = scene.mapObjects.find((obj) => obj.kind === 'tree' && !obj.harvested);
+      scene.pawn.setPosition(tree.x - 20, tree.y - 20);
+    });
+
+    await page.keyboard.press('e');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      const stump = scene?.mapObjects?.find?.((obj) => obj.kind === 'stump' && obj.harvested);
+      return {
+        carriedItem: scene?.carriedItem?.resourceType ?? null,
+        harvestedTexture: stump?.sprite?.texture?.key ?? null,
+      };
+    }), { timeout: 15000 }).toMatchObject({
+      carriedItem: 'wood',
+      harvestedTexture: expect.stringContaining('stump'),
+    });
+  });
 });
