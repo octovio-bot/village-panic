@@ -38,13 +38,31 @@ test.describe('loaded map scene', () => {
 
     await expect.poll(async () => page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
-      return (scene?.mapObjects ?? []).filter((obj) => obj.kind === 'tree' && !obj.harvested).length;
+      return (scene?.mapObjects ?? []).filter((obj) => obj.resourceType === 'wood' && !obj.harvested).length;
     }), { timeout: 15000 }).toBeGreaterThan(0);
 
     await page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
-      const tree = scene.mapObjects.find((obj) => obj.kind === 'tree' && !obj.harvested);
-      scene.finishHarvest(tree);
+      const tree = scene.mapObjects.find((obj) => obj.resourceType === 'wood' && !obj.harvested);
+      scene.startHarvest(tree);
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      const target = scene?.harvestAction?.target;
+      return {
+        active: !!target,
+        progressVisible: !!target?.progressBack?.visible,
+      };
+    }), { timeout: 15000 }).toMatchObject({
+      active: true,
+      progressVisible: true,
+    });
+
+    await page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      scene.finishHarvest(scene.mapObjects.find((obj) => obj.resourceType === 'wood' && !obj.harvested));
+      scene.harvestAction = null;
     });
 
     await expect.poll(async () => page.evaluate(() => {
@@ -58,6 +76,28 @@ test.describe('loaded map scene', () => {
       carriedItem: 'wood',
       harvestedTexture: expect.stringContaining('stump'),
     });
+  });
+
+  test('collects gold and meat with the same harvest logic', async ({ page }) => {
+    await page.goto('/village-panic/?scene=loaded-map&map=map2');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return (scene?.mapObjects ?? []).filter((obj) => obj.resourceType === 'gold' || obj.resourceType === 'meat').length;
+    }), { timeout: 15000 }).toBeGreaterThan(0);
+
+    const harvest = async (resourceType) => page.evaluate((type) => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      const node = scene.mapObjects.find((obj) => obj.resourceType === type && !obj.harvested);
+      scene.finishHarvest(node);
+      scene.harvestAction = null;
+      const carried = scene.carriedItem?.resourceType ?? null;
+      scene.carriedItem = null;
+      return carried;
+    }, resourceType);
+
+    expect(await harvest('gold')).toBe('gold');
+    expect(await harvest('meat')).toBe('meat');
   });
 
   test('drops a carried resource on the map and can pick it back up', async ({ page }) => {

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { InputManager } from '../input/InputManager.js';
-import { INTERACT_RANGE, PLAYER_SPEED, RESOURCE_HARVEST_DURATIONS, RESOURCE_LABELS } from '../data.js';
+import { INTERACT_RANGE, PLAYER_SPEED, RESOURCE_HARVEST_DURATIONS, RESOURCE_LABELS, ResourceType } from '../data.js';
 import { ensureSemanticTileTexture } from '../tiles/semanticTilemap.js';
 import { createStaticCollisionRectFromManifest, getAssetPathForTinySwordsKey, getGameplayCollisionByAssetPath } from '../assets/manifestRegistry.js';
 import { InteractionSystem } from '../managers/InteractionSystem.js';
@@ -11,6 +11,8 @@ const FLIPPED_TILE_FLAG_MASK = 0xE0000000;
 const PLAYER_ANIMS = {
   base: { idle: 'player-idle-base', run: 'player-run-base' },
   wood: { idle: 'player-idle-wood', run: 'player-run-wood' },
+  gold: { idle: 'player-idle-gold', run: 'player-run-gold' },
+  meat: { idle: 'player-idle-meat', run: 'player-run-meat' },
 };
 
 function getSelectedMapName() {
@@ -43,16 +45,16 @@ function readLayerGid(raw, x, y) {
 
 function objectDefForGid(gid) {
   const defs = {
-    111: { texture: 'tinyswords.resources.tree1', kind: 'tree', anim: 'tree1-wind', originX: 0, originY: 1, stumpTexture: 'tinyswords.resources.stump1' },
-    112: { texture: 'tinyswords.resources.tree2', kind: 'tree', anim: 'tree2-wind', originX: 0, originY: 1, stumpTexture: 'tinyswords.resources.stump2' },
-    113: { texture: 'tinyswords.resources.tree3', kind: 'tree', anim: 'tree3-wind', originX: 0, originY: 1, stumpTexture: 'tinyswords.resources.stump3' },
-    114: { texture: 'tinyswords.resources.tree4', kind: 'tree', anim: 'tree4-wind', originX: 0, originY: 1, stumpTexture: 'tinyswords.resources.stump4' },
-    115: { texture: 'tinyswords.resources.stump1', kind: 'stump', originX: 0, originY: 1 },
-    116: { texture: 'tinyswords.resources.stump2', kind: 'stump', originX: 0, originY: 1 },
-    117: { texture: 'tinyswords.resources.stump3', kind: 'stump', originX: 0, originY: 1 },
-    118: { texture: 'tinyswords.resources.stump4', kind: 'stump', originX: 0, originY: 1 },
-    119: { texture: 'tinyswords.resources.gold-item', kind: 'image', originX: 0, originY: 1 },
-    121: { texture: 'tinyswords.resources.sheep-idle', kind: 'animated', anim: 'sheep-idle', originX: 0, originY: 1 },
+    111: { texture: 'tinyswords.resources.tree1', kind: 'tree', resourceType: ResourceType.WOOD, label: 'Arbre', anim: 'tree1-wind', originX: 0, originY: 1, harvestedTexture: 'tinyswords.resources.stump1', harvestedKind: 'stump' },
+    112: { texture: 'tinyswords.resources.tree2', kind: 'tree', resourceType: ResourceType.WOOD, label: 'Arbre', anim: 'tree2-wind', originX: 0, originY: 1, harvestedTexture: 'tinyswords.resources.stump2', harvestedKind: 'stump' },
+    113: { texture: 'tinyswords.resources.tree3', kind: 'tree', resourceType: ResourceType.WOOD, label: 'Arbre', anim: 'tree3-wind', originX: 0, originY: 1, harvestedTexture: 'tinyswords.resources.stump3', harvestedKind: 'stump' },
+    114: { texture: 'tinyswords.resources.tree4', kind: 'tree', resourceType: ResourceType.WOOD, label: 'Arbre', anim: 'tree4-wind', originX: 0, originY: 1, harvestedTexture: 'tinyswords.resources.stump4', harvestedKind: 'stump' },
+    115: { texture: 'tinyswords.resources.stump1', kind: 'stump', label: 'Souche', originX: 0, originY: 1 },
+    116: { texture: 'tinyswords.resources.stump2', kind: 'stump', label: 'Souche', originX: 0, originY: 1 },
+    117: { texture: 'tinyswords.resources.stump3', kind: 'stump', label: 'Souche', originX: 0, originY: 1 },
+    118: { texture: 'tinyswords.resources.stump4', kind: 'stump', label: 'Souche', originX: 0, originY: 1 },
+    119: { texture: 'tinyswords.resources.gold-item', kind: 'gold-node', resourceType: ResourceType.GOLD, label: 'Or', originX: 0, originY: 1, harvestedTexture: null, harvestedKind: 'empty' },
+    121: { texture: 'tinyswords.resources.sheep-idle', kind: 'sheep', resourceType: ResourceType.MEAT, label: 'Mouton', anim: 'sheep-idle', originX: 0, originY: 1, harvestedTexture: null, harvestedKind: 'empty' },
   };
   return defs[gid] ?? null;
 }
@@ -75,6 +77,22 @@ function createMapObject(scene, obj, gid, def, layerIndex) {
     ? scene.registerObstacleBody(createStaticCollisionRectFromManifest(scene, obj.x, obj.y, sprite.displayWidth, sprite.displayHeight, manifestCollision))
     : null;
 
+  const progressBack = scene.add.rectangle(obj.x + (sprite.displayWidth * 0.5), obj.y - sprite.displayHeight - 18, 62, 10, 0x0b140e, 0.84)
+    .setStrokeStyle(2, 0xe7d798, 0.2)
+    .setVisible(false)
+    .setDepth(Math.round(obj.y * 10) + (layerIndex * 10) + 1);
+  const progressFill = scene.add.rectangle(obj.x - 29 + (sprite.displayWidth * 0.5), obj.y - sprite.displayHeight - 18, 58, 6, 0xd7c18e, 0.95)
+    .setOrigin(0, 0.5)
+    .setVisible(false)
+    .setDepth(Math.round(obj.y * 10) + (layerIndex * 10) + 2);
+  const progressLabel = scene.add.text(obj.x + (sprite.displayWidth * 0.5), obj.y - sprite.displayHeight - 34, '', {
+    fontFamily: 'Georgia',
+    fontSize: '14px',
+    color: '#fff0bf',
+    stroke: '#223019',
+    strokeThickness: 4,
+  }).setOrigin(0.5).setVisible(false).setDepth(Math.round(obj.y * 10) + (layerIndex * 10) + 2);
+
   return {
     id: obj.id ?? `${gid}-${obj.x}-${obj.y}`,
     x: obj.x,
@@ -83,12 +101,18 @@ function createMapObject(scene, obj, gid, def, layerIndex) {
     interactionY: obj.y - Math.min(28, sprite.displayHeight * 0.2),
     gid,
     kind: def.kind,
+    resourceType: def.resourceType ?? null,
+    label: def.label ?? 'Objet',
     texture: def.texture,
-    stumpTexture: def.stumpTexture ?? null,
+    harvestedTexture: def.harvestedTexture ?? null,
+    harvestedKind: def.harvestedKind ?? null,
     anim: def.anim ?? null,
     sprite,
     obstacle,
-    harvested: def.kind === 'stump',
+    harvested: def.kind === 'stump' || def.kind === 'empty',
+    progressBack,
+    progressFill,
+    progressLabel,
   };
 }
 
@@ -265,8 +289,8 @@ export class LoadedMapScene extends Phaser.Scene {
     });
   }
 
-  findInteractiveTree() {
-    const candidates = (this.mapObjects ?? []).filter((obj) => obj.kind === 'tree' && !obj.harvested);
+  findNearestHarvestableObject() {
+    const candidates = (this.mapObjects ?? []).filter((obj) => obj.resourceType && !obj.harvested);
     let best = null;
     let bestDistance = INTERACT_RANGE;
 
@@ -274,6 +298,24 @@ export class LoadedMapScene extends Phaser.Scene {
       const distance = Phaser.Math.Distance.Between(this.pawn.x, this.pawn.y, obj.interactionX ?? obj.x, obj.interactionY ?? obj.y);
       if (distance < bestDistance) {
         best = obj;
+        bestDistance = distance;
+      }
+    });
+
+    return best;
+  }
+
+  findNearbyDroppedItem() {
+    let best = null;
+    let bestDistance = INTERACT_RANGE;
+
+    this.spawnManager.droppedItems.forEach((item) => {
+      if (!item.active) {
+        return;
+      }
+      const distance = Phaser.Math.Distance.Between(this.pawn.x, this.pawn.y, item.x, item.y);
+      if (distance < bestDistance) {
+        best = item;
         bestDistance = distance;
       }
     });
@@ -299,43 +341,32 @@ export class LoadedMapScene extends Phaser.Scene {
       return;
     }
 
-    const tree = this.findInteractiveTree();
-    if (!tree) {
+    const target = this.findNearestHarvestableObject();
+    if (!target) {
       return;
     }
 
-    this.harvestAction = {
-      target: tree,
-      elapsed: 0,
-      duration: RESOURCE_HARVEST_DURATIONS.wood ?? 1400,
-    };
-    tree.sprite.setTint(0xd9ffd0);
-    this.pawn.body.setVelocity(0, 0);
+    this.startHarvest(target);
   }
 
-  findNearbyDroppedItem() {
-    let best = null;
-    let bestDistance = INTERACT_RANGE;
-
-    this.spawnManager.droppedItems.forEach((item) => {
-      if (!item.active) {
-        return;
-      }
-      const distance = Phaser.Math.Distance.Between(this.pawn.x, this.pawn.y, item.x, item.y);
-      if (distance < bestDistance) {
-        best = item;
-        bestDistance = distance;
-      }
-    });
-
-    return best;
+  startHarvest(target) {
+    this.harvestAction = {
+      target,
+      elapsed: 0,
+      duration: RESOURCE_HARVEST_DURATIONS[target.resourceType] ?? 1400,
+    };
+    target.sprite.setTint(target.resourceType === ResourceType.GOLD ? 0xffe4a3 : 0xd9ffd0);
+    target.progressBack.setVisible(true);
+    target.progressFill.setVisible(true).setDisplaySize(0, 6);
+    target.progressLabel.setVisible(true).setText('Recolte...');
+    this.pawn.body.setVelocity(0, 0);
   }
 
   updateInteractions() {
     const droppedItem = this.findNearbyDroppedItem();
-    const tree = this.harvestAction?.target ?? this.findInteractiveTree();
+    const target = this.harvestAction?.target ?? this.findNearestHarvestableObject();
     if (this.harvestAction?.target) {
-      this.interactionPrompt = '[Action] Coupe du bois...';
+      this.interactionPrompt = `[Action] Recolte ${RESOURCE_LABELS[this.harvestAction.target.resourceType]}...`;
       return;
     }
     if (this.carriedItem) {
@@ -346,8 +377,8 @@ export class LoadedMapScene extends Phaser.Scene {
       this.interactionPrompt = `[Action] Ramasser ${RESOURCE_LABELS[droppedItem.resourceType]}`;
       return;
     }
-    this.interactionPrompt = tree
-      ? '[Action] Couper cet arbre'
+    this.interactionPrompt = target
+      ? `[Action] Recolter ${target.label}`
       : 'Explore la carte';
   }
 
@@ -361,37 +392,64 @@ export class LoadedMapScene extends Phaser.Scene {
     this.carriedItem = null;
   }
 
-  finishHarvest(tree) {
-    tree.harvested = true;
-    tree.sprite.clearTint();
-    tree.sprite.stop?.();
-    tree.sprite.setTexture(tree.stumpTexture);
-    tree.sprite.setOrigin(0, 1);
-    tree.sprite.setDisplaySize(tree.sprite.displayWidth, Math.min(tree.sprite.displayHeight, 64));
-    tree.interactionX = tree.x + (tree.sprite.displayWidth * 0.5);
-    tree.interactionY = tree.y - Math.min(12, tree.sprite.displayHeight * 0.25);
-    if (tree.obstacle) {
-      tree.obstacle.destroy();
-      this.obstacleBodies = this.obstacleBodies.filter((candidate) => candidate !== tree.obstacle);
-      tree.obstacle = null;
+  finishHarvest(target) {
+    target.harvested = true;
+    target.sprite.clearTint();
+    target.progressBack.setVisible(false);
+    target.progressFill.setVisible(false);
+    target.progressLabel.setVisible(false);
+
+    if (target.obstacle) {
+      target.obstacle.destroy();
+      this.obstacleBodies = this.obstacleBodies.filter((candidate) => candidate !== target.obstacle);
+      target.obstacle = null;
     }
-    const manifestAssetPath = getAssetPathForTinySwordsKey(tree.stumpTexture);
-    const manifestCollision = getGameplayCollisionByAssetPath(manifestAssetPath);
-    tree.obstacle = manifestCollision
-      ? this.registerObstacleBody(createStaticCollisionRectFromManifest(this, tree.x, tree.y, tree.sprite.displayWidth, tree.sprite.displayHeight, manifestCollision))
-      : null;
-    tree.kind = 'stump';
-    this.carriedItem = { resourceType: 'wood' };
-    this.showToast(`${RESOURCE_LABELS.wood} recupere`, 900);
+
+    if (target.harvestedKind === 'stump' && target.harvestedTexture) {
+      target.sprite.stop?.();
+      target.sprite.setTexture(target.harvestedTexture);
+      target.sprite.setOrigin(0, 1);
+      target.sprite.setDisplaySize(target.sprite.displayWidth, Math.min(target.sprite.displayHeight, 64));
+      target.interactionX = target.x + (target.sprite.displayWidth * 0.5);
+      target.interactionY = target.y - Math.min(12, target.sprite.displayHeight * 0.25);
+      const manifestAssetPath = getAssetPathForTinySwordsKey(target.harvestedTexture);
+      const manifestCollision = getGameplayCollisionByAssetPath(manifestAssetPath);
+      target.obstacle = manifestCollision
+        ? this.registerObstacleBody(createStaticCollisionRectFromManifest(this, target.x, target.y, target.sprite.displayWidth, target.sprite.displayHeight, manifestCollision))
+        : null;
+      target.kind = 'stump';
+    } else {
+      target.sprite.setVisible(false);
+      target.kind = 'empty';
+    }
+
+    this.carriedItem = { resourceType: target.resourceType };
+    this.showToast(`${RESOURCE_LABELS[target.resourceType]} recupere`, 900);
   }
 
   updateHarvesting(delta) {
+    this.mapObjects.forEach((obj) => {
+      if (this.harvestAction?.target !== obj) {
+        obj.progressBack.setVisible(false);
+        obj.progressFill.setVisible(false);
+        obj.progressLabel.setVisible(false);
+        if (!obj.harvested) {
+          obj.sprite.clearTint();
+        }
+      }
+    });
+
     if (!this.harvestAction) {
       return;
     }
 
     const { target } = this.harvestAction;
     this.harvestAction.elapsed = Math.min(this.harvestAction.duration, this.harvestAction.elapsed + delta);
+    const progress = this.harvestAction.elapsed / this.harvestAction.duration;
+    target.progressBack.setVisible(true);
+    target.progressFill.setVisible(true).setDisplaySize(58 * progress, 6);
+    target.progressLabel.setVisible(true).setText(`${Math.ceil((this.harvestAction.duration - this.harvestAction.elapsed) / 1000)}s`);
+
     if (this.harvestAction.elapsed >= this.harvestAction.duration) {
       this.harvestAction = null;
       this.finishHarvest(target);
