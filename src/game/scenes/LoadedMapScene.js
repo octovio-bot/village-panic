@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { InputManager } from '../input/InputManager.js';
 import { PLAYER_SPEED } from '../data.js';
 import { ensureSemanticTileTexture } from '../tiles/semanticTilemap.js';
+import { createStaticCollisionRectFromManifest, getAssetPathForTinySwordsKey, getGameplayCollisionByAssetPath } from '../assets/manifestRegistry.js';
 
 const TILE_SIZE = 64;
 const FLIPPED_TILE_FLAG_MASK = 0xE0000000;
@@ -26,6 +27,12 @@ function textureForGid(scene, gid) {
     return 'tinyswords.terrain.shadow';
   }
   return null;
+}
+
+function readLayerGid(raw, x, y) {
+  const tile = Array.isArray(raw.data?.[y]) ? raw.data[y][x] : raw.data?.[(y * raw.width) + x];
+  const gid = typeof tile === 'number' ? tile : tile?.gid ?? tile?.index;
+  return typeof gid === 'number' ? (gid & ~FLIPPED_TILE_FLAG_MASK) : gid;
 }
 
 function objectDefForGid(gid) {
@@ -61,6 +68,7 @@ export class LoadedMapScene extends Phaser.Scene {
 
     this.mapData = this.cache.json.get(this.mapCacheKey);
     this.layers = [];
+    this.obstacleBodies = [];
 
     if (!this.mapData?.layers) {
       this.add.text(28, 110, 'Erreur: impossible de charger maps/map1.json', {
@@ -76,8 +84,7 @@ export class LoadedMapScene extends Phaser.Scene {
         const tiles = [];
         for (let y = 0; y < raw.height; y += 1) {
           for (let x = 0; x < raw.width; x += 1) {
-            const tile = Array.isArray(raw.data?.[y]) ? raw.data[y][x] : raw.data?.[(y * raw.width) + x];
-            const gid = typeof tile === 'number' ? tile : tile?.gid ?? tile?.index;
+            const gid = readLayerGid(raw, x, y);
             const texture = textureForGid(this, gid);
             if (!texture) continue;
             const image = this.add.image(x * TILE_SIZE, y * TILE_SIZE, texture)
@@ -103,7 +110,12 @@ export class LoadedMapScene extends Phaser.Scene {
           if (def.anim) {
             sprite.play(def.anim);
           }
-          objects.push(sprite);
+          const manifestAssetPath = getAssetPathForTinySwordsKey(def.texture);
+          const manifestCollision = getGameplayCollisionByAssetPath(manifestAssetPath);
+          const obstacle = manifestCollision
+            ? this.registerObstacleBody(createStaticCollisionRectFromManifest(this, obj.x, obj.y, sprite.displayWidth, sprite.displayHeight, manifestCollision))
+            : null;
+          objects.push({ sprite, obstacle, gid, texture: def.texture, anim: def.anim ?? null });
         });
         this.layers.push({ name: raw.name, width: 0, height: 0, objects });
       }
@@ -126,6 +138,7 @@ export class LoadedMapScene extends Phaser.Scene {
     }).setScrollFactor(0).setDepth(1000);
 
     this.createPawn();
+    this.createWaterCollisions();
 
     this.mapInfo = {
       width: this.mapData.width,
@@ -140,6 +153,7 @@ export class LoadedMapScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
     this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
     this.cameras.main.startFollow(this.pawn, true, 0.12, 0.12);
+    this.setupObstacleCollisions();
 
     this.scene.launch('TouchHudScene');
   }
@@ -147,8 +161,69 @@ export class LoadedMapScene extends Phaser.Scene {
   createPawn() {
     this.pawn = this.physics.add.sprite(320, 320, 'tinyswords.units.blue.pawn.idle', 0);
     this.pawn.setCollideWorldBounds(true);
+    this.pawn.body.setCircle(26, 70, 112);
     this.pawn.setDepth(500);
     this.pawn.play('player-idle-base');
+  }
+
+  registerObstacleBody(bodyRect) {
+    if (!bodyRect) {
+      return null;
+    }
+    this.obstacleBodies.push(bodyRect);
+    if (this.pawn) {
+      this.physics.add.collider(this.pawn, bodyRect);
+    }
+    return bodyRect;
+  }
+
+  setupObstacleCollisions() {
+    this.obstacleBodies.forEach((obstacle) => {
+      this.physics.add.collider(this.pawn, obstacle);
+    });
+  }
+
+  createWaterCollisions() {
+    const tileLayers = this.mapData.layers.filter((layer) => layer.type === 'tilelayer');
+    const waterRows = [];
+
+    for (let y = 0; y < this.mapData.height; y += 1) {
+      const row = [];
+      for (let x = 0; x < this.mapData.width; x += 1) {
+        let topmostGid = 0;
+        tileLayers.forEach((layer) => {
+          const gid = readLayerGid(layer, x, y) ?? 0;
+          if (gid > 0) {
+            topmostGid = gid;
+          }
+        });
+        row.push(topmostGid === 1);
+      }
+      waterRows.push(row);
+    }
+
+    waterRows.forEach((row, y) => {
+      let runStart = -1;
+      const flushRun = (xEnd) => {
+        if (runStart < 0) return;
+        const width = (xEnd - runStart) * TILE_SIZE;
+        const rect = this.add.rectangle((runStart * TILE_SIZE) + (width / 2), (y * TILE_SIZE) + (TILE_SIZE / 2), width, TILE_SIZE, 0x2b6cb0, 0);
+        this.physics.add.existing(rect, true);
+        rect.setDepth(-30);
+        this.registerObstacleBody(rect);
+        runStart = -1;
+      };
+
+      row.forEach((isWater, x) => {
+        if (isWater && runStart < 0) {
+          runStart = x;
+        }
+        if (!isWater && runStart >= 0) {
+          flushRun(x);
+        }
+      });
+      flushRun(row.length);
+    });
   }
 
   update() {

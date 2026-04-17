@@ -20,7 +20,16 @@ test.describe('loaded map scene', () => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
       const objectLayer = scene?.layers?.find?.((layer) => layer.name === 'Arbres');
       const objects = objectLayer?.objects ?? [];
-      return objects.filter((obj) => obj.anims).length;
+      return objects.filter((obj) => obj.sprite?.anims).length;
     }), { timeout: 15000 }).toBeGreaterThan(2);
+  });
+
+  test('builds obstacle bodies for loaded maps, including water blocking', async ({ page }) => {
+    await page.goto('/village-panic/?scene=loaded-map&map=map2');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return scene?.obstacleBodies?.length ?? 0;
+    }), { timeout: 15000 }).toBeGreaterThan(0);
   });
 });
