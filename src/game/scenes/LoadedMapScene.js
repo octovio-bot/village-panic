@@ -4,6 +4,7 @@ import { INTERACT_RANGE, PLAYER_SPEED, RESOURCE_HARVEST_DURATIONS, RESOURCE_LABE
 import { ensureSemanticTileTexture } from '../tiles/semanticTilemap.js';
 import { createStaticCollisionRectFromManifest, getAssetPathForTinySwordsKey, getGameplayCollisionByAssetPath } from '../assets/manifestRegistry.js';
 import { InteractionSystem } from '../managers/InteractionSystem.js';
+import { SpawnManager } from '../managers/SpawnManager.js';
 
 const TILE_SIZE = 64;
 const FLIPPED_TILE_FLAG_MASK = 0xE0000000;
@@ -99,6 +100,7 @@ export class LoadedMapScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#102217');
     this.inputManager = new InputManager(this);
     this.interactionSystem = new InteractionSystem(this);
+    this.spawnManager = new SpawnManager(this);
     this.interactionPrompt = 'Explore la carte';
     this.carriedItem = null;
     this.harvestAction = null;
@@ -273,7 +275,20 @@ export class LoadedMapScene extends Phaser.Scene {
   }
 
   handleAction() {
-    if (this.harvestAction || this.carriedItem) {
+    if (this.harvestAction) {
+      return;
+    }
+
+    if (this.carriedItem) {
+      this.dropCarriedItem();
+      return;
+    }
+
+    const droppedItem = this.findNearbyDroppedItem();
+    if (droppedItem) {
+      this.carriedItem = { resourceType: droppedItem.resourceType };
+      this.spawnManager.removeDroppedItem(droppedItem.id);
+      this.showToast(`${RESOURCE_LABELS[droppedItem.resourceType]} ramasse`, 900);
       return;
     }
 
@@ -291,17 +306,52 @@ export class LoadedMapScene extends Phaser.Scene {
     this.pawn.body.setVelocity(0, 0);
   }
 
+  findNearbyDroppedItem() {
+    let best = null;
+    let bestDistance = INTERACT_RANGE;
+
+    this.spawnManager.droppedItems.forEach((item) => {
+      if (!item.active) {
+        return;
+      }
+      const distance = Phaser.Math.Distance.Between(this.pawn.x, this.pawn.y, item.x, item.y);
+      if (distance < bestDistance) {
+        best = item;
+        bestDistance = distance;
+      }
+    });
+
+    return best;
+  }
+
   updateInteractions() {
+    const droppedItem = this.findNearbyDroppedItem();
     const tree = this.harvestAction?.target ?? this.findInteractiveTree();
     if (this.harvestAction?.target) {
       this.interactionPrompt = '[Action] Coupe du bois...';
       return;
     }
-    this.interactionPrompt = tree && !this.carriedItem
+    if (this.carriedItem) {
+      this.interactionPrompt = '[Action] Poser la ressource';
+      return;
+    }
+    if (droppedItem) {
+      this.interactionPrompt = `[Action] Ramasser ${RESOURCE_LABELS[droppedItem.resourceType]}`;
+      return;
+    }
+    this.interactionPrompt = tree
       ? '[Action] Couper cet arbre'
-      : this.carriedItem?.resourceType === 'wood'
-        ? 'Tu portes deja du bois'
-        : 'Explore la carte';
+      : 'Explore la carte';
+  }
+
+  dropCarriedItem() {
+    if (!this.carriedItem) {
+      return;
+    }
+    const offsetX = this.pawn.flipX ? -28 : 28;
+    this.spawnManager.createDroppedItem(this.carriedItem.resourceType, this.pawn.x + offsetX, this.pawn.y + 16);
+    this.showToast(`${RESOURCE_LABELS[this.carriedItem.resourceType]} pose`, 900);
+    this.carriedItem = null;
   }
 
   finishHarvest(tree) {
@@ -365,12 +415,14 @@ export class LoadedMapScene extends Phaser.Scene {
     }
 
     this.updateHarvesting(delta);
+    this.spawnManager.update(time);
 
     const move = this.harvestAction ? new Phaser.Math.Vector2(0, 0) : this.inputManager.getMoveVector();
     this.pawn.body.setVelocity(move.x * PLAYER_SPEED, move.y * PLAYER_SPEED);
 
     const moveKey = this.carriedItem?.resourceType ?? 'base';
     if (move.lengthSq() > 0) {
+      this.pawn.setFlipX(move.x < -0.05);
       this.pawn.play(PLAYER_ANIMS[moveKey]?.run ?? PLAYER_ANIMS.base.run, true);
     } else {
       this.pawn.play(PLAYER_ANIMS[moveKey]?.idle ?? PLAYER_ANIMS.base.idle, true);

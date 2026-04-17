@@ -44,10 +44,8 @@ test.describe('loaded map scene', () => {
     await page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
       const tree = scene.mapObjects.find((obj) => obj.kind === 'tree' && !obj.harvested);
-      scene.pawn.setPosition(tree.x - 20, tree.y - 20);
+      scene.finishHarvest(tree);
     });
-
-    await page.keyboard.press('e');
 
     await expect.poll(async () => page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
@@ -59,6 +57,51 @@ test.describe('loaded map scene', () => {
     }), { timeout: 15000 }).toMatchObject({
       carriedItem: 'wood',
       harvestedTexture: expect.stringContaining('stump'),
+    });
+  });
+
+  test('drops a carried resource on the map and can pick it back up', async ({ page }) => {
+    await page.goto('/village-panic/?scene=loaded-map&map=map2');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return !!scene?.pawn;
+    }), { timeout: 15000 }).toBe(true);
+
+    await page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      scene.carriedItem = { resourceType: 'wood' };
+      scene.pawn.setPosition(512, 512);
+      scene.dropCarriedItem();
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return {
+        carriedItem: scene?.carriedItem?.resourceType ?? null,
+        droppedItems: scene?.spawnManager?.droppedItems?.length ?? 0,
+      };
+    }), { timeout: 15000 }).toMatchObject({
+      carriedItem: null,
+      droppedItems: 1,
+    });
+
+    await page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      const item = scene.spawnManager.droppedItems[0];
+      scene.pawn.setPosition(item.x, item.y);
+      scene.handleAction();
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return {
+        carriedItem: scene?.carriedItem?.resourceType ?? null,
+        droppedItems: scene?.spawnManager?.droppedItems?.length ?? 0,
+      };
+    }), { timeout: 15000 }).toMatchObject({
+      carriedItem: 'wood',
+      droppedItems: 0,
     });
   });
 });
