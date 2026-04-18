@@ -266,8 +266,14 @@ export class LoadedMapScene extends Phaser.Scene {
     this.orderNeedsText = this.add.text(this.villageZone.x, this.villageZone.y + 52, '', {
       fontFamily: 'Georgia', fontSize: '18px', color: '#f3deb1', align: 'center', stroke: '#2d1a10', strokeThickness: 4,
     }).setOrigin(0.5).setDepth(20);
-    this.orderTimerText = this.add.text(this.villageZone.x, this.villageZone.y + 82, '', {
-      fontFamily: 'Georgia', fontSize: '18px', color: '#ffe4a8', stroke: '#2d1a10', strokeThickness: 4,
+    this.orderTimerBack = this.add.rectangle(this.villageZone.x, this.villageZone.y + 82, 176, 14, 0x2a1a12, 0.82)
+      .setStrokeStyle(2, 0xf0d39a, 0.35)
+      .setDepth(20);
+    this.orderTimerFill = this.add.rectangle(this.villageZone.x - 88, this.villageZone.y + 82, 172, 8, 0xd96b4d, 0.96)
+      .setOrigin(0, 0.5)
+      .setDepth(21);
+    this.orderTimerText = this.add.text(this.villageZone.x, this.villageZone.y + 104, '', {
+      fontFamily: 'Georgia', fontSize: '16px', color: '#ffe4a8', stroke: '#2d1a10', strokeThickness: 4,
     }).setOrigin(0.5).setDepth(20);
   }
 
@@ -293,7 +299,11 @@ export class LoadedMapScene extends Phaser.Scene {
     }, {});
     this.orderTitleText.setText(`Construire: ${this.activeOrder.buildingLabel}`);
     this.orderNeedsText.setText('Apporte les ressources dans cette zone');
-    this.orderTimerText.setText(`Temps restant: ${formatTime(this.activeOrder.remainingTime)}`);
+    const definition = ORDER_DEFINITIONS.find((candidate) => candidate.buildingType === this.activeOrder.buildingType);
+    const totalTime = definition?.timeLimit ?? Math.max(this.activeOrder.remainingTime, 1);
+    const ratio = Phaser.Math.Clamp(this.activeOrder.remainingTime / totalTime, 0, 1);
+    this.orderTimerFill.setDisplaySize(172 * ratio, 8);
+    this.orderTimerText.setText(`${formatTime(this.activeOrder.remainingTime)}`);
 
     this.orderSlots.forEach((slot, index) => {
       const ingredient = this.activeOrder.ingredients[index];
@@ -414,6 +424,8 @@ export class LoadedMapScene extends Phaser.Scene {
       this.villageZoneInner,
       this.orderTitleText,
       this.orderNeedsText,
+      this.orderTimerBack,
+      this.orderTimerFill,
       this.orderTimerText,
       ...(this.orderSlots ?? []).flatMap((slot) => [slot.marker, slot.icon, slot.deliveredRing, slot.deliveredCheck]),
     ].forEach((node) => node?.destroy());
