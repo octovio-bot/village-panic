@@ -100,6 +100,34 @@ test.describe('loaded map scene', () => {
     expect(await harvest('meat')).toBe('meat');
   });
 
+  test('delivers resources in the village zone with action button', async ({ page }) => {
+    await page.goto('/village-panic/?scene=loaded-map&map=map2');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return !!scene?.activeOrder;
+    }), { timeout: 15000 }).toBe(true);
+
+    await page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      const ingredient = scene.activeOrder.ingredients[0];
+      scene.carriedItem = { resourceType: ingredient };
+      scene.pawn.setPosition(scene.villageZone.x, scene.villageZone.y);
+      scene.handleAction();
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return {
+        delivered: scene?.activeOrder?.delivered?.length ?? 0,
+        carriedItem: scene?.carriedItem?.resourceType ?? null,
+      };
+    }), { timeout: 15000 }).toMatchObject({
+      delivered: 1,
+      carriedItem: null,
+    });
+  });
+
   test('drops a carried resource on the map and can pick it back up', async ({ page }) => {
     await page.goto('/village-panic/?scene=loaded-map&map=map2');
 

@@ -1,6 +1,16 @@
 import Phaser from 'phaser';
+import {
+  BUILDING_LABELS,
+  BUILDING_TEXTURES,
+  INTERACT_RANGE,
+  ORDER_DEFINITIONS,
+  PLAYER_SPEED,
+  RESOURCE_HARVEST_DURATIONS,
+  RESOURCE_LABELS,
+  ResourceType,
+  VILLAGE_BUILD_ZONE,
+} from '../data.js';
 import { InputManager } from '../input/InputManager.js';
-import { INTERACT_RANGE, PLAYER_SPEED, RESOURCE_HARVEST_DURATIONS, RESOURCE_LABELS, ResourceType } from '../data.js';
 import { ensureSemanticTileTexture } from '../tiles/semanticTilemap.js';
 import { createStaticCollisionRectFromManifest, getAssetPathForTinySwordsKey, getGameplayCollisionByAssetPath } from '../assets/manifestRegistry.js';
 import { InteractionSystem } from '../managers/InteractionSystem.js';
@@ -22,18 +32,10 @@ function getSelectedMapName() {
 
 function textureForGid(scene, gid) {
   if (!gid) return null;
-  if (gid === 1) {
-    return 'tinyswords.terrain.water-background';
-  }
-  if (gid >= 2 && gid < 56) {
-    return ensureSemanticTileTexture(scene, 'color1', gid - 2);
-  }
-  if (gid >= 56 && gid < 110) {
-    return ensureSemanticTileTexture(scene, 'color2', gid - 56);
-  }
-  if (gid === 110) {
-    return 'tinyswords.terrain.shadow';
-  }
+  if (gid === 1) return 'tinyswords.terrain.water-background';
+  if (gid >= 2 && gid < 56) return ensureSemanticTileTexture(scene, 'color1', gid - 2);
+  if (gid >= 56 && gid < 110) return ensureSemanticTileTexture(scene, 'color2', gid - 56);
+  if (gid === 110) return 'tinyswords.terrain.shadow';
   return null;
 }
 
@@ -59,18 +61,22 @@ function objectDefForGid(gid) {
   return defs[gid] ?? null;
 }
 
+function formatTime(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = `${totalSeconds % 60}`.padStart(2, '0');
+  return `${minutes}:${seconds}`;
+}
+
 function createMapObject(scene, obj, gid, def, layerIndex) {
   const displayWidth = obj.width || undefined;
   const displayHeight = obj.height || undefined;
   const sprite = scene.add.sprite(obj.x, obj.y, def.texture)
     .setOrigin(def.originX ?? 0, def.originY ?? 1)
     .setDepth(Math.round(obj.y * 10) + (layerIndex * 10));
-  if (displayWidth && displayHeight) {
-    sprite.setDisplaySize(displayWidth, displayHeight);
-  }
-  if (def.anim) {
-    sprite.play(def.anim);
-  }
+  if (displayWidth && displayHeight) sprite.setDisplaySize(displayWidth, displayHeight);
+  if (def.anim) sprite.play(def.anim);
+
   const manifestAssetPath = getAssetPathForTinySwordsKey(def.texture);
   const manifestCollision = getGameplayCollisionByAssetPath(manifestAssetPath);
   const obstacle = manifestCollision
@@ -86,11 +92,7 @@ function createMapObject(scene, obj, gid, def, layerIndex) {
     .setVisible(false)
     .setDepth(Math.round(obj.y * 10) + (layerIndex * 10) + 2);
   const progressLabel = scene.add.text(obj.x + (sprite.displayWidth * 0.5), obj.y - sprite.displayHeight - 34, '', {
-    fontFamily: 'Georgia',
-    fontSize: '14px',
-    color: '#fff0bf',
-    stroke: '#223019',
-    strokeThickness: 4,
+    fontFamily: 'Georgia', fontSize: '14px', color: '#fff0bf', stroke: '#223019', strokeThickness: 4,
   }).setOrigin(0.5).setVisible(false).setDepth(Math.round(obj.y * 10) + (layerIndex * 10) + 2);
 
   return {
@@ -136,20 +138,16 @@ export class LoadedMapScene extends Phaser.Scene {
     this.carriedItem = null;
     this.harvestAction = null;
     this.toast = null;
+    this.completedStructures = [];
+    this.score = 0;
+    this.combo = 0;
 
     this.mapData = this.cache.json.get(this.mapCacheKey);
     this.layers = [];
     this.obstacleBodies = [];
     this.mapObjects = [];
 
-    if (!this.mapData?.layers) {
-      this.add.text(28, 110, 'Erreur: impossible de charger maps/map1.json', {
-        fontFamily: 'Georgia',
-        fontSize: '20px',
-        color: '#ffb3b3',
-      }).setScrollFactor(0).setDepth(1000);
-      return;
-    }
+    if (!this.mapData?.layers) return;
 
     this.mapData.layers.forEach((raw, layerIndex) => {
       if (raw.type === 'tilelayer') {
@@ -159,17 +157,12 @@ export class LoadedMapScene extends Phaser.Scene {
             const gid = readLayerGid(raw, x, y);
             const texture = textureForGid(this, gid);
             if (!texture) continue;
-            const image = this.add.image(x * TILE_SIZE, y * TILE_SIZE, texture)
-              .setOrigin(0, 0)
-              .setDisplaySize(TILE_SIZE, TILE_SIZE)
-              .setDepth(layerIndex * 10);
-            tiles.push(image);
+            tiles.push(this.add.image(x * TILE_SIZE, y * TILE_SIZE, texture).setOrigin(0, 0).setDisplaySize(TILE_SIZE, TILE_SIZE).setDepth(layerIndex * 10));
           }
         }
         this.layers.push({ name: raw.name, width: raw.width, height: raw.height, tiles });
         return;
       }
-
       if (raw.type === 'objectgroup') {
         const objects = [];
         raw.objects?.forEach((obj) => {
@@ -184,32 +177,10 @@ export class LoadedMapScene extends Phaser.Scene {
       }
     });
 
-    this.add.text(28, 20, 'Loaded Map Scene', {
-      fontFamily: 'Georgia',
-      fontSize: '30px',
-      color: '#f4f0d8',
-      stroke: '#162015',
-      strokeThickness: 5,
-    }).setScrollFactor(0).setDepth(1000);
-
-    this.add.text(28, 58, `Map chargée depuis maps/${this.selectedMapName}.json`, {
-      fontFamily: 'Georgia',
-      fontSize: '16px',
-      color: '#f4f0d8',
-      stroke: '#162015',
-      strokeThickness: 4,
-    }).setScrollFactor(0).setDepth(1000);
-
+    this.createVillageZone();
+    this.createOrder();
     this.createPawn();
     this.createWaterCollisions();
-
-    this.mapInfo = {
-      width: this.mapData.width,
-      height: this.mapData.height,
-      layerCount: this.layers.length,
-      firstLayerWidth: this.layers[0]?.width ?? 0,
-      firstLayerHeight: this.layers[0]?.height ?? 0,
-    };
 
     const worldWidth = this.mapData.width * TILE_SIZE;
     const worldHeight = this.mapData.height * TILE_SIZE;
@@ -217,8 +188,58 @@ export class LoadedMapScene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
     this.cameras.main.startFollow(this.pawn, true, 0.12, 0.12);
     this.setupObstacleCollisions();
-
     this.scene.launch('TouchHudScene');
+  }
+
+  createVillageZone() {
+    this.villageZone = {
+      id: 'village-site-1',
+      x: VILLAGE_BUILD_ZONE.x,
+      y: VILLAGE_BUILD_ZONE.y,
+      width: VILLAGE_BUILD_ZONE.width * 0.5,
+      height: VILLAGE_BUILD_ZONE.height * 0.45,
+    };
+    this.add.rectangle(this.villageZone.x, this.villageZone.y, this.villageZone.width, this.villageZone.height, 0xd7c18e, 0.08)
+      .setStrokeStyle(4, 0xf7e6b7, 0.2)
+      .setDepth(-3);
+    this.add.text(this.villageZone.x, this.villageZone.y - (this.villageZone.height / 2) - 26, 'Zone de construction', {
+      fontFamily: 'Georgia', fontSize: '28px', color: '#f7edc9', stroke: '#23301d', strokeThickness: 6,
+    }).setOrigin(0.5).setDepth(8);
+
+    this.orderTitleText = this.add.text(this.villageZone.x, this.villageZone.y - 8, '', {
+      fontFamily: 'Georgia', fontSize: '24px', color: '#fff0bf', stroke: '#2d1a10', strokeThickness: 5,
+    }).setOrigin(0.5).setDepth(20);
+    this.orderNeedsText = this.add.text(this.villageZone.x, this.villageZone.y + 26, '', {
+      fontFamily: 'Georgia', fontSize: '18px', color: '#f3deb1', align: 'center', stroke: '#2d1a10', strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(20);
+    this.orderTimerText = this.add.text(this.villageZone.x, this.villageZone.y + 60, '', {
+      fontFamily: 'Georgia', fontSize: '18px', color: '#ffe4a8', stroke: '#2d1a10', strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(20);
+  }
+
+  createOrder() {
+    const allowed = ORDER_DEFINITIONS.filter((o) => o.ingredients.every((i) => i !== ResourceType.TOOLS));
+    const definition = Phaser.Utils.Array.GetRandom(allowed);
+    this.activeOrder = {
+      buildingType: definition.buildingType,
+      buildingLabel: BUILDING_LABELS[definition.buildingType],
+      ingredients: [...definition.ingredients],
+      delivered: [],
+      remainingTime: definition.timeLimit,
+      textureKey: BUILDING_TEXTURES[definition.buildingType],
+    };
+    this.refreshOrderText();
+  }
+
+  refreshOrderText() {
+    if (!this.activeOrder) return;
+    const needed = this.activeOrder.ingredients.map((ingredient, index) => {
+      const delivered = this.activeOrder.delivered[index];
+      return `${delivered ? '✓' : '•'} ${RESOURCE_LABELS[ingredient]}`;
+    }).join('  ');
+    this.orderTitleText.setText(`Construire: ${this.activeOrder.buildingLabel}`);
+    this.orderNeedsText.setText(needed);
+    this.orderTimerText.setText(`Temps restant: ${formatTime(this.activeOrder.remainingTime)}`);
   }
 
   createPawn() {
@@ -230,109 +251,105 @@ export class LoadedMapScene extends Phaser.Scene {
   }
 
   registerObstacleBody(bodyRect) {
-    if (!bodyRect) {
-      return null;
-    }
+    if (!bodyRect) return null;
     this.obstacleBodies.push(bodyRect);
-    if (this.pawn) {
-      this.physics.add.collider(this.pawn, bodyRect);
-    }
+    if (this.pawn) this.physics.add.collider(this.pawn, bodyRect);
     return bodyRect;
   }
 
   setupObstacleCollisions() {
-    this.obstacleBodies.forEach((obstacle) => {
-      this.physics.add.collider(this.pawn, obstacle);
-    });
+    this.obstacleBodies.forEach((obstacle) => this.physics.add.collider(this.pawn, obstacle));
   }
 
   createWaterCollisions() {
     const tileLayers = this.mapData.layers.filter((layer) => layer.type === 'tilelayer');
-    const waterRows = [];
-
     for (let y = 0; y < this.mapData.height; y += 1) {
-      const row = [];
-      for (let x = 0; x < this.mapData.width; x += 1) {
-        let topmostGid = 0;
-        tileLayers.forEach((layer) => {
-          const gid = readLayerGid(layer, x, y) ?? 0;
-          if (gid > 0) {
-            topmostGid = gid;
-          }
-        });
-        row.push(topmostGid === 1);
-      }
-      waterRows.push(row);
-    }
-
-    waterRows.forEach((row, y) => {
       let runStart = -1;
       const flushRun = (xEnd) => {
         if (runStart < 0) return;
         const width = (xEnd - runStart) * TILE_SIZE;
         const rect = this.add.rectangle((runStart * TILE_SIZE) + (width / 2), (y * TILE_SIZE) + (TILE_SIZE / 2), width, TILE_SIZE, 0x2b6cb0, 0);
-        this.physics.add.existing(rect, true);
-        rect.setDepth(-30);
-        this.registerObstacleBody(rect);
-        runStart = -1;
+        this.physics.add.existing(rect, true); rect.setDepth(-30); this.registerObstacleBody(rect); runStart = -1;
       };
-
-      row.forEach((isWater, x) => {
-        if (isWater && runStart < 0) {
-          runStart = x;
-        }
-        if (!isWater && runStart >= 0) {
-          flushRun(x);
-        }
-      });
-      flushRun(row.length);
-    });
+      for (let x = 0; x < this.mapData.width; x += 1) {
+        let topmostGid = 0;
+        tileLayers.forEach((layer) => { const gid = readLayerGid(layer, x, y) ?? 0; if (gid > 0) topmostGid = gid; });
+        const isWater = topmostGid === 1;
+        if (isWater && runStart < 0) runStart = x;
+        if (!isWater && runStart >= 0) flushRun(x);
+      }
+      flushRun(this.mapData.width);
+    }
   }
 
   findNearestHarvestableObject() {
     const candidates = (this.mapObjects ?? []).filter((obj) => obj.resourceType && !obj.harvested);
-    let best = null;
-    let bestDistance = INTERACT_RANGE;
-
+    let best = null; let bestDistance = INTERACT_RANGE;
     candidates.forEach((obj) => {
       const distance = Phaser.Math.Distance.Between(this.pawn.x, this.pawn.y, obj.interactionX ?? obj.x, obj.interactionY ?? obj.y);
-      if (distance < bestDistance) {
-        best = obj;
-        bestDistance = distance;
-      }
+      if (distance < bestDistance) { best = obj; bestDistance = distance; }
     });
-
     return best;
   }
 
   findNearbyDroppedItem() {
-    let best = null;
-    let bestDistance = INTERACT_RANGE;
-
+    let best = null; let bestDistance = INTERACT_RANGE;
     this.spawnManager.droppedItems.forEach((item) => {
-      if (!item.active) {
-        return;
-      }
+      if (!item.active) return;
       const distance = Phaser.Math.Distance.Between(this.pawn.x, this.pawn.y, item.x, item.y);
-      if (distance < bestDistance) {
-        best = item;
-        bestDistance = distance;
-      }
+      if (distance < bestDistance) { best = item; bestDistance = distance; }
     });
-
     return best;
   }
 
+  isInsideVillageZone() {
+    const left = this.villageZone.x - (this.villageZone.width / 2);
+    const right = this.villageZone.x + (this.villageZone.width / 2);
+    const top = this.villageZone.y - (this.villageZone.height / 2);
+    const bottom = this.villageZone.y + (this.villageZone.height / 2);
+    return this.pawn.x >= left && this.pawn.x <= right && this.pawn.y >= top && this.pawn.y <= bottom;
+  }
+
+  deliverToVillage() {
+    if (!this.activeOrder || !this.carriedItem) return false;
+    const nextIndex = this.activeOrder.delivered.length;
+    const expected = this.activeOrder.ingredients[nextIndex];
+    if (expected !== this.carriedItem.resourceType) {
+      this.showToast(`Il faut livrer ${RESOURCE_LABELS[expected]}`, 1200);
+      return true;
+    }
+    this.activeOrder.delivered.push(this.carriedItem.resourceType);
+    this.carriedItem = null;
+    this.showToast(`${RESOURCE_LABELS[expected]} livre`, 900);
+    if (this.activeOrder.delivered.length >= this.activeOrder.ingredients.length) {
+      this.completeVillageOrder();
+    } else {
+      this.refreshOrderText();
+    }
+    return true;
+  }
+
+  completeVillageOrder() {
+    const sprite = this.add.image(this.villageZone.x, this.villageZone.y + 20, this.activeOrder.textureKey).setDepth(2).setAlpha(0.18);
+    sprite.setDisplaySize(174, 174);
+    this.tweens.add({ targets: sprite, alpha: 1, y: this.villageZone.y + 4, duration: 650, ease: 'Back.easeOut' });
+    this.completedStructures.push({ sprite, x: this.villageZone.x, y: this.villageZone.y });
+    this.showToast(`${this.activeOrder.buildingLabel} termine !`, 1700);
+    this.score += 100;
+    this.combo += 1;
+    this.createOrder();
+  }
+
+  failVillageOrder() {
+    this.showToast(`Commande ratee: ${this.activeOrder.buildingLabel}`, 1700);
+    this.combo = 0;
+    this.createOrder();
+  }
+
   handleAction() {
-    if (this.harvestAction) {
-      return;
-    }
-
-    if (this.carriedItem) {
-      this.dropCarriedItem();
-      return;
-    }
-
+    if (this.harvestAction) return;
+    if (this.carriedItem && this.isInsideVillageZone() && this.deliverToVillage()) return;
+    if (this.carriedItem) { this.dropCarriedItem(); return; }
     const droppedItem = this.findNearbyDroppedItem();
     if (droppedItem) {
       this.carriedItem = { resourceType: droppedItem.resourceType };
@@ -340,52 +357,29 @@ export class LoadedMapScene extends Phaser.Scene {
       this.showToast(`${RESOURCE_LABELS[droppedItem.resourceType]} ramasse`, 900);
       return;
     }
-
     const target = this.findNearestHarvestableObject();
-    if (!target) {
-      return;
-    }
-
-    this.startHarvest(target);
+    if (target) this.startHarvest(target);
   }
 
   startHarvest(target) {
-    this.harvestAction = {
-      target,
-      elapsed: 0,
-      duration: RESOURCE_HARVEST_DURATIONS[target.resourceType] ?? 1400,
-    };
+    this.harvestAction = { target, elapsed: 0, duration: RESOURCE_HARVEST_DURATIONS[target.resourceType] ?? 1400 };
     target.sprite.setTint(target.resourceType === ResourceType.GOLD ? 0xffe4a3 : 0xd9ffd0);
-    target.progressBack.setVisible(true);
-    target.progressFill.setVisible(true).setDisplaySize(0, 6);
-    target.progressLabel.setVisible(true).setText('Recolte...');
+    target.progressBack.setVisible(true); target.progressFill.setVisible(true).setDisplaySize(0, 6); target.progressLabel.setVisible(true).setText('Recolte...');
     this.pawn.body.setVelocity(0, 0);
   }
 
   updateInteractions() {
     const droppedItem = this.findNearbyDroppedItem();
     const target = this.harvestAction?.target ?? this.findNearestHarvestableObject();
-    if (this.harvestAction?.target) {
-      this.interactionPrompt = `[Action] Recolte ${RESOURCE_LABELS[this.harvestAction.target.resourceType]}...`;
-      return;
-    }
-    if (this.carriedItem) {
-      this.interactionPrompt = '[Action] Poser la ressource';
-      return;
-    }
-    if (droppedItem) {
-      this.interactionPrompt = `[Action] Ramasser ${RESOURCE_LABELS[droppedItem.resourceType]}`;
-      return;
-    }
-    this.interactionPrompt = target
-      ? `[Action] Recolter ${target.label}`
-      : 'Explore la carte';
+    if (this.harvestAction?.target) return void (this.interactionPrompt = `[Action] Recolte ${RESOURCE_LABELS[this.harvestAction.target.resourceType]}...`);
+    if (this.carriedItem && this.isInsideVillageZone()) return void (this.interactionPrompt = `[Action] Livrer ${RESOURCE_LABELS[this.carriedItem.resourceType]}`);
+    if (this.carriedItem) return void (this.interactionPrompt = '[Action] Poser la ressource');
+    if (droppedItem) return void (this.interactionPrompt = `[Action] Ramasser ${RESOURCE_LABELS[droppedItem.resourceType]}`);
+    this.interactionPrompt = target ? `[Action] Recolter ${target.label}` : 'Explore la carte';
   }
 
   dropCarriedItem() {
-    if (!this.carriedItem) {
-      return;
-    }
+    if (!this.carriedItem) return;
     const offsetX = this.pawn.flipX ? -28 : 28;
     this.spawnManager.createDroppedItem(this.carriedItem.resourceType, this.pawn.x + offsetX, this.pawn.y + 16);
     this.showToast(`${RESOURCE_LABELS[this.carriedItem.resourceType]} pose`, 900);
@@ -393,83 +387,52 @@ export class LoadedMapScene extends Phaser.Scene {
   }
 
   finishHarvest(target) {
-    target.harvested = true;
-    target.sprite.clearTint();
-    target.progressBack.setVisible(false);
-    target.progressFill.setVisible(false);
-    target.progressLabel.setVisible(false);
-
-    if (target.obstacle) {
-      target.obstacle.destroy();
-      this.obstacleBodies = this.obstacleBodies.filter((candidate) => candidate !== target.obstacle);
-      target.obstacle = null;
-    }
-
+    target.harvested = true; target.sprite.clearTint(); target.progressBack.setVisible(false); target.progressFill.setVisible(false); target.progressLabel.setVisible(false);
+    if (target.obstacle) { target.obstacle.destroy(); this.obstacleBodies = this.obstacleBodies.filter((candidate) => candidate !== target.obstacle); target.obstacle = null; }
     if (target.harvestedKind === 'stump' && target.harvestedTexture) {
-      target.sprite.stop?.();
-      target.sprite.setTexture(target.harvestedTexture);
-      target.sprite.setOrigin(0, 1);
-      target.sprite.setDisplaySize(target.sprite.displayWidth, Math.min(target.sprite.displayHeight, 64));
-      target.interactionX = target.x + (target.sprite.displayWidth * 0.5);
-      target.interactionY = target.y - Math.min(12, target.sprite.displayHeight * 0.25);
+      target.sprite.stop?.(); target.sprite.setTexture(target.harvestedTexture); target.sprite.setOrigin(0, 1); target.sprite.setDisplaySize(target.sprite.displayWidth, Math.min(target.sprite.displayHeight, 64));
+      target.interactionX = target.x + (target.sprite.displayWidth * 0.5); target.interactionY = target.y - Math.min(12, target.sprite.displayHeight * 0.25);
       const manifestAssetPath = getAssetPathForTinySwordsKey(target.harvestedTexture);
       const manifestCollision = getGameplayCollisionByAssetPath(manifestAssetPath);
-      target.obstacle = manifestCollision
-        ? this.registerObstacleBody(createStaticCollisionRectFromManifest(this, target.x, target.y, target.sprite.displayWidth, target.sprite.displayHeight, manifestCollision))
-        : null;
+      target.obstacle = manifestCollision ? this.registerObstacleBody(createStaticCollisionRectFromManifest(this, target.x, target.y, target.sprite.displayWidth, target.sprite.displayHeight, manifestCollision)) : null;
       target.kind = 'stump';
     } else {
-      target.sprite.setVisible(false);
-      target.kind = 'empty';
+      target.sprite.setVisible(false); target.kind = 'empty';
     }
-
-    this.carriedItem = { resourceType: target.resourceType };
-    this.showToast(`${RESOURCE_LABELS[target.resourceType]} recupere`, 900);
+    this.carriedItem = { resourceType: target.resourceType }; this.showToast(`${RESOURCE_LABELS[target.resourceType]} recupere`, 900);
   }
 
   updateHarvesting(delta) {
     this.mapObjects.forEach((obj) => {
       if (this.harvestAction?.target !== obj) {
-        obj.progressBack.setVisible(false);
-        obj.progressFill.setVisible(false);
-        obj.progressLabel.setVisible(false);
-        if (!obj.harvested) {
-          obj.sprite.clearTint();
-        }
+        obj.progressBack.setVisible(false); obj.progressFill.setVisible(false); obj.progressLabel.setVisible(false);
+        if (!obj.harvested) obj.sprite.clearTint();
       }
     });
-
-    if (!this.harvestAction) {
-      return;
-    }
-
+    if (!this.harvestAction) return;
     const { target } = this.harvestAction;
     this.harvestAction.elapsed = Math.min(this.harvestAction.duration, this.harvestAction.elapsed + delta);
     const progress = this.harvestAction.elapsed / this.harvestAction.duration;
-    target.progressBack.setVisible(true);
-    target.progressFill.setVisible(true).setDisplaySize(58 * progress, 6);
-    target.progressLabel.setVisible(true).setText(`${Math.ceil((this.harvestAction.duration - this.harvestAction.elapsed) / 1000)}s`);
+    target.progressBack.setVisible(true); target.progressFill.setVisible(true).setDisplaySize(58 * progress, 6); target.progressLabel.setVisible(true).setText(`${Math.ceil((this.harvestAction.duration - this.harvestAction.elapsed) / 1000)}s`);
+    if (this.harvestAction.elapsed >= this.harvestAction.duration) { this.harvestAction = null; this.finishHarvest(target); }
+  }
 
-    if (this.harvestAction.elapsed >= this.harvestAction.duration) {
-      this.harvestAction = null;
-      this.finishHarvest(target);
-    }
+  updateOrder(delta) {
+    if (!this.activeOrder) return;
+    this.activeOrder.remainingTime = Math.max(0, this.activeOrder.remainingTime - delta);
+    this.refreshOrderText();
+    if (this.activeOrder.remainingTime === 0) this.failVillageOrder();
   }
 
   showToast(message, duration = 1200) {
-    this.toast = {
-      message,
-      startTime: this.time.now,
-      duration,
-      elapsed: 0,
-    };
+    this.toast = { message, startTime: this.time.now, duration, elapsed: 0 };
   }
 
   getUiSnapshot() {
     return {
-      score: 0,
-      combo: 0,
-      remainingRoundTime: 0,
+      score: this.score,
+      combo: this.combo,
+      remainingRoundTime: this.activeOrder?.remainingTime ?? 0,
       carriedItem: this.carriedItem?.resourceType ?? null,
       interactionPrompt: this.interactionPrompt,
       chaos: { value: 0, threshold: 100 },
@@ -478,32 +441,18 @@ export class LoadedMapScene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    if (this.inputManager.consumeActionPressed()) {
-      this.handleAction();
-    }
-
+    if (this.inputManager.consumeActionPressed()) this.handleAction();
     this.updateHarvesting(delta);
+    this.updateOrder(delta);
     this.spawnManager.update(time);
 
     const move = this.harvestAction ? new Phaser.Math.Vector2(0, 0) : this.inputManager.getMoveVector();
     this.pawn.body.setVelocity(move.x * PLAYER_SPEED, move.y * PLAYER_SPEED);
-
     const moveKey = this.carriedItem?.resourceType ?? 'base';
-    if (move.lengthSq() > 0) {
-      this.pawn.setFlipX(move.x < -0.05);
-      this.pawn.play(PLAYER_ANIMS[moveKey]?.run ?? PLAYER_ANIMS.base.run, true);
-    } else {
-      this.pawn.play(PLAYER_ANIMS[moveKey]?.idle ?? PLAYER_ANIMS.base.idle, true);
-    }
-
+    if (move.lengthSq() > 0) { this.pawn.setFlipX(move.x < -0.05); this.pawn.play(PLAYER_ANIMS[moveKey]?.run ?? PLAYER_ANIMS.base.run, true); }
+    else { this.pawn.play(PLAYER_ANIMS[moveKey]?.idle ?? PLAYER_ANIMS.base.idle, true); }
     this.updateInteractions();
     this.pawn.setDepth(Math.round((this.pawn.y + (this.pawn.displayHeight * 0.5)) * 10) + 500);
-
-    if (this.toast) {
-      this.toast.elapsed = time - this.toast.startTime;
-      if (this.toast.elapsed >= this.toast.duration) {
-        this.toast = null;
-      }
-    }
+    if (this.toast) { this.toast.elapsed = time - this.toast.startTime; if (this.toast.elapsed >= this.toast.duration) this.toast = null; }
   }
 }
