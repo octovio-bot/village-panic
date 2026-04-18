@@ -206,14 +206,18 @@ export class LoadedMapScene extends Phaser.Scene {
   findVillageBuildPosition() {
     const centerTileX = Math.round(VILLAGE_BUILD_ZONE.x / TILE_SIZE);
     const centerTileY = Math.round(VILLAGE_BUILD_ZONE.y / TILE_SIZE);
-    for (let radius = 0; radius < 8; radius += 1) {
+    for (let radius = 0; radius < 10; radius += 1) {
       for (let dy = -radius; dy <= radius; dy += 1) {
         for (let dx = -radius; dx <= radius; dx += 1) {
           const tileX = centerTileX + dx;
           const tileY = centerTileY + dy;
           if (tileX < 0 || tileY < 0 || tileX >= this.mapData.width || tileY >= this.mapData.height) continue;
-          if (isWalkableTile(this.mapData, tileX, tileY)) {
-            return { x: (tileX * TILE_SIZE) + (TILE_SIZE / 2), y: (tileY * TILE_SIZE) + (TILE_SIZE / 2) };
+          if (!isWalkableTile(this.mapData, tileX, tileY)) continue;
+          const x = (tileX * TILE_SIZE) + (TILE_SIZE / 2);
+          const y = (tileY * TILE_SIZE) + (TILE_SIZE / 2);
+          const tooCloseToBuilt = this.completedStructures.some((structure) => Phaser.Math.Distance.Between(x, y, structure.x, structure.y) < 220);
+          if (!tooCloseToBuilt) {
+            return { x, y };
           }
         }
       }
@@ -224,7 +228,7 @@ export class LoadedMapScene extends Phaser.Scene {
   createVillageZone() {
     const buildPos = this.findVillageBuildPosition();
     this.villageZone = {
-      id: 'village-site-1',
+      id: `village-site-${this.completedStructures.length + 1}`,
       x: buildPos.x,
       y: buildPos.y,
       width: 224,
@@ -382,15 +386,20 @@ export class LoadedMapScene extends Phaser.Scene {
 
   deliverToVillage() {
     if (!this.activeOrder || !this.carriedItem) return false;
-    const nextIndex = this.activeOrder.delivered.length;
-    const expected = this.activeOrder.ingredients[nextIndex];
-    if (expected !== this.carriedItem.resourceType) {
-      this.showToast(`Il faut livrer ${RESOURCE_LABELS[expected]}`, 1200);
+    const ingredient = this.carriedItem.resourceType;
+    const requiredCount = this.activeOrder.ingredients.filter((value) => value === ingredient).length;
+    const deliveredCount = this.activeOrder.delivered.filter((value) => value === ingredient).length;
+    if (requiredCount === 0) {
+      this.showToast('Mauvaise ressource pour ce chantier', 1200);
       return true;
     }
-    this.activeOrder.delivered.push(this.carriedItem.resourceType);
+    if (deliveredCount >= requiredCount) {
+      this.showToast('Cette ressource est deja complete', 1200);
+      return true;
+    }
+    this.activeOrder.delivered.push(ingredient);
     this.carriedItem = null;
-    this.showToast(`${RESOURCE_LABELS[expected]} livre`, 900);
+    this.showToast(`${RESOURCE_LABELS[ingredient]} livre`, 900);
     if (this.activeOrder.delivered.length >= this.activeOrder.ingredients.length) {
       this.completeVillageOrder();
     } else {
@@ -400,13 +409,15 @@ export class LoadedMapScene extends Phaser.Scene {
   }
 
   completeVillageOrder() {
-    const sprite = this.add.image(this.villageZone.x, this.villageZone.y + 20, this.activeOrder.textureKey).setDepth(2).setAlpha(0.18);
+    const completedOrder = { ...this.activeOrder };
+    const sprite = this.add.image(this.villageZone.x, this.villageZone.y + 20, completedOrder.textureKey).setDepth(12).setAlpha(0.18);
     setImageDisplayHeight(this, sprite, 174);
     this.tweens.add({ targets: sprite, alpha: 1, y: this.villageZone.y + 4, duration: 650, ease: 'Back.easeOut' });
-    this.completedStructures.push({ sprite, x: this.villageZone.x, y: this.villageZone.y });
-    this.showToast(`${this.activeOrder.buildingLabel} termine !`, 1700);
+    this.completedStructures.push({ sprite, x: this.villageZone.x, y: this.villageZone.y, buildingType: completedOrder.buildingType });
+    this.showToast(`${completedOrder.buildingLabel} termine !`, 1700);
     this.score += 100;
     this.combo += 1;
+    this.createVillageZone();
     this.createOrder();
   }
 

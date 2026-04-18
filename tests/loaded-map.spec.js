@@ -137,7 +137,7 @@ test.describe('loaded map scene', () => {
     });
   });
 
-  test('shows the building when all resources have been delivered', async ({ page }) => {
+  test('supports delivering meat when required by the current order', async ({ page }) => {
     await page.goto('/village-panic/?scene=loaded-map&map=map2');
 
     await expect.poll(async () => page.evaluate(() => {
@@ -147,14 +147,42 @@ test.describe('loaded map scene', () => {
 
     await page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
-      scene.activeOrder.ingredients.forEach((ingredient) => scene.activeOrder.delivered.push(ingredient));
-      scene.completeVillageOrder();
+      scene.activeOrder.ingredients = ['meat'];
+      scene.activeOrder.delivered = [];
+      scene.refreshOrderText();
+      scene.carriedItem = { resourceType: 'meat' };
+      scene.pawn.setPosition(scene.villageZone.x, scene.villageZone.y);
+      scene.handleAction();
     });
 
     await expect.poll(async () => page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
       return scene?.completedStructures?.length ?? 0;
     }), { timeout: 15000 }).toBeGreaterThan(0);
+  });
+
+  test('shows the building when all resources have been delivered and moves the next site', async ({ page }) => {
+    await page.goto('/village-panic/?scene=loaded-map&map=map2');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return !!scene?.activeOrder;
+    }), { timeout: 15000 }).toBe(true);
+
+    const result = await page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      const before = { x: scene.villageZone.x, y: scene.villageZone.y };
+      scene.activeOrder.ingredients.forEach((ingredient) => scene.activeOrder.delivered.push(ingredient));
+      scene.completeVillageOrder();
+      return {
+        builtCount: scene.completedStructures.length,
+        before,
+        after: { x: scene.villageZone.x, y: scene.villageZone.y },
+      };
+    });
+
+    expect(result.builtCount).toBeGreaterThan(0);
+    expect(result.after.x !== result.before.x || result.after.y !== result.before.y).toBe(true);
   });
 
   test('drops a carried resource on the map and can pick it back up', async ({ page }) => {
