@@ -408,12 +408,26 @@ export class LoadedMapScene extends Phaser.Scene {
     return true;
   }
 
+  clearVillageZoneVisuals() {
+    [
+      this.villageZoneFill,
+      this.villageZoneInner,
+      this.orderTitleText,
+      this.orderNeedsText,
+      this.orderTimerText,
+      ...(this.orderSlots ?? []).flatMap((slot) => [slot.marker, slot.icon, slot.deliveredRing, slot.deliveredCheck]),
+    ].forEach((node) => node?.destroy());
+    this.orderSlots = [];
+  }
+
   completeVillageOrder() {
     const completedOrder = { ...this.activeOrder };
-    const sprite = this.add.image(this.villageZone.x, this.villageZone.y + 20, completedOrder.textureKey).setDepth(12).setAlpha(0.18);
+    const completedSite = { x: this.villageZone.x, y: this.villageZone.y };
+    this.clearVillageZoneVisuals();
+    const sprite = this.add.image(completedSite.x, completedSite.y + 20, completedOrder.textureKey).setDepth(12).setAlpha(0.18);
     setImageDisplayHeight(this, sprite, 174);
-    this.tweens.add({ targets: sprite, alpha: 1, y: this.villageZone.y + 4, duration: 650, ease: 'Back.easeOut' });
-    this.completedStructures.push({ sprite, x: this.villageZone.x, y: this.villageZone.y, buildingType: completedOrder.buildingType });
+    this.tweens.add({ targets: sprite, alpha: 1, y: completedSite.y + 4, duration: 650, ease: 'Back.easeOut' });
+    this.completedStructures.push({ sprite, x: completedSite.x, y: completedSite.y, buildingType: completedOrder.buildingType });
     this.showToast(`${completedOrder.buildingLabel} termine !`, 1700);
     this.score += 100;
     this.combo += 1;
