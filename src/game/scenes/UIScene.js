@@ -8,7 +8,11 @@ export class UIScene extends Phaser.Scene {
   }
 
   create() {
-    this.gameScene = this.scene.get('GameScene');
+    this.gameScene = this.scene.isActive('GameScene')
+      ? this.scene.get('GameScene')
+      : this.scene.isActive('LoadedMapScene')
+        ? this.scene.get('LoadedMapScene')
+        : null;
 
     createHudPanel(this, {
       x: 176,

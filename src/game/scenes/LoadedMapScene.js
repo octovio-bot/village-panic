@@ -8,6 +8,7 @@ import {
   RESOURCE_HARVEST_DURATIONS,
   RESOURCE_ICON_TEXTURES,
   RESOURCE_LABELS,
+  ROUND_DURATION_MS,
   ResourceType,
   VILLAGE_BUILD_ZONE,
 } from '../data.js';
@@ -153,6 +154,7 @@ export class LoadedMapScene extends Phaser.Scene {
     this.completedStructures = [];
     this.score = 0;
     this.combo = 0;
+    this.remainingRoundTime = ROUND_DURATION_MS;
 
     this.mapData = this.cache.json.get(this.mapCacheKey);
     this.layers = [];
@@ -200,6 +202,7 @@ export class LoadedMapScene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
     this.cameras.main.startFollow(this.pawn, true, 0.12, 0.12);
     this.setupObstacleCollisions();
+    this.scene.launch('UIScene');
     this.scene.launch('TouchHudScene');
   }
 
@@ -440,8 +443,9 @@ export class LoadedMapScene extends Phaser.Scene {
     setImageDisplayHeight(this, sprite, 174);
     this.tweens.add({ targets: sprite, alpha: 1, y: completedSite.y + 4, duration: 650, ease: 'Back.easeOut' });
     this.completedStructures.push({ sprite, x: completedSite.x, y: completedSite.y, buildingType: completedOrder.buildingType });
-    this.showToast(`${completedOrder.buildingLabel} termine !`, 1700);
-    this.score += 100;
+    const scoreGain = Math.round(120 + (this.combo * 18) + (this.activeOrder.remainingTime / 700));
+    this.showToast(`${completedOrder.buildingLabel} termine ! +${scoreGain}`, 1700);
+    this.score += scoreGain;
     this.combo += 1;
     this.createVillageZone();
     this.createOrder();
@@ -533,6 +537,10 @@ export class LoadedMapScene extends Phaser.Scene {
     if (this.activeOrder.remainingTime === 0) this.failVillageOrder();
   }
 
+  updateRoundTimer(delta) {
+    this.remainingRoundTime = Math.max(0, this.remainingRoundTime - delta);
+  }
+
   showToast(message, duration = 1200) {
     this.toast = { message, startTime: this.time.now, duration, elapsed: 0 };
   }
@@ -541,7 +549,7 @@ export class LoadedMapScene extends Phaser.Scene {
     return {
       score: this.score,
       combo: this.combo,
-      remainingRoundTime: this.activeOrder?.remainingTime ?? 0,
+      remainingRoundTime: this.remainingRoundTime,
       carriedItem: this.carriedItem?.resourceType ?? null,
       interactionPrompt: this.interactionPrompt,
       chaos: { value: 0, threshold: 100 },
@@ -553,6 +561,7 @@ export class LoadedMapScene extends Phaser.Scene {
     if (this.inputManager.consumeActionPressed()) this.handleAction();
     this.updateHarvesting(delta);
     this.updateOrder(delta);
+    this.updateRoundTimer(delta);
     this.spawnManager.update(time);
 
     const move = this.harvestAction ? new Phaser.Math.Vector2(0, 0) : this.inputManager.getMoveVector();

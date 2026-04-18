@@ -185,6 +185,26 @@ test.describe('loaded map scene', () => {
     expect(result.after.x !== result.before.x || result.after.y !== result.before.y).toBe(true);
   });
 
+  test('restores global round timer and score tracking', async ({ page }) => {
+    await page.goto('/village-panic/?scene=loaded-map&map=map2');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return scene?.remainingRoundTime ?? null;
+    }), { timeout: 15000 }).toBeGreaterThan(0);
+
+    const info = await page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return {
+        remainingRoundTime: scene?.remainingRoundTime ?? null,
+        score: scene?.score ?? null,
+      };
+    });
+
+    expect(info.remainingRoundTime).toBeGreaterThan(0);
+    expect(info.score).toBe(0);
+  });
+
   test('drops a carried resource on the map and can pick it back up', async ({ page }) => {
     await page.goto('/village-panic/?scene=loaded-map&map=map2');
 
