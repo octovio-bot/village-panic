@@ -6,6 +6,7 @@ import {
   ORDER_DEFINITIONS,
   PLAYER_SPEED,
   RESOURCE_HARVEST_DURATIONS,
+  RESOURCE_ICON_TEXTURES,
   RESOURCE_LABELS,
   ResourceType,
   VILLAGE_BUILD_ZONE,
@@ -15,6 +16,7 @@ import { ensureSemanticTileTexture } from '../tiles/semanticTilemap.js';
 import { createStaticCollisionRectFromManifest, getAssetPathForTinySwordsKey, getGameplayCollisionByAssetPath } from '../assets/manifestRegistry.js';
 import { InteractionSystem } from '../managers/InteractionSystem.js';
 import { SpawnManager } from '../managers/SpawnManager.js';
+import { setImageDisplayHeight } from '../ui/tinySwordsUi.js';
 
 const TILE_SIZE = 64;
 const FLIPPED_TILE_FLAG_MASK = 0xE0000000;
@@ -199,20 +201,39 @@ export class LoadedMapScene extends Phaser.Scene {
       width: VILLAGE_BUILD_ZONE.width * 0.5,
       height: VILLAGE_BUILD_ZONE.height * 0.45,
     };
-    this.add.rectangle(this.villageZone.x, this.villageZone.y, this.villageZone.width, this.villageZone.height, 0xd7c18e, 0.08)
-      .setStrokeStyle(4, 0xf7e6b7, 0.2)
+    this.add.rectangle(this.villageZone.x, this.villageZone.y, this.villageZone.width, this.villageZone.height, 0xc69a5b, 0.16)
+      .setStrokeStyle(5, 0xf0d39a, 0.28)
       .setDepth(-3);
+    this.add.rectangle(this.villageZone.x, this.villageZone.y, this.villageZone.width - 44, this.villageZone.height - 44, 0x8b6a3d, 0.12)
+      .setStrokeStyle(2, 0xe2c48f, 0.16)
+      .setDepth(-2.9);
     this.add.text(this.villageZone.x, this.villageZone.y - (this.villageZone.height / 2) - 26, 'Zone de construction', {
       fontFamily: 'Georgia', fontSize: '28px', color: '#f7edc9', stroke: '#23301d', strokeThickness: 6,
     }).setOrigin(0.5).setDepth(8);
 
-    this.orderTitleText = this.add.text(this.villageZone.x, this.villageZone.y - 8, '', {
+    this.orderTitleText = this.add.text(this.villageZone.x, this.villageZone.y - 34, '', {
       fontFamily: 'Georgia', fontSize: '24px', color: '#fff0bf', stroke: '#2d1a10', strokeThickness: 5,
     }).setOrigin(0.5).setDepth(20);
-    this.orderNeedsText = this.add.text(this.villageZone.x, this.villageZone.y + 26, '', {
+    this.orderSlots = [-72, -24, 24, 72].map((offsetX) => {
+      const marker = this.add.circle(this.villageZone.x + offsetX, this.villageZone.y + 12, 24, 0x2d2116, 0.52)
+        .setStrokeStyle(2, 0xf0d39a, 0.35)
+        .setDepth(20);
+      const icon = this.add.image(this.villageZone.x + offsetX, this.villageZone.y + 12, 'tinyswords.resources.wood-item')
+        .setVisible(false)
+        .setDepth(21);
+      const deliveredRing = this.add.circle(this.villageZone.x + offsetX, this.villageZone.y + 12, 28, 0x8fd28f, 0)
+        .setStrokeStyle(3, 0x8fd28f, 0.95)
+        .setVisible(false)
+        .setDepth(22);
+      const deliveredCheck = this.add.text(this.villageZone.x + offsetX, this.villageZone.y + 12, '✓', {
+        fontFamily: 'Georgia', fontSize: '24px', color: '#d8ffd8', stroke: '#29421f', strokeThickness: 5,
+      }).setOrigin(0.5).setVisible(false).setDepth(23);
+      return { marker, icon, deliveredRing, deliveredCheck };
+    });
+    this.orderNeedsText = this.add.text(this.villageZone.x, this.villageZone.y + 52, '', {
       fontFamily: 'Georgia', fontSize: '18px', color: '#f3deb1', align: 'center', stroke: '#2d1a10', strokeThickness: 4,
     }).setOrigin(0.5).setDepth(20);
-    this.orderTimerText = this.add.text(this.villageZone.x, this.villageZone.y + 60, '', {
+    this.orderTimerText = this.add.text(this.villageZone.x, this.villageZone.y + 82, '', {
       fontFamily: 'Georgia', fontSize: '18px', color: '#ffe4a8', stroke: '#2d1a10', strokeThickness: 4,
     }).setOrigin(0.5).setDepth(20);
   }
@@ -233,13 +254,32 @@ export class LoadedMapScene extends Phaser.Scene {
 
   refreshOrderText() {
     if (!this.activeOrder) return;
-    const needed = this.activeOrder.ingredients.map((ingredient, index) => {
-      const delivered = this.activeOrder.delivered[index];
-      return `${delivered ? '✓' : '•'} ${RESOURCE_LABELS[ingredient]}`;
-    }).join('  ');
+    const deliveredCounts = this.activeOrder.delivered.reduce((counts, ingredient) => {
+      counts[ingredient] = (counts[ingredient] ?? 0) + 1;
+      return counts;
+    }, {});
     this.orderTitleText.setText(`Construire: ${this.activeOrder.buildingLabel}`);
-    this.orderNeedsText.setText(needed);
+    this.orderNeedsText.setText('Apporte les ressources dans cette zone');
     this.orderTimerText.setText(`Temps restant: ${formatTime(this.activeOrder.remainingTime)}`);
+
+    this.orderSlots.forEach((slot, index) => {
+      const ingredient = this.activeOrder.ingredients[index];
+      if (!ingredient) {
+        slot.marker.setVisible(false);
+        slot.icon.setVisible(false);
+        slot.deliveredRing.setVisible(false);
+        slot.deliveredCheck.setVisible(false);
+        return;
+      }
+      slot.marker.setVisible(true);
+      slot.icon.setVisible(true).setTexture(RESOURCE_ICON_TEXTURES[ingredient]);
+      setImageDisplayHeight(this, slot.icon, ingredient === 'tools' ? 28 : 34);
+      const delivered = (deliveredCounts[ingredient] ?? 0) > 0;
+      if (delivered) deliveredCounts[ingredient] -= 1;
+      slot.icon.setAlpha(delivered ? 0.4 : 1);
+      slot.deliveredRing.setVisible(delivered);
+      slot.deliveredCheck.setVisible(delivered);
+    });
   }
 
   createPawn() {
@@ -331,7 +371,7 @@ export class LoadedMapScene extends Phaser.Scene {
 
   completeVillageOrder() {
     const sprite = this.add.image(this.villageZone.x, this.villageZone.y + 20, this.activeOrder.textureKey).setDepth(2).setAlpha(0.18);
-    sprite.setDisplaySize(174, 174);
+    setImageDisplayHeight(this, sprite, 174);
     this.tweens.add({ targets: sprite, alpha: 1, y: this.villageZone.y + 4, duration: 650, ease: 'Back.easeOut' });
     this.completedStructures.push({ sprite, x: this.villageZone.x, y: this.villageZone.y });
     this.showToast(`${this.activeOrder.buildingLabel} termine !`, 1700);

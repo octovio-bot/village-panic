@@ -100,6 +100,15 @@ test.describe('loaded map scene', () => {
     expect(await harvest('meat')).toBe('meat');
   });
 
+  test('shows resource miniatures in the build zone UI', async ({ page }) => {
+    await page.goto('/village-panic/?scene=loaded-map&map=map2');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return (scene?.orderSlots ?? []).filter((slot) => slot.icon.visible).length;
+    }), { timeout: 15000 }).toBeGreaterThan(0);
+  });
+
   test('delivers resources in the village zone with action button', async ({ page }) => {
     await page.goto('/village-panic/?scene=loaded-map&map=map2');
 
@@ -126,6 +135,26 @@ test.describe('loaded map scene', () => {
       delivered: 1,
       carriedItem: null,
     });
+  });
+
+  test('shows the building when all resources have been delivered', async ({ page }) => {
+    await page.goto('/village-panic/?scene=loaded-map&map=map2');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return !!scene?.activeOrder;
+    }), { timeout: 15000 }).toBe(true);
+
+    await page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      scene.activeOrder.ingredients.forEach((ingredient) => scene.activeOrder.delivered.push(ingredient));
+      scene.completeVillageOrder();
+    });
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return scene?.completedStructures?.length ?? 0;
+    }), { timeout: 15000 }).toBeGreaterThan(0);
   });
 
   test('drops a carried resource on the map and can pick it back up', async ({ page }) => {
