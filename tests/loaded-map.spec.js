@@ -105,30 +105,41 @@ test.describe('loaded map scene', () => {
 
     await expect.poll(async () => page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
-      return (scene?.orderSlots ?? []).filter((slot) => slot.icon.visible).length;
-    }), { timeout: 15000 }).toBeGreaterThan(0);
+      return (scene?.buildSites ?? []).reduce((count, site) => count + site.visuals.orderSlots.filter((slot) => slot.icon.visible).length, 0);
+    }), { timeout: 15000 }).toBeGreaterThan(2);
   });
 
-  test('delivers resources in the village zone with action button', async ({ page }) => {
+  test('keeps 3 active construction zones', async ({ page }) => {
     await page.goto('/village-panic/?scene=loaded-map&map=map2');
 
     await expect.poll(async () => page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
-      return !!scene?.activeOrder;
+      return scene?.buildSites?.length ?? 0;
+    }), { timeout: 15000 }).toBe(3);
+  });
+
+  test('delivers resources in the nearest village zone with action button', async ({ page }) => {
+    await page.goto('/village-panic/?scene=loaded-map&map=map2');
+
+    await expect.poll(async () => page.evaluate(() => {
+      const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      return (scene?.buildSites?.length ?? 0) > 0;
     }), { timeout: 15000 }).toBe(true);
 
     await page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
-      const ingredient = scene.activeOrder.ingredients[0];
+      const site = scene.buildSites[0];
+      const ingredient = site.order.ingredients[0];
       scene.carriedItem = { resourceType: ingredient };
-      scene.pawn.setPosition(scene.villageZone.x, scene.villageZone.y);
+      scene.pawn.setPosition(site.x, site.y);
       scene.handleAction();
     });
 
     await expect.poll(async () => page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
+      const site = scene?.buildSites?.[0];
       return {
-        delivered: scene?.activeOrder?.delivered?.length ?? 0,
+        delivered: site?.order?.delivered?.length ?? 0,
         carriedItem: scene?.carriedItem?.resourceType ?? null,
       };
     }), { timeout: 15000 }).toMatchObject({
@@ -142,16 +153,18 @@ test.describe('loaded map scene', () => {
 
     await expect.poll(async () => page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
-      return !!scene?.activeOrder;
+      return (scene?.buildSites?.length ?? 0) > 0;
     }), { timeout: 15000 }).toBe(true);
 
     await page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
-      scene.activeOrder.ingredients = ['meat'];
-      scene.activeOrder.delivered = [];
-      scene.refreshOrderText();
+      const site = scene.buildSites[0];
+      site.order.ingredients = ['meat'];
+      site.order.delivered = [];
+      site.order.totalTime = Math.max(site.order.totalTime, site.order.remainingTime);
+      scene.refreshBuildSite(site);
       scene.carriedItem = { resourceType: 'meat' };
-      scene.pawn.setPosition(scene.villageZone.x, scene.villageZone.y);
+      scene.pawn.setPosition(site.x, site.y);
       scene.handleAction();
     });
 
@@ -161,28 +174,31 @@ test.describe('loaded map scene', () => {
     }), { timeout: 15000 }).toBeGreaterThan(0);
   });
 
-  test('shows the building when all resources have been delivered and moves the next site', async ({ page }) => {
+  test('shows the building when all resources have been delivered and respawns a fresh site', async ({ page }) => {
     await page.goto('/village-panic/?scene=loaded-map&map=map2');
 
     await expect.poll(async () => page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
-      return !!scene?.activeOrder;
-    }), { timeout: 15000 }).toBe(true);
+      return scene?.buildSites?.length ?? 0;
+    }), { timeout: 15000 }).toBe(3);
 
     const result = await page.evaluate(() => {
       const scene = window.__VILLAGE_PANIC__?.scene?.getScene('LoadedMapScene');
-      const before = { x: scene.villageZone.x, y: scene.villageZone.y };
-      scene.activeOrder.ingredients.forEach((ingredient) => scene.activeOrder.delivered.push(ingredient));
-      scene.completeVillageOrder();
+      const before = scene.buildSites.map((site) => ({ id: site.id, x: site.x, y: site.y }));
+      const site = scene.buildSites[0];
+      site.order.ingredients.forEach((ingredient) => site.order.delivered.push(ingredient));
+      scene.completeBuildSite(site);
       return {
         builtCount: scene.completedStructures.length,
+        siteCount: scene.buildSites.length,
         before,
-        after: { x: scene.villageZone.x, y: scene.villageZone.y },
+        after: scene.buildSites.map((candidate) => ({ id: candidate.id, x: candidate.x, y: candidate.y })),
       };
     });
 
     expect(result.builtCount).toBeGreaterThan(0);
-    expect(result.after.x !== result.before.x || result.after.y !== result.before.y).toBe(true);
+    expect(result.siteCount).toBe(3);
+    expect(result.after.some((site) => !result.before.some((beforeSite) => beforeSite.id === site.id))).toBe(true);
   });
 
   test('restores global round timer and score tracking', async ({ page }) => {
