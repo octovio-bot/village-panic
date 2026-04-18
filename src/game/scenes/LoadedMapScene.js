@@ -63,6 +63,16 @@ function objectDefForGid(gid) {
   return defs[gid] ?? null;
 }
 
+function isWalkableTile(mapData, x, y) {
+  const tileLayers = mapData.layers.filter((layer) => layer.type === 'tilelayer');
+  let topmostGid = 0;
+  tileLayers.forEach((layer) => {
+    const gid = readLayerGid(layer, x, y) ?? 0;
+    if (gid > 0) topmostGid = gid;
+  });
+  return topmostGid !== 1;
+}
+
 function formatTime(ms) {
   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
   const minutes = Math.floor(totalSeconds / 60);
@@ -193,13 +203,32 @@ export class LoadedMapScene extends Phaser.Scene {
     this.scene.launch('TouchHudScene');
   }
 
+  findVillageBuildPosition() {
+    const centerTileX = Math.round(VILLAGE_BUILD_ZONE.x / TILE_SIZE);
+    const centerTileY = Math.round(VILLAGE_BUILD_ZONE.y / TILE_SIZE);
+    for (let radius = 0; radius < 8; radius += 1) {
+      for (let dy = -radius; dy <= radius; dy += 1) {
+        for (let dx = -radius; dx <= radius; dx += 1) {
+          const tileX = centerTileX + dx;
+          const tileY = centerTileY + dy;
+          if (tileX < 0 || tileY < 0 || tileX >= this.mapData.width || tileY >= this.mapData.height) continue;
+          if (isWalkableTile(this.mapData, tileX, tileY)) {
+            return { x: (tileX * TILE_SIZE) + (TILE_SIZE / 2), y: (tileY * TILE_SIZE) + (TILE_SIZE / 2) };
+          }
+        }
+      }
+    }
+    return { x: VILLAGE_BUILD_ZONE.x, y: VILLAGE_BUILD_ZONE.y };
+  }
+
   createVillageZone() {
+    const buildPos = this.findVillageBuildPosition();
     this.villageZone = {
       id: 'village-site-1',
-      x: VILLAGE_BUILD_ZONE.x,
-      y: VILLAGE_BUILD_ZONE.y,
-      width: VILLAGE_BUILD_ZONE.width * 0.5,
-      height: VILLAGE_BUILD_ZONE.height * 0.45,
+      x: buildPos.x,
+      y: buildPos.y,
+      width: 224,
+      height: 176,
     };
     this.villageZoneFill = this.add.rectangle(this.villageZone.x, this.villageZone.y, this.villageZone.width, this.villageZone.height, 0xc69a5b, 0.46)
       .setStrokeStyle(5, 0xf0d39a, 0.7)
@@ -343,7 +372,7 @@ export class LoadedMapScene extends Phaser.Scene {
   }
 
   isInsideVillageZone() {
-    const margin = 48;
+    const margin = 18;
     const left = this.villageZone.x - (this.villageZone.width / 2) - margin;
     const right = this.villageZone.x + (this.villageZone.width / 2) + margin;
     const top = this.villageZone.y - (this.villageZone.height / 2) - margin;
@@ -389,7 +418,9 @@ export class LoadedMapScene extends Phaser.Scene {
 
   handleAction() {
     if (this.harvestAction) return;
-    if (this.carriedItem && this.isInsideVillageZone() && this.deliverToVillage()) return;
+    if (this.carriedItem && this.isInsideVillageZone()) {
+      if (this.deliverToVillage()) return;
+    }
     if (this.carriedItem) { this.dropCarriedItem(); return; }
     const droppedItem = this.findNearbyDroppedItem();
     if (droppedItem) {
