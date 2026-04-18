@@ -201,11 +201,11 @@ export class LoadedMapScene extends Phaser.Scene {
       width: VILLAGE_BUILD_ZONE.width * 0.5,
       height: VILLAGE_BUILD_ZONE.height * 0.45,
     };
-    this.add.rectangle(this.villageZone.x, this.villageZone.y, this.villageZone.width, this.villageZone.height, 0xc69a5b, 0.16)
-      .setStrokeStyle(5, 0xf0d39a, 0.28)
+    this.add.rectangle(this.villageZone.x, this.villageZone.y, this.villageZone.width, this.villageZone.height, 0xc69a5b, 0.34)
+      .setStrokeStyle(5, 0xf0d39a, 0.55)
       .setDepth(-3);
-    this.add.rectangle(this.villageZone.x, this.villageZone.y, this.villageZone.width - 44, this.villageZone.height - 44, 0x8b6a3d, 0.12)
-      .setStrokeStyle(2, 0xe2c48f, 0.16)
+    this.add.rectangle(this.villageZone.x, this.villageZone.y, this.villageZone.width - 44, this.villageZone.height - 44, 0x8b6a3d, 0.24)
+      .setStrokeStyle(2, 0xe2c48f, 0.3)
       .setDepth(-2.9);
     this.add.text(this.villageZone.x, this.villageZone.y - (this.villageZone.height / 2) - 26, 'Zone de construction', {
       fontFamily: 'Georgia', fontSize: '28px', color: '#f7edc9', stroke: '#23301d', strokeThickness: 6,
@@ -343,10 +343,11 @@ export class LoadedMapScene extends Phaser.Scene {
   }
 
   isInsideVillageZone() {
-    const left = this.villageZone.x - (this.villageZone.width / 2);
-    const right = this.villageZone.x + (this.villageZone.width / 2);
-    const top = this.villageZone.y - (this.villageZone.height / 2);
-    const bottom = this.villageZone.y + (this.villageZone.height / 2);
+    const margin = 48;
+    const left = this.villageZone.x - (this.villageZone.width / 2) - margin;
+    const right = this.villageZone.x + (this.villageZone.width / 2) + margin;
+    const top = this.villageZone.y - (this.villageZone.height / 2) - margin;
+    const bottom = this.villageZone.y + (this.villageZone.height / 2) + margin;
     return this.pawn.x >= left && this.pawn.x <= right && this.pawn.y >= top && this.pawn.y <= bottom;
   }
 
